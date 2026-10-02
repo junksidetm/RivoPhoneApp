@@ -288,7 +288,7 @@
     <string name="settings_interface_show_picture_supporting">Kontakt-Bild zeigen, wenn vorhanden</string>
     <string name="settings_interface_avatar_shape">Avatar-Form</string>
     <string name="settings_interface_avatar_shape_supporting">Form der Kontakt-Avatare</string>
-    <string name="settings_interface_avatar_shape_squircle">Quadrat-Kreis</string>
+    <string name="settings_interface_avatar_shape_squircle">Quadrat abgerundet</string>
     <string name="settings_interface_avatar_shape_circle">Kreis</string>
     <string name="settings_interface_avatar_shape_square">Quadrat</string>
     <string name="settings_interface_avatar_shape_cookie">Cookie</string>
@@ -303,7 +303,7 @@
     <string name="settings_interface_call_screen_avatar_supporting">Kontaktbild auf Anrufbildschirm</string>
     <string name="settings_interface_show_dividers">Trenner</string>
     <string name="settings_interface_show_dividers_supporting">Linien zwischen Listeneinträgen</string>
-    <string name="settings_interface_expressive_cards">Expressive Cards benutzen</string>
+    <string name="settings_interface_expressive_cards">Expressive Cards</string>
     <string name="settings_interface_expressive_cards_supporting">Listeneinträge in stilisierten Karten anzeigen</string>
     <string name="settings_interface_transition_animation">Animationen</string>
     <string name="settings_interface_transition_animation_supporting">Animationsstil zwischen Bildschirmen</string>
@@ -333,15 +333,15 @@
     <string name="settings_sound_dtmf_tone_supporting">Ton bei Wahltastendruck</string>
     <string name="settings_sound_dialpad_vibration">Tastenfeld: Vibration</string>
     <string name="settings_sound_dialpad_vibration_supporting">Vibration bei Tastendruck</string>
-    <string name="settings_sound_hold_zero_for_plus">0 gedrückt halten für +</string>
-    <string name="settings_sound_hold_zero_for_plus_supporting">0 auf Tastenfeld gedrückt halten für +</string>
+    <string name="settings_sound_hold_zero_for_plus">\"0\" gedrückt halten für \"+\"</string>
+    <string name="settings_sound_hold_zero_for_plus_supporting">\"0\" auf Tastenfeld gedrückt halten für \"+\"</string>
     <string name="settings_sound_vibrate_on_answer">Vibration bei Abnahme</string>
     <string name="settings_sound_vibrate_on_answer_supporting">Bei Abnahme des Angerufenen vibrieren</string>
     <string name="settings_sound_vibrate_on_hangup">Vibration bei Anrufende</string>
     <string name="settings_sound_vibrate_on_hangup_supporting">Vibration bei Anrufende</string>
     <string name="settings_sound_haptic_scroll">Vibration beim Scrollen</string>
     <string name="settings_sound_haptic_scroll_supporting">Leichte Vibration beim Scrollen</string>
-    <string name="settings_sound_missed_call_notifications">Benachrichtigung bei verpasstem Anruf</string>
+    <string name="settings_sound_missed_call_notifications">Benachrichtigung: verpasster Anruf</string>
     <string name="settings_sound_missed_call_notifications_supporting">Benachrichtigung bei verpasstem Anruf</string>
     <string name="settings_sound_ringtone_settings">Klingelton-Einstellungen</string>
     <string name="settings_sound_ringtone_settings_supporting">Sound-Systemeinstellungen öffnen</string>
@@ -368,7 +368,7 @@
     <string name="settings_call_auto_speaker_proximity">Auto-Lautsprecher</string>
     <string name="settings_call_auto_speaker_proximity_supporting">Bei Nicht-Ohrnähe Lautsprecher, sonst Handgerät (unterdrückt bei verbundenen Ohrhörern)</string>
     <string name="settings_call_incoming_ui">Anrufbildschirm</string>
-    <string name="settings_call_incoming_ui_supporting">Auswahl der Annahmeart bei Anrufen</string>
+    <string name="settings_call_incoming_ui_supporting">Annahmeart bei Anrufen</string>
     <string name="settings_call_incoming_ui_horizontal_swipe">Horizontales Wischen</string>
     <string name="settings_call_incoming_ui_buttons">Schaltflächen</string>
     <string name="settings_call_incoming_ui_slide_ios">Streichen zur Annahme (iOS)</string>
@@ -394,7 +394,7 @@
     <string name="settings_call_dialpad_layout_left">Links</string>
     <string name="settings_call_dialpad_layout_right">Rechts</string>
     <string name="settings_call_auto_redial">Autom. Wahlwiederholung</string>
-    <string name="settings_call_auto_redial_supporting">Bei \"Besetzt\" Auto-Wahlwiederholung</string>
+    <string name="settings_call_auto_redial_supporting">Bei \"Besetzt\" Wahlwiederholung</string>
     <string name="settings_call_redial_attempts">Versuche der Wahlwiederholung</string>
     <string name="settings_call_redial_attempts_supporting">Maximale Zahl der Wahlwiederholungen</string>
     <string name="settings_call_redial_attempts_1">1 Versuch</string>
@@ -422,7 +422,7 @@
     <string name="settings_blocked_log_hide">In Anrufliste verbergen</string>
     <string name="settings_blocked_log_show">In Anrufliste anzeigen</string>
     <string name="settings_blocked_notifications">Benachrichtigungen blockieren</string>
-    <string name="settings_blocked_notifications_supporting">Niedrig-priorisierter Hinweis bei blockierten Anrufen</string>
+    <string name="settings_blocked_notifications_supporting">Hinweis bei blockierten Anrufen zeigen</string>
     <string name="settings_blocked_system_button">Systemweit blockierte Nummern</string>
     <!-- Settings > Backup & Restore -->
     <string name="settings_backup_title">Sichern &amp; Wiederherstellen</string>
@@ -587,7 +587,7 @@
     <string name="contact_call_background">Benutzerdefinierter Anrufbildschirm</string>
     <string name="settings_interface_hide_avatar_with_bg">Bei Hintergrund kein Kontaktbild</string>
     <string name="settings_interface_hide_avatar_with_bg_supporting">Bei Hintergrund kein Anrufer-Avatar</string>
-    <string name="settings_interface_use_cards">Expressive Cards benutzen</string>
+    <string name="settings_interface_use_cards">Expressive Cards</string>
     <string name="settings_interface_use_cards_supporting">Unter \"Zuletzt\" und \"Kontakte\"</string>
     <string name="contact_call_background_set">Benutzerdefiniertes Bild ausgewählt</string>
     <string name="contact_call_background_none">Standard-Hintergrund</string>
@@ -758,7 +758,7 @@
     <string name="settings_swipe_actions_title">Wischgesten</string>
     <string name="settings_swipe_actions_supporting">Wischgesten bei Kontakten und Anrufliste</string>
     <string name="settings_swipe_actions_enable">Wischgesten aktivieren</string>
-    <string name="settings_swipe_actions_enable_supporting">Kontakt- und Anrufeinträge nach links oder rechts wischen, um Aktionen mit Feedback auszulösen</string>
+    <string name="settings_swipe_actions_enable_supporting">Für Kontakt- und Anrufeinträge</string>
     <string name="settings_swipe_right_action">Wischgeste nach rechts</string>
     <string name="settings_swipe_left_action">Wischgeste nach links</string>
     <string name="settings_swipe_right_action_supporting">Aktion bei Wischen von links nach rechts</string>
@@ -784,12 +784,12 @@
     <string name="oem_vivo_popup_permission_desc">Rivo erlauben, eingehende Anrufe und schwebende Hinweise auf Vivo-Geräten anzuzeigen.</string>
     <string name="notif_channel_calls_desc">Benachrichtigungen zu eingehenden, andauernden und verpassten Anrufen</string>
     <!-- Missed Call Card & Auto Decline -->
-    <string name="settings_missed_call_card_title">Verpasste Anrufe-Popup</string>
-    <string name="settings_missed_call_card_supporting">Popup für Rückruf, SMS und Messenger-Apps</string>
+    <string name="settings_missed_call_card_title">Popup: verpasste Anrufe</string>
+    <string name="settings_missed_call_card_supporting">Popup für Rückruf, SMS und Nachricht</string>
     <string name="missed_call_just_now">Gerade verpasster Anruf, klingelte %1$ds</string>
     <string name="missed_call_view_logs">Anrufliste anzeigen</string>
     <string name="missed_call_respond_with_message">Mit Nachricht antworten</string>
-    <string name="settings_auto_decline_unknown_title">Auto-Ablehnen: unterdrückte Nummer</string>
+    <string name="settings_auto_decline_unknown_title">Auto-Ablehnen: unterdrückte Nr.</string>
     <string name="settings_auto_decline_unknown_supporting">Private, unterdrückte oder beschränkte Nummern automatisch ablehnen</string>
     <string name="settings_auto_decline_non_contacts_title">Auto-Ablehnen: Nicht-Kontakte</string>
     <string name="settings_auto_decline_non_contacts_supporting">Nicht als Kontakt gespeicherte Nummern automatisch ablehnen</string>
@@ -832,12 +832,12 @@
     <!-- Call Waiting Carrier Settings (#62) -->
     <string name="settings_call_waiting_system_settings">Anruf-Einstellungen Netzbetreiber</string>
     <!-- Call Analytics & Tracking -->
-    <string name="settings_call_analytics_title">Anruf-Statistik &amp; -Auswertung</string>
+    <string name="settings_call_analytics_title">Anruf-Statistik &amp; Auswertung</string>
     <string name="settings_call_analytics_supporting">Werten Sie Anrufdaten, Gesprächszeit-Statistiken, Spitzenstunden und häufige Kontaktansichten aus</string>
     <string name="settings_call_analytics_disabled_supporting">Aktuell deaktiviert</string>
     <string name="settings_call_analytics_view_title">Statistik &amp; Auswertung anzeigen</string>
     <string name="settings_call_analytics_view_supporting">Gesprächszeit-Rangliste, Spitzenstunden &amp; Verteilung</string>
-    <string name="call_analytics_disabled_title">Anruf-Statistiken &amp; -Auswertungen deaktiviert</string>
+    <string name="call_analytics_disabled_title">Anruf-Statistiken &amp; Auswertung deaktiviert</string>
     <string name="call_analytics_disabled_desc">Anrufstatistik und Gesprächszeit-Auswertung sind derzeit deaktiviert. Aktivieren Sie diese Option, um Gesprächszeiten, Spitzenstunden und Kontaktdaten auszuwerten.</string>
     <string name="call_analytics_enable_action">Statistik &amp; Auswertungen aktivieren</string>
     <!-- Dual SIM per Contact -->
@@ -853,8 +853,8 @@
     <string name="settings_recording_folder_changed">Speicherort aktualisiert: %1$s</string>
     <string name="settings_recording_reset_folder_toast">Speicherort auf Standard zurücksetzen</string>
     <!-- Do Not Disturb during calls -->
-    <string name="settings_sound_dnd_during_calls">\"Nicht stören\" bei Anrufen</string>
-    <string name="settings_sound_dnd_during_calls_supporting">Benachrichtigungen und andere Unterbrechungen während Anruf automatisch stummschalten</string>
+    <string name="settings_sound_dnd_during_calls">Auto-\"Nicht stören\" bei Anrufen</string>
+    <string name="settings_sound_dnd_during_calls_supporting">Benachrichtigungen etc. stummschalten</string>
     <!-- Unknown Call Background & Image Preview Strings -->
     <string name="settings_call_backgrounds_title">Anrufhintergründe</string>
     <string name="settings_call_unknown_background">Hintergrund für unbekannte Anrufer</string>
@@ -920,7 +920,7 @@
     <string name="settings_display_banner_ads">Banner-Werbung anzeigen</string>
     <string name="settings_display_banner_ads_supporting">Nicht aufdringliche Banner-Werbung in Listen anzeigen, um die Entwicklung zu unterstützen</string>
     <string name="settings_rate_google_play">Bei Google Play bewerten</string>
-    <string name="settings_rate_google_play_supporting">Unterstütze Rivo im Google Play Store</string>
+    <string name="settings_rate_google_play_supporting">Unterstützen Sie Rivo im Google Play Store</string>
     <string name="settings_about_rivo">Über Rivo</string>
     <string name="settings_about_rivo_supporting">Version, Open-Source-Lizenzen &amp; Mitwirkende</string>
     <string name="settings_group_alerts_ringtones">Hinweise &amp; Klingeltöne</string>
@@ -952,4 +952,10 @@
     <string name="settings_contacts_trash_view">Papierkorb anzeigen</string>
     <string name="settings_contacts_trash_view_supporting">Gelöschte Kontakte anzeigen und wiederherstellen (%1$d im Papierkorb)</string>
     <string name="shortcut_dial_contact">Anruf %1$s</string>
+    <string name="settings_search_placeholder">Sucheinstellungen…</string>
+    <string name="settings_search_no_results">Keine Einstellungen gefunden, die mit \"%1$s \" übereinstimmen</string>
+    <!-- Carrier in Recents -->
+    <!-- Standardized Phone Number Formatting & Country Code -->
+    <string name="settings_show_country_code">Landesvorwahl anzeigen</string>
+    <string name="settings_show_country_code_supporting">Landesvorwahl in Telefonnummern in App und Anrufbildschirm anzeigen</string>
 </resources>

@@ -210,4 +210,9 @@
     <string name="settings_contacts_trash_view">Prullenbak weergeven</string>
     <string name="settings_contacts_trash_view_supporting">Bekijk en herstel verwijderde contacten (%1$d in Prullenbak)</string>
     <string name="shortcut_dial_contact">Oproep %1$s</string>
+    <string name="settings_search_no_results">Geen instellingen gevonden die overeenkomen met \"%1$s\"</string>
+    <!-- Carrier in Recents -->
+    <!-- Standardized Phone Number Formatting & Country Code -->
+    <string name="settings_show_country_code">Toon landcode</string>
+    <string name="settings_show_country_code_supporting">Voorvoegsel landcode weergeven in telefoonnummers over de app en het gespreksscherm</string>
 </resources>
