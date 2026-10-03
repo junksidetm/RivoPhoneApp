@@ -35,3 +35,16 @@
   - Coil: `2.7.0`
   - Shizuku API: `13.1.5`
 - **Status:** 100% (All requirements implemented and verified).
+
+## [2026-10-03 17:55] - CI/CD Fixes: ExperimentalTextApi Opt-In & CodeQL Manual Build Mode
+- **Action:** Diagnosed and resolved GitHub Actions build failure and CodeQL analysis failure.
+- **Root Cause Analysis:**
+  - Build failure: `createGoogleSansFlexFamily` in `Type.kt` used Compose `FontVariation.Settings` which requires `@ExperimentalTextApi`. Kotlin compiler threw compilation error `This API is experimental and is likely to change in the future`.
+  - Secondary release error: When the build failed, `sha256sum *.apk > SHA256SUMS.txt` created an empty 0-byte file which GitHub Release API rejected (`size must be greater than or equal to 1`).
+  - CodeQL failure: CodeQL for `java-kotlin` requires source code compilation between `init` and `analyze`, but had no build step.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Type.kt`: Added `@OptIn(ExperimentalTextApi::class)` to `createGoogleSansFlexFamily`.
+  - `app/build.gradle`: Added `"-opt-in=androidx.compose.ui.text.ExperimentalTextApi"` to Kotlin `freeCompilerArgs`.
+  - `.github/workflows/build_apks.yml`: Added `set -o pipefail` to ensure Gradle build failures halt pipeline, hardened `SHA256SUMS.txt` generation to only run when APKs exist, and added `hashFiles('outputs/*.apk') != ''` to release publish step.
+  - `.github/workflows/codeql.yml`: Configured `build-mode: manual` and added `./gradlew compileReleaseKotlin --no-daemon` step.
+- **Status:** 100% (CI/CD pipeline and experimental opt-ins resolved).

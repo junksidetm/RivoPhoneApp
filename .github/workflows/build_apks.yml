@@ -76,6 +76,7 @@ jobs:
           PREVIEW_BUILD: ${{ github.ref == 'refs/heads/main' }}
           GRADLE_OPTS: "-Xmx4096m -XX:+UseParallelGC"
         run: |
+          set -o pipefail
           ./gradlew assembleRelease --no-daemon --stacktrace | tee build_release.log
 
       - name: Collect Output Artifacts
@@ -107,12 +108,14 @@ jobs:
       - name: Generate SHA256 Checksums
         run: |
           cd outputs
-          sha256sum *.apk > SHA256SUMS.txt || true
-          for f in *.apk; do
-            if [ -f "$f" ]; then
-              sha256sum "$f" > "$f.sha256"
-            fi
-          done
+          if ls *.apk 1> /dev/null 2>&1; then
+            sha256sum *.apk > SHA256SUMS.txt
+            for f in *.apk; do
+              if [ -f "$f" ]; then
+                sha256sum "$f" > "$f.sha256"
+              fi
+            done
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -164,7 +167,7 @@ jobs:
         if: success()
         run: |
           SHA256_HASH=$(cat outputs/SIGNING_CERTIFICATE_SHA256.txt 2>/dev/null | tail -n 1 || echo "Verified via CI")
-          APK_NAME=$(ls outputs/RivoPhone-*.apk 2>/dev/null | head -n 1 | xargs -n 1 basename || echo "RivoPhone-release.apk")
+          APK_NAME=$(ls outputs/RivoPhone-*.apk 2>/dev/null | head -n 1 | xargs -r -n 1 basename || echo "RivoPhone-release.apk")
 
           cat << 'EOF' >> $GITHUB_STEP_SUMMARY
           # 🚀 Rivo Phone — Production Build Summary
@@ -217,7 +220,7 @@ jobs:
           EOF
 
       - name: Publish Release
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && hashFiles('outputs/*.apk') != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest

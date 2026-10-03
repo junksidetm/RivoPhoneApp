@@ -1,6 +1,7 @@
 package com.grinch.rivo4.view.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -13,6 +14,7 @@ import com.grinch.rivo4.R
  * Creates a dynamic [FontFamily] utilizing the local Google Sans Flex variable font
  * with configurable axes matching the Material 3 Expressive and Wallet-Flutter specifications.
  */
+@OptIn(ExperimentalTextApi::class)
 fun createGoogleSansFlexFamily(
     weight: Int = 400,
     width: Float = 100f,
