@@ -101,3 +101,23 @@
   - Material 3: `1.5.0-alpha18`
   - AGSL RuntimeShader & RenderEffect (API 33+)
 - **Status:** 100% (Completed, validated bracket & syntax integrity, ready for remote verification).
+
+## [2026-10-03 21:07] - Automated Per-Commit Dynamic Versioning, Unique Git Tagging & APK Release Pipeline
+- **Action:** Implemented automated per-commit release infrastructure guaranteeing that every commit pushed to `main` builds, increments its version, generates a dedicated Git tag, and publishes a new GitHub Release with download artifacts:
+  1. **Dynamic Commit-Level Versioning (`app/build.gradle`):** Integrated dynamic Git commit counting (`git rev-list --count HEAD`) and CI environment variables (`APP_VERSION_NAME`, `APP_VERSION_CODE`). `versionName` dynamically evaluates to `2.2.<commit_count>` (e.g. `2.2.392`) and `versionCode` strictly ascends monotonically (`2026091504 + commit_count`) for every commit pushed.
+  2. **Automated CI/CD Workflow (`.github/workflows/build_apks.yml`):**
+     - Removed `paths-ignore` for `push` events on `main` to guarantee every single commit triggers an APK release.
+     - Added `Compute Dynamic Version & Release Tag` step that queries Git commit depth, computes `v2.2.<commit_count>` release tags, checks for tag collisions against local and remote `origin` refs (falling back to run number suffix if already present), and exports environment configurations.
+     - Passed `APP_VERSION_NAME` and `APP_VERSION_CODE` directly to Gradle `assembleRelease`.
+     - Standardized artifact generation in `outputs/` to produce both the version-tagged APK (`RivoPhone-${RELEASE_TAG}.apk`) and the universal direct download alias (`RivoPhone-release-latest.apk`), complete with individual and combined SHA256 checksums.
+     - Updated GitHub Release publishing step (`softprops/action-gh-release@v2`) to dynamically publish to `tag_name: ${{ env.RELEASE_TAG }}` at `target_commitish: ${{ github.sha }}` with `make_latest: true`.
+     - Enhanced GitHub Actions Job Summary with direct links to the new versioned APK, the latest APK alias, the release tag, and SHA256 fingerprints.
+- **Files Modified:**
+  - `app/build.gradle`
+  - `.github/workflows/build_apks.yml`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Android Gradle Plugin: `8.13.2`
+  - Gradle / Groovy DSL
+  - GitHub Actions (`actions/checkout@v4`, `actions/setup-java@v4`, `softprops/action-gh-release@v2`)
+- **Status:** 100% (Dynamic per-commit releases and tagging configured, verified, and ready).

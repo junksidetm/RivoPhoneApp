@@ -2,12 +2,6 @@ name: Build & Release
 
 on:
   push:
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
-      - 'LICENSE'
-      - 'images/**'
-      - '.idea/**'
     branches:
       - main
       - develop
@@ -47,6 +41,39 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Compute Dynamic Version & Release Tag
+        id: versioning
+        run: |
+          git fetch --tags --force || true
+          COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+          if [ "$COMMIT_COUNT" -eq 0 ]; then
+            COMMIT_COUNT=${{ github.run_number }}
+          fi
+          
+          BASE_VERSION="2.2"
+          VERSION_NAME="${BASE_VERSION}.${COMMIT_COUNT}"
+          TAG_CANDIDATE="v${VERSION_NAME}"
+          
+          # Prevent collision if tag already exists in local or remote repository
+          if git rev-parse -q --verify "refs/tags/${TAG_CANDIDATE}" >/dev/null 2>&1 || git ls-remote --tags origin "${TAG_CANDIDATE}" | grep -q "${TAG_CANDIDATE}"; then
+            RELEASE_TAG="v${VERSION_NAME}.${{ github.run_number }}"
+            VERSION_NAME="${VERSION_NAME}.${{ github.run_number }}"
+          else
+            RELEASE_TAG="${TAG_CANDIDATE}"
+          fi
+          
+          BASE_CODE=2026091504
+          VERSION_CODE=$((BASE_CODE + COMMIT_COUNT))
+          
+          echo "APP_VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
+          echo "APP_VERSION_CODE=${VERSION_CODE}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=Rivo Phone ${RELEASE_TAG}" >> $GITHUB_ENV
+          
+          echo "Computed Version Name: ${VERSION_NAME}"
+          echo "Computed Version Code: ${VERSION_CODE}"
+          echo "Computed Release Tag: ${RELEASE_TAG}"
+
       - name: Setup Keystore
         run: |
           mkdir -p app
@@ -73,7 +100,8 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'android' }}
           KEYSTORE_PATH: ../app/release.keystore
           BUILD_NUMBER: ${{ github.run_number }}
-          PREVIEW_BUILD: ${{ github.ref == 'refs/heads/main' }}
+          APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
+          APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
           GRADLE_OPTS: "-Xmx4096m -XX:+UseParallelGC"
         run: |
           set -o pipefail
@@ -83,12 +111,17 @@ jobs:
         run: |
           mkdir -p outputs
           find app/build/outputs/apk/release/ -type f -name "*.apk" -exec cp {} outputs/ \; || true
-          find . -type f -name "RivoPhone-*.apk" -exec cp {} outputs/ \; || true
+          find . -maxdepth 2 -type f -name "RivoPhone-*.apk" -exec cp {} outputs/ \; || true
+          
+          # Ensure RivoPhone-${RELEASE_TAG}.apk exists in outputs/
+          if [ -f "outputs/RivoPhone-${APP_VERSION_NAME}.apk" ]; then
+            cp -f "outputs/RivoPhone-${APP_VERSION_NAME}.apk" "outputs/RivoPhone-${RELEASE_TAG}.apk"
+          fi
           
           # Standardize primary release APK naming for direct download
           for f in outputs/RivoPhone-*.apk; do
-            if [ -f "$f" ]; then
-              cp "$f" outputs/RivoPhone-release-latest.apk
+            if [ -f "$f" ] && [ "$f" != "outputs/RivoPhone-release-latest.apk" ]; then
+              cp -f "$f" outputs/RivoPhone-release-latest.apk
               break
             fi
           done
@@ -167,7 +200,10 @@ jobs:
         if: success()
         run: |
           SHA256_HASH=$(cat outputs/SIGNING_CERTIFICATE_SHA256.txt 2>/dev/null | tail -n 1 || echo "Verified via CI")
-          APK_NAME=$(ls outputs/RivoPhone-*.apk 2>/dev/null | head -n 1 | xargs -r -n 1 basename || echo "RivoPhone-release.apk")
+          APK_NAME="RivoPhone-${{ env.RELEASE_TAG }}.apk"
+          if [ ! -f "outputs/${APK_NAME}" ]; then
+            APK_NAME=$(ls outputs/RivoPhone-*.apk 2>/dev/null | grep -v 'latest' | head -n 1 | xargs -r -n 1 basename || echo "RivoPhone-release.apk")
+          fi
 
           cat << 'EOF' >> $GITHUB_STEP_SUMMARY
           # 🚀 Rivo Phone — Production Build Summary
@@ -186,8 +222,10 @@ jobs:
           ---
 
           ### 📦 Build Artifacts & Direct Downloads
-          - 📱 **Direct Release APK**: [**RivoPhone-release-latest.apk**](https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk) *(Pure `.apk` for Android 10+ devices, no unzipping required)*
-          - 🏷️ **GitHub Releases Portal**: [Latest Releases Page](https://github.com/${{ github.repository }}/releases/latest)
+          - 🏷️ **Release Tag**: [**${{ env.RELEASE_TAG }}**](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }}) *(Version Code: `${{ env.APP_VERSION_CODE }}`)*
+          - 📱 **Direct Release APK**: [**${APK_NAME}**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${APK_NAME}) *(Pure `.apk` for Android 10+ devices, no unzipping required)*
+          - ⚡ **Latest APK Alias**: [**RivoPhone-release-latest.apk**](https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk)
+          - 🔗 **GitHub Release**: [View Release ${{ env.RELEASE_TAG }}](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }})
           - 📦 **Actions Build Artifacts**: `RivoPhone-Production-APKs` *(Available in the Artifacts section below — includes APK, SHA256 checksums, and signing details)*
           - 🔏 **Signing Certificate SHA256**: `${SHA256_HASH}`
 
@@ -223,13 +261,15 @@ jobs:
         if: github.ref == 'refs/heads/main' && hashFiles('outputs/*.apk') != ''
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: "Rivo Phone Production Release"
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          target_commitish: ${{ github.sha }}
           files: |
             outputs/*.apk
             outputs/*.txt
             outputs/*.sha256
           draft: false
           prerelease: false
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

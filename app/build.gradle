@@ -7,9 +7,23 @@ plugins {
 }
 
 def baseVersionCode = 2026091504
-def buildNumber = (System.getenv("BUILD_NUMBER") ?: System.getenv("GITHUB_RUN_NUMBER") ?: "0") as int
-def isPreviewBuild = System.getenv("PREVIEW_BUILD") == "true"
+def commitCount = {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-list', '--count', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim().toInteger()
+    } catch (ignored) {
+        return 0
+    }
+}()
+
+def buildNumber = (System.getenv("BUILD_NUMBER") ?: System.getenv("GITHUB_RUN_NUMBER") ?: (commitCount > 0 ? commitCount.toString() : "0")) as int
 def baseVersionName = "2.2"
+def computedVersionName = System.getenv("APP_VERSION_NAME") ?: (commitCount > 0 ? "${baseVersionName}.${commitCount}" : baseVersionName)
+def computedVersionCode = (System.getenv("APP_VERSION_CODE")?.isInteger() ? System.getenv("APP_VERSION_CODE").toInteger() : null) ?: (baseVersionCode + (commitCount > 0 ? commitCount : buildNumber))
 
 android {
     namespace = 'com.grinch.rivo4'
@@ -19,8 +33,8 @@ android {
         applicationId = "com.mrdarksidetm.rivo"
         minSdk = 29
         targetSdk = 37
-        versionCode = baseVersionCode + buildNumber
-        versionName = isPreviewBuild ? "${baseVersionName}.${buildNumber}-preview" : baseVersionName
+        versionCode = computedVersionCode
+        versionName = computedVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
