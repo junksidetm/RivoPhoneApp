@@ -636,8 +636,8 @@ fun CallAccountsScreen(
         }
 
         if (showSyncCardsDialog) {
-            val isShizukuRunning = ShizukuCallingCardBridge.isShizukuAvailable()
-            val hasShizukuPerm = ShizukuCallingCardBridge.hasShizukuPermission(context)
+            val isShizukuRunning = remember(showSyncCardsDialog) { ShizukuCallingCardBridge.isShizukuAvailable() }
+            val hasShizukuPerm = remember(showSyncCardsDialog, isShizukuRunning) { ShizukuCallingCardBridge.hasShizukuPermission(context) }
             RivoDialog(
                 onDismissRequest = {
                     if (!isSyncingCards) showSyncCardsDialog = false
@@ -665,18 +665,23 @@ fun CallAccountsScreen(
                                 scope.launch {
                                     isSyncingCards = true
                                     syncResultSummary = null
-                                    val res = ShizukuCallingCardBridge.syncAllCallingCards(
-                                        context = context,
-                                        overwriteExisting = false
-                                    ) { curr, tot, name ->
-                                        syncProgressValue = if (tot > 0) curr.toFloat() / tot.toFloat() else 0f
-                                        syncProgressText = "$curr / $tot: $name"
+                                    try {
+                                        val res = ShizukuCallingCardBridge.syncAllCallingCards(
+                                            context = context,
+                                            overwriteExisting = false
+                                        ) { curr, tot, name ->
+                                            syncProgressValue = if (tot > 0) curr.toFloat() / tot.toFloat() else 0f
+                                            syncProgressText = "$curr / $tot: $name"
+                                        }
+                                        syncResultSummary = "Sync complete!\n" +
+                                                "• Scanned: ${res.totalContacts} contacts\n" +
+                                                "• Imported: ${res.syncedCount} calling cards\n" +
+                                                "• Skipped/Current: ${res.skippedCount}"
+                                    } catch (e: Exception) {
+                                        syncResultSummary = "Sync encountered an error: ${e.localizedMessage ?: "Unknown error"}"
+                                    } finally {
+                                        isSyncingCards = false
                                     }
-                                    isSyncingCards = false
-                                    syncResultSummary = "Sync complete!\n" +
-                                            "• Scanned: ${res.totalContacts} contacts\n" +
-                                            "• Imported: ${res.syncedCount} calling cards\n" +
-                                            "• Skipped/Current: ${res.skippedCount}"
                                 }
                             }
                         )

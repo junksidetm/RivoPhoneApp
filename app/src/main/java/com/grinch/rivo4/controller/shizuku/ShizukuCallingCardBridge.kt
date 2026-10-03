@@ -12,6 +12,8 @@ import android.provider.ContactsContract
 import com.grinch.rivo4.controller.util.CallBackgroundStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
 import java.io.File
 import java.io.FileInputStream
 
@@ -71,7 +73,14 @@ object ShizukuCallingCardBridge {
 
         // Tier 1: Privileged extraction via Shizuku UserService
         if (isShizukuAvailable() && hasShizukuPermission(app)) {
-            val shizukuResult = extractViaShizuku(app, contactId, rawDigitsList)
+            val shizukuResult = try {
+                withTimeoutOrNull(4000L) {
+                    extractViaShizuku(app, contactId, rawDigitsList)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
             if (shizukuResult != null) {
                 val saved = CallBackgroundStore.saveBitmap(app, contactId, cleanNumbers, shizukuResult)
                 shizukuResult.recycle()
@@ -87,7 +96,12 @@ object ShizukuCallingCardBridge {
         }
 
         // Tier 2: ContactsContract Display Photo & Contact Poster fallback
-        val highResBitmap = extractFromContactsContract(app, contactId, cleanNumbers)
+        val highResBitmap = try {
+            extractFromContactsContract(app, contactId, cleanNumbers)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
         if (highResBitmap != null) {
             val saved = CallBackgroundStore.saveBitmap(app, contactId, cleanNumbers, highResBitmap)
             highResBitmap.recycle()
@@ -102,11 +116,11 @@ object ShizukuCallingCardBridge {
         }
 
         val reason = if (!isShizukuAvailable()) {
-            "Shizuku is not running. Start Shizuku to extract Calling Cards directly from Google Phone."
+            "Shizuku is not running. Start Shizuku to sync Google Phone Calling Cards."
         } else if (!hasShizukuPermission(app)) {
             "Shizuku permission not granted. Grant permission to access Google Phone Calling Cards."
         } else {
-            "No Calling Card or poster found for this contact in Google Phone."
+            "No Calling Card or poster found for this contact."
         }
 
         BridgeResult(success = false, message = reason)
@@ -116,27 +130,24 @@ object ShizukuCallingCardBridge {
         context: Context,
         contactId: String?,
         rawDigitsList: List<String>
-    ): Bitmap? {
+    ): Bitmap? = withTimeoutOrNull(4000L) {
         val manager = ShizukuConnectionManager(context)
-        return try {
+        try {
             val service = manager.getShellService()
 
-            // 1. Search candidate paths in Google Phone and Contacts sandbox
+            // Search candidate paths in Google Phone and Contacts sandbox (exclude /sdcard to prevent FUSE deadlocks)
             val searchDirs = listOf(
                 "/data/data/$GOOGLE_DIALER_PACKAGE/files/calling_cards",
                 "/data/data/$GOOGLE_DIALER_PACKAGE/files/call_cards",
                 "/data/data/$GOOGLE_DIALER_PACKAGE/files/posters",
                 "/data/data/$GOOGLE_DIALER_PACKAGE/files/photos",
-                "/data/data/$GOOGLE_DIALER_PACKAGE/files",
                 "/data/data/$GOOGLE_CONTACTS_PACKAGE/files/calling_cards",
                 "/data/data/$GOOGLE_CONTACTS_PACKAGE/files/posters",
-                "/data/data/$GOOGLE_CONTACTS_PACKAGE/files",
-                "/sdcard/Android/data/$GOOGLE_DIALER_PACKAGE/files",
                 "/data/data/$CONTACTS_PROVIDER_PACKAGE/files/photos"
             )
 
-            // Build find command for image extensions
-            val findCmd = "find ${searchDirs.joinToString(" ")} -type f \\( -name \"*.jpg\" -o -name \"*.jpeg\" -o -name \"*.png\" -o -name \"*.webp\" \\) 2>/dev/null"
+            // Fast find with -maxdepth 2 to avoid deep traversals
+            val findCmd = "find ${searchDirs.joinToString(" ")} -maxdepth 2 -type f \\( -name \"*.jpg\" -o -name \"*.jpeg\" -o -name \"*.png\" -o -name \"*.webp\" \\) 2>/dev/null"
             val output = service.execCommand(findCmd)?.trim().orEmpty()
 
             if (output.isNotBlank()) {
@@ -146,8 +157,9 @@ object ShizukuCallingCardBridge {
                     val pfd = service.readFile(bestPath)
                     if (pfd != null) {
                         try {
-                            ParcelFileDescriptor.AutoCloseInputStream(pfd).use { input ->
-                                return BitmapFactory.decodeStream(input)
+                            pfd.use {
+                                val fd = it.fileDescriptor
+                                return@withTimeoutOrNull BitmapFactory.decodeFileDescriptor(fd)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -311,20 +323,99 @@ object ShizukuCallingCardBridge {
         var skipped = 0
         var errors = 0
 
-        allRecords.forEachIndexed { index, record ->
-            onProgress(index + 1, total, record.name)
-            val existing = CallBackgroundStore.peek(app, record.id, record.numbers)
-            if (existing != null && !overwriteExisting) {
-                skipped++
-                return@forEachIndexed
-            }
+        var shizukuManager: ShizukuConnectionManager? = null
+        var candidateFiles = emptyList<String>()
 
-            val res = syncContactCallingCard(app, record.id, record.numbers, record.name)
-            if (res.success) {
-                synced++
-            } else {
-                skipped++
+        if (isShizukuAvailable() && hasShizukuPermission(app)) {
+            try {
+                val mgr = ShizukuConnectionManager(app)
+                val service = withTimeoutOrNull(3500L) { mgr.getShellService() }
+                if (service != null) {
+                    shizukuManager = mgr
+                    val searchDirs = listOf(
+                        "/data/data/$GOOGLE_DIALER_PACKAGE/files/calling_cards",
+                        "/data/data/$GOOGLE_DIALER_PACKAGE/files/call_cards",
+                        "/data/data/$GOOGLE_DIALER_PACKAGE/files/posters",
+                        "/data/data/$GOOGLE_DIALER_PACKAGE/files/photos",
+                        "/data/data/$GOOGLE_CONTACTS_PACKAGE/files/calling_cards",
+                        "/data/data/$GOOGLE_CONTACTS_PACKAGE/files/posters",
+                        "/data/data/$CONTACTS_PROVIDER_PACKAGE/files/photos"
+                    )
+                    val findCmd = "find ${searchDirs.joinToString(" ")} -maxdepth 2 -type f \\( -name \"*.jpg\" -o -name \"*.jpeg\" -o -name \"*.png\" -o -name \"*.webp\" \\) 2>/dev/null"
+                    val out = service.execCommand(findCmd)?.trim().orEmpty()
+                    if (out.isNotBlank()) {
+                        candidateFiles = out.lines().map { it.trim() }.filter { it.isNotEmpty() }
+                    }
+                } else {
+                    mgr.unbind()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+        }
+
+        try {
+            allRecords.forEachIndexed { index, record ->
+                yield()
+                onProgress(index + 1, total, record.name)
+                val cleanNumbers = record.numbers.filter { it.isNotBlank() }
+                val existing = CallBackgroundStore.peek(app, record.id, cleanNumbers)
+                if (existing != null && !overwriteExisting) {
+                    skipped++
+                    return@forEachIndexed
+                }
+
+                var imported = false
+                val rawDigits = cleanNumbers.map { it.filter { ch -> ch.isDigit() } }.filter { it.isNotEmpty() }
+
+                val mgr = shizukuManager
+                if (mgr != null && candidateFiles.isNotEmpty()) {
+                    val bestPath = matchBestCallingCardPath(candidateFiles, record.id, rawDigits)
+                    if (bestPath != null) {
+                        try {
+                            val service = mgr.getShellService()
+                            val pfd = service.readFile(bestPath)
+                            if (pfd != null) {
+                                val bmp = pfd.use {
+                                    BitmapFactory.decodeFileDescriptor(it.fileDescriptor)
+                                }
+                                if (bmp != null) {
+                                    val saved = CallBackgroundStore.saveBitmap(app, record.id, cleanNumbers, bmp)
+                                    bmp.recycle()
+                                    if (saved) {
+                                        synced++
+                                        imported = true
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+
+                if (!imported) {
+                    val fallbackBmp = try {
+                        extractFromContactsContract(app, record.id, cleanNumbers)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (fallbackBmp != null) {
+                        val saved = CallBackgroundStore.saveBitmap(app, record.id, cleanNumbers, fallbackBmp)
+                        fallbackBmp.recycle()
+                        if (saved) {
+                            synced++
+                            imported = true
+                        }
+                    }
+                }
+
+                if (!imported) {
+                    skipped++
+                }
+            }
+        } finally {
+            shizukuManager?.unbind()
         }
 
         BatchSyncResult(

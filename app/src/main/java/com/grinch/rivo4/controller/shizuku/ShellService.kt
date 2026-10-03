@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.ParcelFileDescriptor
 import androidx.annotation.Keep
 import com.grinch.rivo4.IShellService
-import kotlin.system.exitProcess
 
 @Keep
 class ShellService : IShellService.Stub {
@@ -43,16 +42,33 @@ class ShellService : IShellService.Stub {
 
     override fun destroy() {
         stopCapture()
-        exitProcess(0)
     }
 
     override fun execCommand(command: String?): String? {
         if (command.isNullOrBlank()) return null
         return try {
-            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            process.waitFor()
-            output
+            val process = ProcessBuilder(listOf("sh", "-c", command))
+                .redirectErrorStream(true)
+                .start()
+            val output = StringBuilder()
+            val reader = process.inputStream.bufferedReader()
+            val readerThread = Thread {
+                try {
+                    reader.lineSequence().forEach { line ->
+                        if (output.length < 512 * 1024) {
+                            output.append(line).append('\n')
+                        }
+                    }
+                } catch (_: Exception) {
+                }
+            }
+            readerThread.start()
+            val finished = process.waitFor(4, java.util.concurrent.TimeUnit.SECONDS)
+            if (!finished) {
+                process.destroyForcibly()
+            }
+            readerThread.join(1000)
+            output.toString().trim()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -70,15 +86,24 @@ class ShellService : IShellService.Stub {
                 val readEnd = pipe[0]
                 val writeEnd = pipe[1]
                 Thread {
+                    var proc: Process? = null
                     try {
-                        val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "cat \"$path\""))
+                        proc = ProcessBuilder(listOf("sh", "-c", "cat \"$path\""))
+                            .redirectErrorStream(false)
+                            .start()
                         ParcelFileDescriptor.AutoCloseOutputStream(writeEnd).use { out ->
                             proc.inputStream.copyTo(out)
                             out.flush()
                         }
-                        proc.waitFor()
+                        proc.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)
                     } catch (e: Exception) {
                         e.printStackTrace()
+                    } finally {
+                        proc?.destroyForcibly()
+                        try {
+                            writeEnd.close()
+                        } catch (_: Exception) {
+                        }
                     }
                 }.start()
                 readEnd

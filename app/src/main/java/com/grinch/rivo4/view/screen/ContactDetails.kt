@@ -610,29 +610,32 @@ fun ContactDetailsScreen(
                 leadingIcon = Icons.Default.Sync,
                 onClick = {
                     showBackgroundDialog = false
-                    if (!ShizukuCallingCardBridge.isShizukuAvailable()) {
-                        scope.launch {
+                    scope.launch {
+                        if (!ShizukuCallingCardBridge.isShizukuAvailable()) {
                             snackbarHostState.showSnackbar("Shizuku is not running. Start Shizuku to sync Google Phone Calling Cards.")
+                            return@launch
                         }
-                    } else if (!ShizukuCallingCardBridge.hasShizukuPermission(context)) {
-                        ShizukuCallingCardBridge.requestShizukuPermission()
-                        scope.launch {
+                        if (!ShizukuCallingCardBridge.hasShizukuPermission(context)) {
+                            ShizukuCallingCardBridge.requestShizukuPermission()
                             snackbarHostState.showSnackbar("Please grant Shizuku permission and try again.")
+                            return@launch
                         }
-                    } else {
-                        scope.launch {
-                            backgroundSaving = true
+                        backgroundSaving = true
+                        try {
                             val result = ShizukuCallingCardBridge.syncContactCallingCard(
                                 context = context,
                                 contactId = backgroundContactId,
                                 numbers = backgroundNumbers,
                                 contactName = displayName
                             )
-                            backgroundSaving = false
                             if (result.success) {
                                 callBackground = CallBackgroundStore.peek(context, backgroundContactId, backgroundNumbers)
                             }
                             snackbarHostState.showSnackbar(result.message)
+                        } catch (e: Exception) {
+                            snackbarHostState.showSnackbar("Failed to sync: ${e.localizedMessage ?: "Unknown error"}")
+                        } finally {
+                            backgroundSaving = false
                         }
                     }
                 }

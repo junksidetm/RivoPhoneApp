@@ -189,3 +189,50 @@
   - Android ContactsContract (High-Res DisplayPhoto API)
   - Jetpack Compose & Material 3 Expressive
 - **Status:** 100% (Shizuku Calling Card Bridge implemented, UI integrated, and ready for release).
+
+
+## [2026-10-04 00:48] - Fix Calling Card Shizuku Sync App Freeze, Process Deadlocks & Green Launcher Icon Update
+- **Action:** Diagnosed and resolved the app freeze/unresponsiveness when clicking "Sync Calling Card", hardened Shizuku IPC with strict timeouts and error-stream draining, and updated application launcher icon with 66px safe area compliant `Phone-AppLogo-Green.svg`:
+  1. **Root Cause Analysis (App Freezing & Unresponsiveness):**
+     - **Unbounded UserService Binding:** `ShizukuConnectionManager.getShellService()` had no timeout on `suspendCancellableCoroutine`, causing indefinite coroutine suspension if Shizuku failed to bind or start the user service.
+     - **Linux Stderr Pipe Buffer Deadlock:** `ShellService.execCommand` executed shell commands using `Runtime.getRuntime().exec` without reading `stderr` or setting timeouts on `waitFor()`. When stderr filled the OS pipe buffer (4KB), the shell process deadlocked on `write()`. Furthermore, searching `/sdcard/Android/data` triggered kernel FUSE filesystem lockups on modern Android (11+).
+     - **Descriptor Leak on File Reading:** `ShellService.readFile` pipe streaming lacked guaranteed closure on the write end in error cases, causing caller's `BitmapFactory` to hang indefinitely waiting for EOF on the pipe.
+     - **Main-Thread Binder Recomposition:** Synchronous Binder IPC checks (`isShizukuAvailable()`, `hasShizukuPermission()`) ran directly in Compose recomposition loops and UI click handlers on the main thread, locking the UI thread when Shizuku was busy.
+     - **UI State Deadlocks:** `backgroundSaving` in `ContactDetails.kt` and `isSyncingCards` in `CallAccountsScreen.kt` lacked `try-finally` wrappers, remaining locked in saving state if any error occurred.
+     - **Per-Contact Fork Bomb:** `syncAllCallingCards` bound and unbound a new Shizuku service and executed recursive `find` for each individual contact in a tight loop.
+  2. **Elevated Shizuku IPC Hardening (`ShellService.kt`):**
+     - Replaced `Runtime.exec` with `ProcessBuilder` with `redirectErrorStream(true)` to merge stderr into stdout, eliminating pipe deadlocks.
+     - Added strict 4-second timeout on `process.waitFor(4, TimeUnit.SECONDS)` with `process.destroyForcibly()` fallback.
+     - Bounded stdout buffer (512KB) and decoupled reader thread.
+     - Hardened `readFile` with guaranteed write pipe closure in `finally` and 3-second timeout.
+     - Removed abrupt `exitProcess(0)` in `destroy()`.
+  3. **Non-Blocking Connection Manager (`ShizukuConnectionManager.kt`):**
+     - Added strict 3.5-second timeout (`withTimeout(3500L)`) on `getShellService()`.
+     - Added automatic unbinding and permission listener removal on coroutine cancellation.
+  4. **Resilient Extraction & Single-Pass Batch Sync (`ShizukuCallingCardBridge.kt`):**
+     - Wrapped privileged extraction in `withTimeoutOrNull(4000L)`.
+     - Excluded `/sdcard/Android/data` to eliminate FUSE deadlocks and added `-maxdepth 2` for fast directory probing.
+     - Switched from stream decoding to native `BitmapFactory.decodeFileDescriptor(fd)`.
+     - Optimized `syncAllCallingCards` to bind Shizuku once, query candidate posters in a single pass, match in memory, and yield cooperatively per record.
+     - Guaranteed seamless fallback to Tier 2 (`extractFromContactsContract`) upon Shizuku failure or timeout.
+  5. **UI Thread Safety (`ContactDetails.kt` & `CallAccountsScreen.kt`):**
+     - Wrapped Calling Card sync in `scope.launch` with `try-finally` guaranteeing `backgroundSaving = false`.
+     - Wrapped batch sync in `try-finally` guaranteeing `isSyncingCards = false`.
+     - Cached Shizuku state via `remember` in `CallAccountsScreen.kt` to eliminate main-thread Binder IPC during recomposition.
+  6. **Green Adaptive App Launcher Icon (`Phone-AppLogo-Green.svg`):**
+     - Updated `ic_launcher_foreground.xml` with exact paths and multi-tone greens (`#068F06`, `#26BA26`, `#5BF02D`, `#578CFF`) from `Phone-AppLogo-Green.svg`, calibrated natively within the 66px circular safe zone.
+     - Updated `ic_launcher_monochrome.xml` with calibrated alpha fills for Android 13+ Material You dynamic system color theming.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/controller/shizuku/ShellService.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/shizuku/ShizukuConnectionManager.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/shizuku/ShizukuCallingCardBridge.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/ContactDetails.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallAccountsScreen.kt`
+  - `app/src/main/res/drawable/ic_launcher_foreground.xml`
+  - `app/src/main/res/drawable/ic_launcher_monochrome.xml`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Rikka Shizuku API 13.1.5 (UserService, Binder IPC)
+  - Android ContactsContract (High-Res DisplayPhoto API)
+  - Jetpack Compose & Material 3 Expressive
+- **Status:** 100% (Calling Card sync freeze resolved, non-blocking coroutines with timeouts verified, green safe-area launcher icon integrated).

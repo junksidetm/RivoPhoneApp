@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.IBinder
 import com.grinch.rivo4.IShellService
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
 import kotlin.coroutines.resume
@@ -66,80 +67,89 @@ class ShizukuConnectionManager(
     private var serviceConnection: ServiceConnection? = null
     private var currentService: IShellService? = null
 
-    suspend fun getShellService(): IShellService = suspendCancellableCoroutine { continuation ->
-        if (!isAvailable()) {
-            continuation.resumeWithException(IllegalStateException("Shizuku is not running"))
-            return@suspendCancellableCoroutine
-        }
+    suspend fun getShellService(): IShellService = withTimeout(3500L) {
+        suspendCancellableCoroutine { continuation ->
+            if (!isAvailable()) {
+                continuation.resumeWithException(IllegalStateException("Shizuku is not running"))
+                return@suspendCancellableCoroutine
+            }
 
-        val cached = currentService
-        if (cached != null && cached.asBinder().isBinderAlive) {
-            continuation.resume(cached)
-            return@suspendCancellableCoroutine
-        }
+            val cached = currentService
+            if (cached != null && cached.asBinder().isBinderAlive) {
+                continuation.resume(cached)
+                return@suspendCancellableCoroutine
+            }
 
-        val connection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName, binder: IBinder?) {
-                if (binder != null) {
-                    val proxy = IShellService.Stub.asInterface(binder)
-                    currentService = proxy
-                    if (continuation.isActive) {
-                        continuation.resume(proxy)
+            val connection = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName, binder: IBinder?) {
+                    if (binder != null) {
+                        val proxy = IShellService.Stub.asInterface(binder)
+                        currentService = proxy
+                        if (continuation.isActive) {
+                            continuation.resume(proxy)
+                        }
+                    } else {
+                        currentService = null
+                        val e = IllegalStateException("Shizuku returned null binder")
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(e)
+                        }
                     }
-                } else {
+                }
+
+                override fun onServiceDisconnected(name: ComponentName?) {
                     currentService = null
-                    val e = IllegalStateException("Shizuku returned null binder")
+                    unbind()
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(IllegalStateException("Shizuku service disconnected"))
+                    } else {
+                        onBinderDied()
+                    }
+                }
+            }
+
+            this@ShizukuConnectionManager.serviceConnection = connection
+
+            fun bindServiceInternal() {
+                try {
+                    Shizuku.bindUserService(userServiceArgs, connection)
+                } catch (e: Exception) {
                     if (continuation.isActive) {
                         continuation.resumeWithException(e)
                     }
                 }
             }
 
-            override fun onServiceDisconnected(name: ComponentName?) {
-                currentService = null
-                unbind()
-                if (continuation.isActive) {
-                    continuation.resumeWithException(IllegalStateException("Shizuku service disconnected"))
-                } else {
-                    onBinderDied()
-                }
-            }
-        }
-
-        this.serviceConnection = connection
-
-        fun bindServiceInternal() {
-            try {
-                Shizuku.bindUserService(userServiceArgs, connection)
-            } catch (e: Exception) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
-                }
-            }
-        }
-
-        val permissionListener = object : Shizuku.OnRequestPermissionResultListener {
-            override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
-                if (requestCode == PERMISSION_REQUEST_CODE) {
-                    Shizuku.removeRequestPermissionResultListener(this)
-                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        bindServiceInternal()
-                    } else if (continuation.isActive) {
-                        continuation.resumeWithException(SecurityException("Shizuku permission denied"))
+            val permissionListener = object : Shizuku.OnRequestPermissionResultListener {
+                override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
+                    if (requestCode == PERMISSION_REQUEST_CODE) {
+                        try {
+                            Shizuku.removeRequestPermissionResultListener(this)
+                        } catch (_: Exception) {
+                        }
+                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                            bindServiceInternal()
+                        } else if (continuation.isActive) {
+                            continuation.resumeWithException(SecurityException("Shizuku permission denied"))
+                        }
                     }
                 }
             }
-        }
 
-        if (hasPermission()) {
-            bindServiceInternal()
-        } else {
-            Shizuku.addRequestPermissionResultListener(permissionListener)
-            Shizuku.requestPermission(PERMISSION_REQUEST_CODE)
-        }
+            if (hasPermission()) {
+                bindServiceInternal()
+            } else {
+                Shizuku.addRequestPermissionResultListener(permissionListener)
+                Shizuku.requestPermission(PERMISSION_REQUEST_CODE)
+            }
 
-        continuation.invokeOnCancellation {
-            Shizuku.removeRequestPermissionResultListener(permissionListener)
+            continuation.invokeOnCancellation {
+                try {
+                    Shizuku.removeRequestPermissionResultListener(permissionListener)
+                } catch (_: Exception) {
+                }
+                unbind()
+            }
         }
     }
 
