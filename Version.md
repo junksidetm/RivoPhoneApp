@@ -77,3 +77,27 @@
   - Material 3: `1.5.0-alpha18`
   - AGSL RuntimeShader & RenderEffect (API 33+)
 - **Status:** 100% (All requested features, fixes, and architectural enhancements completed).
+
+## [2026-10-03 20:50] - Liquid Glass Toggle Surface, Switch Motion Physics, Smart Contrast & Dynamic Gradient Avatars
+- **Action:** Refined and completed all core UI/UX refinements across Rivo Phone App:
+  1. **Liquid Glass on Frosted Blur Toggle:** Implemented `RivoLiquidGlassToggleItem` in `InterfaceScreen.kt` and `RivoLiquidGlass.kt`. When the "Frosted Glass & Blur Effects" toggle is enabled, it dynamically renders an animated luminous refraction backdrop, hardware-accelerated Snell's Law AGSL refraction lens (`buildLiquidGlassRenderEffect` on Android 13+ / RenderEffect blur on Android 12), directional specular rim light, and smooth spring physics. Below the toggle, `LiquidGlassPreviewCard` expands with fluid `AnimatedVisibility(expandVertically + fadeIn)`.
+  2. **Switch & Section Fluid Motion:** Fixed abrupt pop-in across settings screens by wrapping expandable sub-settings (`Google Sans Flex` variable typography sliders, `Smart Contrast Preview`, `Gradient Avatars Preview`, `Liquid Glass Preview`) in `AnimatedVisibility` with spring-damping curve transitions. Added dynamic container tint feedback (`primaryContainer` 22% alpha) to `RivoListItem` when toggled, and standardized `RivoSwitchListItem` in `ContactDetails.kt` and `PrivateContactsScreen.kt` for interactive whole-row tap toggles.
+  3. **Smart Contrast Calibration:** Calibrated dark mode container lightness and saturation in `RivoAvatar.kt` so that inherently bright hues (Yellow 60°, Lime 90°, Green 120°) maintain high container luminance (> 0.45) in dark mode, ensuring David (Blue) and Emma (Red) use crisp white text while Daisy (Yellow) and Alice (Green) use high-contrast dark text (`#1C1B1F`) across both light and dark themes. Added contrast detail badges to `AvatarSettingsScreen.kt`.
+  4. **Gradient Contact Avatars:** Added `gradientAvatarContentColor` in `RivoAvatar.kt` to dynamically calculate the mean luminance of gradient color stops and assign proper high-contrast text (`#1C1B1F` vs `#FFFFFF`). Removed hardcoded `CircleShape` clipping in `ContactDetails.kt` header to respect custom squircle, clover, and polygon avatar shapes.
+  5. **Application ID & Google Sans Flex Defaults:** Verified `applicationId = "com.mrdarksidetm.rivo"` in `app/build.gradle` and default variable axes in `Type.kt` and `PreferenceManager.kt` (`grad: 50f`, `wght: 400`, `wdth: 100f`, `rond: 71f`, `opsz: 43f`).
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoAvatar.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoLiquidGlass.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoExpressiveUI.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/InterfaceScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/AvatarSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PrivateContactsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/ContactDetails.kt`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Android Gradle Plugin: `8.13.2`
+  - Kotlin: `2.1.0`
+  - Jetpack Compose BOM: `2025.12.01`
+  - Material 3: `1.5.0-alpha18`
+  - AGSL RuntimeShader & RenderEffect (API 33+)
+- **Status:** 100% (Completed, validated bracket & syntax integrity, ready for remote verification).

@@ -58,7 +58,15 @@ import com.grinch.rivo4.view.components.RivoExpressiveCard
 import com.grinch.rivo4.view.components.RivoExpressiveGroup
 import com.grinch.rivo4.view.components.RivoInteractiveRoundnessSlider
 import com.grinch.rivo4.view.components.RivoListItem
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import com.grinch.rivo4.view.components.LiquidGlassPreviewCard
+import com.grinch.rivo4.view.components.RivoLiquidGlassToggleItem
 import com.grinch.rivo4.view.components.RivoSwitchListItem
 import com.grinch.rivo4.view.components.RivoVisualOptionSelectorRow
 import com.grinch.rivo4.view.components.ScrollToTopButton
@@ -276,126 +284,128 @@ fun InterfaceScreen(
                                 }
                             )
                         }
-                        if (useGoogleSans) {
-                            item {
-                                Box(modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)) {
-                                    RivoTypeTester(
-                                        useGoogleSans = useGoogleSans,
-                                        weight = fontWeight,
-                                        width = fontWidth,
-                                        grade = fontGrade,
-                                        roundness = fontRoundness,
-                                        opticalSize = fontOpticalSize,
-                                        slant = fontSlant
-                                    )
-                                }
-                            }
-                            item {
+                        item {
+                            AnimatedVisibility(
+                                visible = useGoogleSans,
+                                enter = expandVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)) + fadeIn(),
+                                exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)) + fadeOut()
+                            ) {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    RivoTypographySliderTile(
-                                        label = "Grade",
-                                        code = "GRAD",
-                                        value = fontGrade,
-                                        min = -200f,
-                                        max = 150f,
-                                        displayValue = fontGrade.toInt().toString(),
-                                        onValueChange = {
-                                            fontGrade = it
-                                            prefs.setFontGrade(it)
-                                        }
-                                    )
-                                    RivoTypographySliderTile(
-                                        label = "Weight",
-                                        code = "wght",
-                                        value = fontWeight.toFloat(),
-                                        min = 100f,
-                                        max = 1000f,
-                                        displayValue = fontWeight.toString(),
-                                        onValueChange = {
-                                            fontWeight = it.toInt()
-                                            prefs.setFontWeight(it.toInt())
-                                        }
-                                    )
-                                    RivoTypographySliderTile(
-                                        label = "Width",
-                                        code = "wdth",
-                                        value = fontWidth,
-                                        min = 50f,
-                                        max = 150f,
-                                        displayValue = "${fontWidth.toInt()}%",
-                                        onValueChange = {
-                                            fontWidth = it
-                                            prefs.setFontWidth(it)
-                                        }
-                                    )
-                                    RivoTypographySliderTile(
-                                        label = "Roundness",
-                                        code = "ROND",
-                                        value = fontRoundness,
-                                        min = 0f,
-                                        max = 100f,
-                                        displayValue = "${fontRoundness.toInt()}%",
-                                        onValueChange = {
-                                            fontRoundness = it
-                                            prefs.setFontRoundness(it)
-                                        }
-                                    )
-                                    RivoTypographySliderTile(
-                                        label = "Optical Size",
-                                        code = "opsz",
-                                        value = fontOpticalSize,
-                                        min = 8f,
-                                        max = 144f,
-                                        displayValue = "${fontOpticalSize.toInt()}pt",
-                                        onValueChange = {
-                                            fontOpticalSize = it
-                                            prefs.setFontOpticalSize(it)
-                                        }
-                                    )
-                                    RivoTypographySliderTile(
-                                        label = "Slant",
-                                        code = "slnt",
-                                        value = fontSlant,
-                                        min = -10f,
-                                        max = 0f,
-                                        displayValue = "${fontSlant.toInt()}°",
-                                        onValueChange = {
-                                            fontSlant = it
-                                            prefs.setFontSlant(it)
-                                        }
-                                    )
-                                }
-                            }
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    FilledTonalButton(
-                                        onClick = {
-                                            prefs.resetTypography()
-                                            useGoogleSans = true
-                                            fontWeight = PreferenceManager.DEFAULT_FONT_WEIGHT
-                                            fontWidth = PreferenceManager.DEFAULT_FONT_WIDTH
-                                            fontGrade = PreferenceManager.DEFAULT_FONT_GRADE
-                                            fontRoundness = PreferenceManager.DEFAULT_FONT_ROUNDNESS
-                                            fontOpticalSize = PreferenceManager.DEFAULT_FONT_OPTICAL_SIZE
-                                            fontSlant = PreferenceManager.DEFAULT_FONT_SLANT
-                                        },
-                                        shape = RoundedCornerShape(16.dp)
+                                    Box(modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)) {
+                                        RivoTypeTester(
+                                            useGoogleSans = useGoogleSans,
+                                            weight = fontWeight,
+                                            width = fontWidth,
+                                            grade = fontGrade,
+                                            roundness = fontRoundness,
+                                            opticalSize = fontOpticalSize,
+                                            slant = fontSlant
+                                        )
+                                    }
+                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        RivoTypographySliderTile(
+                                            label = "Grade",
+                                            code = "GRAD",
+                                            value = fontGrade,
+                                            min = -200f,
+                                            max = 150f,
+                                            displayValue = fontGrade.toInt().toString(),
+                                            onValueChange = {
+                                                fontGrade = it
+                                                prefs.setFontGrade(it)
+                                            }
+                                        )
+                                        RivoTypographySliderTile(
+                                            label = "Weight",
+                                            code = "wght",
+                                            value = fontWeight.toFloat(),
+                                            min = 100f,
+                                            max = 1000f,
+                                            displayValue = fontWeight.toString(),
+                                            onValueChange = {
+                                                fontWeight = it.toInt()
+                                                prefs.setFontWeight(it.toInt())
+                                            }
+                                        )
+                                        RivoTypographySliderTile(
+                                            label = "Width",
+                                            code = "wdth",
+                                            value = fontWidth,
+                                            min = 50f,
+                                            max = 150f,
+                                            displayValue = "${fontWidth.toInt()}%",
+                                            onValueChange = {
+                                                fontWidth = it
+                                                prefs.setFontWidth(it)
+                                            }
+                                        )
+                                        RivoTypographySliderTile(
+                                            label = "Roundness",
+                                            code = "ROND",
+                                            value = fontRoundness,
+                                            min = 0f,
+                                            max = 100f,
+                                            displayValue = "${fontRoundness.toInt()}%",
+                                            onValueChange = {
+                                                fontRoundness = it
+                                                prefs.setFontRoundness(it)
+                                            }
+                                        )
+                                        RivoTypographySliderTile(
+                                            label = "Optical Size",
+                                            code = "opsz",
+                                            value = fontOpticalSize,
+                                            min = 8f,
+                                            max = 144f,
+                                            displayValue = "${fontOpticalSize.toInt()}pt",
+                                            onValueChange = {
+                                                fontOpticalSize = it
+                                                prefs.setFontOpticalSize(it)
+                                            }
+                                        )
+                                        RivoTypographySliderTile(
+                                            label = "Slant",
+                                            code = "slnt",
+                                            value = fontSlant,
+                                            min = -10f,
+                                            max = 0f,
+                                            displayValue = "${fontSlant.toInt()}°",
+                                            onValueChange = {
+                                                fontSlant = it
+                                                prefs.setFontSlant(it)
+                                            }
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(
-                                            Icons.Outlined.RestartAlt,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            "Reset Typography",
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                        FilledTonalButton(
+                                            onClick = {
+                                                prefs.resetTypography()
+                                                useGoogleSans = true
+                                                fontWeight = PreferenceManager.DEFAULT_FONT_WEIGHT
+                                                fontWidth = PreferenceManager.DEFAULT_FONT_WIDTH
+                                                fontGrade = PreferenceManager.DEFAULT_FONT_GRADE
+                                                fontRoundness = PreferenceManager.DEFAULT_FONT_ROUNDNESS
+                                                fontOpticalSize = PreferenceManager.DEFAULT_FONT_OPTICAL_SIZE
+                                                fontSlant = PreferenceManager.DEFAULT_FONT_SLANT
+                                            },
+                                            shape = RoundedCornerShape(16.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Outlined.RestartAlt,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                "Reset Typography",
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -474,10 +484,7 @@ fun InterfaceScreen(
                 item {
                     RivoExpressiveGroup(title = stringResource(R.string.settings_group_effects), icon = Icons.Outlined.BlurOn) {
                         item {
-                            RivoSwitchListItem(
-                                headline = stringResource(R.string.settings_ui_blur_title),
-                                supporting = stringResource(R.string.settings_ui_blur_supporting),
-                                leadingIcon = Icons.Outlined.BlurOn,
+                            RivoLiquidGlassToggleItem(
                                 checked = uiBlurEnabled,
                                 onCheckedChange = {
                                     uiBlurEnabled = it
@@ -485,8 +492,12 @@ fun InterfaceScreen(
                                 }
                             )
                         }
-                        if (uiBlurEnabled) {
-                            item {
+                        item {
+                            AnimatedVisibility(
+                                visible = uiBlurEnabled,
+                                enter = expandVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)) + fadeIn(),
+                                exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)) + fadeOut()
+                            ) {
                                 LiquidGlassPreviewCard()
                             }
                         }

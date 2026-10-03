@@ -11,9 +11,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -22,6 +25,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.alpha
+import com.grinch.rivo4.view.theme.LocalCardRoundness
+import com.grinch.rivo4.view.theme.rivoCornerDp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -275,6 +281,162 @@ fun Modifier.rivoLiquidGlass(
     .clip(shape)
     .background(tintColor)
     .border(borderWidth, borderColor, shape)
+
+/**
+ * Interactive Frosted Glass & Blur Effects toggle item that implements the Liquid Glass architecture:
+ * - Snell's Law physical refraction AGSL shader (API 33+) / hardware blur (API 31+)
+ * - Specular highlight rim reflection and top edge glow
+ * - Dynamic animated ambient backdrop lighting behind the glass to demonstrate real optical refraction
+ * - Smooth spring animated transition when turned on / off
+ */
+@Composable
+fun RivoLiquidGlassToggleItem(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val infiniteTransition = rememberInfiniteTransition(label = "LiquidToggleTransition")
+
+    val orbX by infiniteTransition.animateFloat(
+        initialValue = -25f,
+        targetValue = 25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "ToggleOrbX"
+    )
+
+    val activeProgress by animateFloatAsState(
+        targetValue = if (checked) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "ToggleActiveProgress"
+    )
+
+    val roundness = LocalCardRoundness.current
+    val cornerRadius = rivoCornerDp(24, roundness)
+    val shape = RoundedCornerShape(cornerRadius)
+
+    val isHardwareBlurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val isAgslSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+    ) {
+        if (activeProgress > 0.01f) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .alpha(activeProgress)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f * activeProgress),
+                                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f * activeProgress),
+                                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.40f * activeProgress)
+                            )
+                        )
+                    )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .offset { IntOffset(with(density) { (orbX + 40f).dp.roundToPx() }, 0) }
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.35f * activeProgress),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+            }
+        }
+
+        val blurRadiusPx = with(density) { 24.dp.toPx() }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (checked && isHardwareBlurSupported) {
+                        Modifier.graphicsLayer {
+                            renderEffect = if (isAgslSupported) {
+                                val rPx = with(density) { cornerRadius.toPx() }
+                                buildLiquidGlassRenderEffect(
+                                    width = size.width,
+                                    height = size.height,
+                                    cornerRadii = floatArrayOf(rPx, rPx, rPx, rPx),
+                                    firstBlurRadius = 4f,
+                                    firstOpacity = 0.95f,
+                                    firstRefractionHeight = 36f,
+                                    firstRefractionAmount = 24f,
+                                    secondBlurRadius = 28f,
+                                    secondOpacity = 0.85f,
+                                    secondRefractionHeight = 36f,
+                                    secondRefractionAmount = 16f
+                                )
+                            } else {
+                                RenderEffect.createBlurEffect(
+                                    blurRadiusPx, blurRadiusPx,
+                                    Shader.TileMode.CLAMP
+                                ).asComposeRenderEffect()
+                            }
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+                .background(
+                    if (checked) {
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.28f * activeProgress),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.65f),
+                                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.75f)
+                            )
+                        )
+                    } else {
+                        Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
+                    }
+                )
+                .then(
+                    if (checked) {
+                        Modifier.border(
+                            width = 1.2.dp,
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.White.copy(alpha = 0.70f * activeProgress),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.35f * activeProgress),
+                                    Color.White.copy(alpha = 0.25f * activeProgress)
+                                )
+                            ),
+                            shape = shape
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
+        ) {
+            RivoSwitchListItem(
+                headline = stringResource(R.string.settings_ui_blur_title),
+                supporting = stringResource(R.string.settings_ui_blur_supporting),
+                leadingIcon = Icons.Outlined.BlurOn,
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 
 /**
  * Interactive Liquid Glass Preview Card showcased in Settings -> Interface & Appearance

@@ -785,7 +785,6 @@ fun ContactDetailsScreen(
                                 photoUri = fullContact?.photoUri,
                                 modifier = Modifier
                                     .size(92.dp)
-                                    .clip(CircleShape)
                                     .clickable { showFullScreenPhoto = true },
                                 textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
                             )
@@ -1439,45 +1438,16 @@ fun ContactDetailsScreen(
 
                                 // 4. Priority Contact
                                 item {
-                                    RivoListItem(
+                                    RivoSwitchListItem(
                                         headline = stringResource(R.string.priority_contact_title),
                                         supporting = stringResource(R.string.priority_contact_summary),
                                         leadingIcon = if (isPriorityContact) Icons.Filled.NotificationImportant else Icons.Outlined.NotificationImportant,
-                                        isCompact = true,
-                                        trailingContent = {
-                                            Switch(
-                                                checked = isPriorityContact,
-                                                onCheckedChange = { checked ->
-                                                    isPriorityContact = checked
-                                                    prefs.setPriorityContact(fc.id, phoneNumber ?: fc.phoneNumbers.firstOrNull(), checked)
-                                                },
-                                                thumbContent = {
-                                                    AnimatedContent(
-                                                        targetState = isPriorityContact,
-                                                        transitionSpec = {
-                                                            (scaleIn(initialScale = 0.5f) + fadeIn()) togetherWith
-                                                            (scaleOut(targetScale = 0.5f) + fadeOut())
-                                                        },
-                                                        label = "PrioritySwitchThumb"
-                                                    ) { checked ->
-                                                        if (checked) {
-                                                            Icon(
-                                                                imageVector = Icons.Filled.Check,
-                                                                contentDescription = null,
-                                                                modifier = Modifier.size(SwitchDefaults.IconSize)
-                                                            )
-                                                        } else {
-                                                            Spacer(modifier = Modifier.size(SwitchDefaults.IconSize))
-                                                        }
-                                                    }
-                                                }
-                                            )
+                                        checked = isPriorityContact,
+                                        onCheckedChange = { checked ->
+                                            isPriorityContact = checked
+                                            prefs.setPriorityContact(fc.id, phoneNumber ?: fc.phoneNumbers.firstOrNull(), checked)
                                         },
-                                        onClick = {
-                                            val newChecked = !isPriorityContact
-                                            isPriorityContact = newChecked
-                                            prefs.setPriorityContact(fc.id, phoneNumber ?: fc.phoneNumbers.firstOrNull(), newChecked)
-                                        }
+                                        isCompact = true
                                     )
                                 }
                             }

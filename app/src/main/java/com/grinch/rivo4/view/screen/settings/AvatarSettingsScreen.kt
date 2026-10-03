@@ -9,6 +9,13 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Gradient
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -133,8 +140,12 @@ fun AvatarSettingsScreen(
                             }
                         )
                     }
-                    if (colorfulAvatars) {
-                        item {
+                    item {
+                        AnimatedVisibility(
+                            visible = colorfulAvatars,
+                            enter = expandVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)) + fadeIn(),
+                            exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)) + fadeOut()
+                        ) {
                             RivoExpressiveCard(
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
                             ) {
@@ -166,41 +177,22 @@ fun AvatarSettingsScreen(
                                         horizontalArrangement = Arrangement.SpaceEvenly,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            RivoAvatar(
-                                                name = "David",
-                                                style = contrastPreviewStyle,
-                                                modifier = Modifier.size(48.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text("Blue", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            RivoAvatar(
-                                                name = "Daisy",
-                                                style = contrastPreviewStyle,
-                                                modifier = Modifier.size(48.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text("Yellow", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            RivoAvatar(
-                                                name = "Alice",
-                                                style = contrastPreviewStyle,
-                                                modifier = Modifier.size(48.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text("Green", style = MaterialTheme.typography.labelSmall)
-                                        }
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            RivoAvatar(
-                                                name = "Emma",
-                                                style = contrastPreviewStyle,
-                                                modifier = Modifier.size(48.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text("Red", style = MaterialTheme.typography.labelSmall)
+                                        listOf(
+                                            Triple("David", "Blue", "White text"),
+                                            Triple("Daisy", "Yellow", "Dark text"),
+                                            Triple("Alice", "Green", "Dark text"),
+                                            Triple("Emma", "Red", "White text")
+                                        ).forEach { (contactName, hueName, contrastDesc) ->
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                RivoAvatar(
+                                                    name = contactName,
+                                                    style = contrastPreviewStyle,
+                                                    modifier = Modifier.size(48.dp)
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(hueName, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+                                                Text(contrastDesc, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            }
                                         }
                                     }
                                 }
@@ -219,8 +211,12 @@ fun AvatarSettingsScreen(
                             }
                         )
                     }
-                    if (gradientAvatars) {
-                        item {
+                    item {
+                        AnimatedVisibility(
+                            visible = gradientAvatars,
+                            enter = expandVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)) + fadeIn(),
+                            exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)) + fadeOut()
+                        ) {
                             RivoExpressiveCard(
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
                             ) {
@@ -252,7 +248,12 @@ fun AvatarSettingsScreen(
                                         horizontalArrangement = Arrangement.SpaceEvenly,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        listOf("David", "Daisy", "Alice", "Emma").forEach { contactName ->
+                                        listOf(
+                                            Triple("David Miller", "Blue", "White text"),
+                                            Triple("Daisy Evans", "Yellow", "Dark text"),
+                                            Triple("Alice Cooper", "Green", "Dark text"),
+                                            Triple("Emma Watson", "Red", "White text")
+                                        ).forEach { (contactName, hueName, contrastDesc) ->
                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                 RivoAvatar(
                                                     name = contactName,
@@ -260,7 +261,8 @@ fun AvatarSettingsScreen(
                                                     modifier = Modifier.size(48.dp)
                                                 )
                                                 Spacer(modifier = Modifier.height(4.dp))
-                                                Text(contactName, style = MaterialTheme.typography.labelSmall)
+                                                Text(hueName, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+                                                Text(contrastDesc, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                         }
                                     }

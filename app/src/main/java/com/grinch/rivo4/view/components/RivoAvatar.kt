@@ -147,10 +147,11 @@ private fun rivoTintedAvatarColors(name: String, dark: Boolean): RivoAvatarColor
     val hue = rivoAvatarHueIndex(name) * (360f / RivoAvatarDefaults.HueCount)
     val isInherentlyBrightHue = hue in 40f..170f // Yellow, Lime, Amber, Green
     val container = if (dark) {
-        val lightness = if (isInherentlyBrightHue) 0.32f else 0.24f
+        val lightness = if (isInherentlyBrightHue) 0.68f else 0.35f
+        val saturation = if (isInherentlyBrightHue) 0.75f else RivoAvatarDefaults.DarkContainerSaturation
         hslColor(
             hue,
-            RivoAvatarDefaults.DarkContainerSaturation,
+            saturation,
             lightness
         )
     } else {
@@ -208,6 +209,18 @@ private fun gradientAvatarBrush(name: String, dark: Boolean): Brush {
             end = Offset.Infinite
         )
     }
+}
+
+private fun gradientAvatarContentColor(name: String, dark: Boolean): Color {
+    val baseHue = rivoAvatarHueIndex(name) * (360f / RivoAvatarDefaults.HueCount)
+    val accentHue = (baseHue + 45f) % 360f
+    val (startColor, endColor) = if (dark) {
+        hslColor(baseHue, 0.75f, 0.42f) to hslColor(accentHue, 0.85f, 0.26f)
+    } else {
+        hslColor(baseHue, 0.85f, 0.78f) to hslColor(accentHue, 0.90f, 0.58f)
+    }
+    val avgLum = (startColor.luminance() + endColor.luminance()) / 2f
+    return if (avgLum > 0.45f) Color(0xFF1C1B1F) else Color.White
 }
 
 private val WHITESPACE_REGEX = Regex("\\s+")
@@ -331,9 +344,9 @@ fun RivoAvatar(
         Modifier.background(colors.container, avatarShape)
     }
 
-    val effectiveContentColor = remember(colors, style.gradient, dark) {
+    val effectiveContentColor = remember(colors, style.gradient, dark, name) {
         if (style.gradient) {
-            if (dark) Color.White else Color(0xFF1C1B1F)
+            gradientAvatarContentColor(name, dark)
         } else {
             colors.content
         }

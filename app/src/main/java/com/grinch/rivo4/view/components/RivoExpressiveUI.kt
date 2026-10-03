@@ -595,6 +595,7 @@ fun RivoListItem(
     val targetContainer = when {
         containerColor.isSpecified -> containerColor
         selected -> MaterialTheme.colorScheme.secondaryContainer
+        toggled == true -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)
         else -> Color.Transparent
     }
     val animatedContainer by animateColorAsState(
@@ -758,6 +759,7 @@ fun RivoSwitchListItem(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isCompact: Boolean = false,
     headlineMaxLines: Int = 3,
     supportingMaxLines: Int = Int.MAX_VALUE
 ) {
@@ -768,6 +770,7 @@ fun RivoSwitchListItem(
         onClick = { onCheckedChange(!checked) },
         modifier = modifier,
         enabled = enabled,
+        isCompact = isCompact,
         toggled = checked,
         role = Role.Switch,
         headlineMaxLines = headlineMaxLines,
