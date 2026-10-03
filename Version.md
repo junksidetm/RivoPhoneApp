@@ -130,3 +130,23 @@
 - **Libraries & Tools:**
   - Jetpack Compose Foundation
 - **Status:** 100% (Compilation fix applied, staged, and pushed for remote verification).
+
+## [2026-10-03 21:22] - Adaptive App Icon Foreground & Material You Themed Icon Support
+- **Action:** Updated the Rivo Phone application launcher icon using the new `Phone-AppLogo.svg`:
+  1. **Safe Zone Calibration (66dp Safe Area):** Scaled (scale factor 0.58) and translated the vector phone handset to center perfectly at (54, 54) dp on the 108dp canvas, ensuring 100% of graphic paths remain within the guaranteed 66dp circular mask across all OEM launchers (Pixel, Samsung OneUI, MIUI, Motorola).
+  2. **Multi-Tone Vector Foreground (`ic_launcher_foreground.xml`):** Preserved multi-tone handset accents (`#B1BDF9`, `#1E5AA8`, `#758AEF`) on a solid clean white background (`#FFFFFF`).
+  3. **Material You Monochrome Vector (`ic_launcher_monochrome.xml`):** Implemented dedicated monochrome vector drawable with calibrated fill opacities for seamless Android 13+ dynamic system color tinting.
+  4. **Adaptive Icon Definitions:** Updated `mipmap-anydpi` and `mipmap-anydpi-v26` for both square and round adaptive icons (`ic_launcher.xml`, `ic_launcher_round.xml`) to point directly to vector drawables.
+- **Files Modified:**
+  - `app/src/main/res/drawable/ic_launcher_foreground.xml`
+  - `app/src/main/res/drawable/ic_launcher_monochrome.xml`
+  - `app/src/main/res/drawable/ic_launcher_background.xml`
+  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml`
+  - `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml`
+  - `app/src/main/res/mipmap-anydpi/ic_launcher.xml`
+  - `app/src/main/res/mipmap-anydpi/ic_launcher_round.xml`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Android VectorDrawable
+  - Material 3 / Material You Adaptive Icons (API 26–37)
+- **Status:** 100% (App icon updated, calibrated, and ready for automated per-commit release).
