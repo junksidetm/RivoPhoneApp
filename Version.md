@@ -121,3 +121,12 @@
   - Gradle / Groovy DSL
   - GitHub Actions (`actions/checkout@v4`, `actions/setup-java@v4`, `softprops/action-gh-release@v2`)
 - **Status:** 100% (Dynamic per-commit releases and tagging configured, verified, and ready).
+
+## [2026-10-03 21:11] - Missing Compose Import Fix in PrivateContactsScreen
+- **Action:** Fixed compilation error in `PrivateContactsScreen.kt` by adding missing `import androidx.compose.foundation.clickable`. Resolved remote build compilation exception detected in GitHub Actions release job.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PrivateContactsScreen.kt`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Jetpack Compose Foundation
+- **Status:** 100% (Compilation fix applied, staged, and pushed for remote verification).
