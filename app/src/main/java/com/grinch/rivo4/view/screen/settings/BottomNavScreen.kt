@@ -2,6 +2,13 @@ package com.grinch.rivo4.view.screen.settings
 import com.grinch.rivo4.view.components.RivoResetButton
 import com.grinch.rivo4.view.components.MenuTopAppBar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -216,6 +223,26 @@ fun BottomNavScreen(
                                     onCheckedChange = { checked ->
                                         val newHidden = if (checked) hidden - tabId else hidden + tabId
                                         persist(order, newHidden)
+                                    },
+                                    thumbContent = {
+                                        AnimatedContent(
+                                            targetState = isVisible,
+                                            transitionSpec = {
+                                                (scaleIn(initialScale = 0.5f) + fadeIn()) togetherWith
+                                                (scaleOut(targetScale = 0.5f) + fadeOut())
+                                            },
+                                            label = "NavTabSwitchThumb"
+                                        ) { checked ->
+                                            if (checked) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Check,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                                )
+                                            } else {
+                                                Spacer(modifier = Modifier.size(SwitchDefaults.IconSize))
+                                            }
+                                        }
                                     }
                                 )
                             }

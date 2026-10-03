@@ -4,8 +4,10 @@ import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.size
@@ -84,11 +86,22 @@ fun RivoFloatingActionButton(
                     .background(containerColor.copy(alpha = 0.85f))
             )
 
-            // Foreground interactive content layer
+            // Foreground interactive content layer with liquid glass specular rim
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(shape)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.65f),
+                                Color.White.copy(alpha = 0.15f),
+                                Color.White.copy(alpha = 0.45f)
+                            )
+                        ),
+                        shape = shape
+                    )
                     .clickable(
                         interactionSource = resolvedInteractionSource,
                         indication = ripple(),

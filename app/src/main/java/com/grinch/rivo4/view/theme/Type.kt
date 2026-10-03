@@ -19,8 +19,8 @@ fun createGoogleSansFlexFamily(
     weight: Int = 400,
     width: Float = 100f,
     grade: Float = 50f,
-    roundness: Float = 100f,
-    opticalSize: Float = 12f,
+    roundness: Float = 71f,
+    opticalSize: Float = 43f,
     slant: Float = 0f
 ): FontFamily {
     val clampedWeight = weight.coerceIn(100, 1000)

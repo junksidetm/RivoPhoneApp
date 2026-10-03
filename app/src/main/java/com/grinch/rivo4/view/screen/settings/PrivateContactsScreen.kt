@@ -634,7 +634,27 @@ fun PrivateContactsScreen(
                     }
                     Switch(
                         checked = hideFromSettings,
-                        onCheckedChange = { hideFromSettings = it }
+                        onCheckedChange = { hideFromSettings = it },
+                        thumbContent = {
+                            AnimatedContent(
+                                targetState = hideFromSettings,
+                                transitionSpec = {
+                                    (scaleIn(initialScale = 0.5f) + fadeIn()) togetherWith
+                                    (scaleOut(targetScale = 0.5f) + fadeOut())
+                                },
+                                label = "PrivateSwitchThumb"
+                            ) { checked ->
+                                if (checked) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.size(SwitchDefaults.IconSize))
+                                }
+                            }
+                        }
                     )
                 }
             }

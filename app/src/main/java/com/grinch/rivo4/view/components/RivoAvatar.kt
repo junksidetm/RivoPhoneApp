@@ -145,17 +145,21 @@ fun adaptiveAvatarContentColor(containerColor: Color): Color {
 
 private fun rivoTintedAvatarColors(name: String, dark: Boolean): RivoAvatarColors {
     val hue = rivoAvatarHueIndex(name) * (360f / RivoAvatarDefaults.HueCount)
+    val isInherentlyBrightHue = hue in 40f..170f // Yellow, Lime, Amber, Green
     val container = if (dark) {
+        val lightness = if (isInherentlyBrightHue) 0.32f else 0.24f
         hslColor(
             hue,
             RivoAvatarDefaults.DarkContainerSaturation,
-            RivoAvatarDefaults.DarkContainerLightness
+            lightness
         )
     } else {
+        val lightness = if (isInherentlyBrightHue) 0.76f else 0.48f
+        val saturation = if (isInherentlyBrightHue) 0.85f else 0.65f
         hslColor(
             hue,
-            RivoAvatarDefaults.LightContainerSaturation,
-            RivoAvatarDefaults.LightContainerLightness
+            saturation,
+            lightness
         )
     }
     val content = adaptiveAvatarContentColor(container)
@@ -183,21 +187,25 @@ fun rivoAvatarColors(name: String, colorful: Boolean = true): RivoAvatarColors {
 
 private fun gradientAvatarBrush(name: String, dark: Boolean): Brush {
     val baseHue = rivoAvatarHueIndex(name) * (360f / RivoAvatarDefaults.HueCount)
-    val accentHue = (baseHue + 180f) % 360f
+    val accentHue = (baseHue + 45f) % 360f
 
     return if (dark) {
-        Brush.radialGradient(
-            0.0f to hslColor(baseHue, 0.75f, 0.45f),
-            1.0f to hslColor(accentHue, 0.60f, 0.22f),
-            center = Offset(0.25f, 0.15f),
-            radius = 1.3f
+        Brush.linearGradient(
+            colors = listOf(
+                hslColor(baseHue, 0.75f, 0.42f),
+                hslColor(accentHue, 0.85f, 0.26f)
+            ),
+            start = Offset.Zero,
+            end = Offset.Infinite
         )
     } else {
-        Brush.radialGradient(
-            0.0f to hslColor(baseHue, 0.80f, 0.85f),
-            1.0f to hslColor(accentHue, 0.65f, 0.55f),
-            center = Offset(0.25f, 0.15f),
-            radius = 1.3f
+        Brush.linearGradient(
+            colors = listOf(
+                hslColor(baseHue, 0.85f, 0.78f),
+                hslColor(accentHue, 0.90f, 0.58f)
+            ),
+            start = Offset.Zero,
+            end = Offset.Infinite
         )
     }
 }

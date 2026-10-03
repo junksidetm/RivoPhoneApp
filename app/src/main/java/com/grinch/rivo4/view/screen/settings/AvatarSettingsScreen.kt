@@ -20,6 +20,8 @@ import com.grinch.rivo4.R
 import com.grinch.rivo4.controller.util.PreferenceManager
 import com.grinch.rivo4.view.components.RivoAvatar
 import com.grinch.rivo4.view.components.RivoAvatarShapeSelectorRow
+import com.grinch.rivo4.view.components.RivoAvatarStyle
+import com.grinch.rivo4.view.theme.rivoAvatarShape
 import com.grinch.rivo4.view.components.RivoDivider
 import com.grinch.rivo4.view.components.RivoExpressiveCard
 import com.grinch.rivo4.view.components.RivoExpressiveGroup
@@ -150,6 +152,15 @@ fun AvatarSettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
+                                    val currentShape = rivoAvatarShape(avatarShape)
+                                    val contrastPreviewStyle = RivoAvatarStyle(
+                                        showPicture = false,
+                                        showFirstLetter = true,
+                                        colorful = true,
+                                        gradient = false,
+                                        shapeIndex = avatarShape,
+                                        shape = currentShape
+                                    )
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -158,6 +169,7 @@ fun AvatarSettingsScreen(
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             RivoAvatar(
                                                 name = "David",
+                                                style = contrastPreviewStyle,
                                                 modifier = Modifier.size(48.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
@@ -165,7 +177,8 @@ fun AvatarSettingsScreen(
                                         }
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             RivoAvatar(
-                                                name = "Yelena",
+                                                name = "Daisy",
+                                                style = contrastPreviewStyle,
                                                 modifier = Modifier.size(48.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
@@ -173,7 +186,8 @@ fun AvatarSettingsScreen(
                                         }
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             RivoAvatar(
-                                                name = "Grace",
+                                                name = "Alice",
+                                                style = contrastPreviewStyle,
                                                 modifier = Modifier.size(48.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
@@ -181,7 +195,8 @@ fun AvatarSettingsScreen(
                                         }
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             RivoAvatar(
-                                                name = "Scarlett",
+                                                name = "Emma",
+                                                style = contrastPreviewStyle,
                                                 modifier = Modifier.size(48.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
@@ -203,6 +218,55 @@ fun AvatarSettingsScreen(
                                 prefs.setBoolean(PreferenceManager.KEY_GRADIENT_AVATARS, it)
                             }
                         )
+                    }
+                    if (gradientAvatars) {
+                        item {
+                            RivoExpressiveCard(
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Text(
+                                        text = "Gradient Avatars Preview",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Multi-tone diagonal gradients with 2-letter initials create rich, dynamic contact cards.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    val currentShape = rivoAvatarShape(avatarShape)
+                                    val gradientPreviewStyle = RivoAvatarStyle(
+                                        showPicture = false,
+                                        showFirstLetter = true,
+                                        colorful = true,
+                                        gradient = true,
+                                        shapeIndex = avatarShape,
+                                        shape = currentShape
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        listOf("David", "Daisy", "Alice", "Emma").forEach { contactName ->
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                RivoAvatar(
+                                                    name = contactName,
+                                                    style = gradientPreviewStyle,
+                                                    modifier = Modifier.size(48.dp)
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(contactName, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     item {
                         RivoSwitchListItem(

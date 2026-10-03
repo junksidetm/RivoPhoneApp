@@ -48,3 +48,32 @@
   - `.github/workflows/build_apks.yml`: Added `set -o pipefail` to ensure Gradle build failures halt pipeline, hardened `SHA256SUMS.txt` generation to only run when APKs exist, and added `hashFiles('outputs/*.apk') != ''` to release publish step.
   - `.github/workflows/codeql.yml`: Configured `build-mode: manual` and added `./gradlew compileReleaseKotlin --no-daemon` step.
 - **Status:** 100% (CI/CD pipeline and experimental opt-ins resolved).
+
+## [2026-10-03 19:59] - Application ID, Google Sans Flex Defaults, Switch Animations, Liquid Glass Engine, Smart Contrast & Gradient Avatars
+- **Action:** Implemented six core improvements requested across Rivo Phone App:
+  1. **Application ID:** Updated `applicationId` to `"com.mrdarksidetm.rivo"` in `app/build.gradle`.
+  2. **Google Sans Flex Defaults:** Configured default variable font axes to `grad: 50f`, `wght: 400`, `wdth: 100f`, `rond: 71f` (was 100f), and `opsz: 43f` (was 12f) across `Type.kt` and `PreferenceManager.kt`.
+  3. **Switch & Toggle Animations:** Added animated `thumbContent` with morphing icon transitions (`AnimatedContent` + `Icons.Filled.Check`) and interactive dragging/touch physics across `RivoSwitchListItem`, `RivoSegmentedOptionRow`, `BottomNavScreen`, `ContactDetails`, and `PrivateContactsScreen`.
+  4. **Liquid Glass Engine & Live Preview:** Implemented the hardware-accelerated Liquid Glass architecture ported from Cresto & Glasense UI (`D:\code\liquid_glass\`), featuring AGSL Snell's Law refraction lens shader (`LIQUID_LENS_SHADER`), dual-branch multi-layer hardware blur compositing (`buildLiquidGlassRenderEffect`), specular highlight rim reflection, and an interactive `LiquidGlassPreviewCard` displayed when Frosted Glass & Blur Effects toggle is enabled in `InterfaceScreen.kt`. Also enhanced `RivoFrostedFAB` with liquid glass specular rim border.
+  5. **Smart Contrast Preview:** Fixed `AvatarSettingsScreen.kt` avatar sample names to accurately match hue generation: David (Blue, 240° -> crisp white text), Daisy (Yellow, 60° -> dark high-contrast text), Alice (Green, 120° -> dark high-contrast text), and Emma (Red, 0° -> crisp white text). Calibrated container lightness in `RivoAvatar.kt` so that dynamic luminance-based text contrast adapts between white and dark text. Connected preview to active shape state.
+  6. **Gradient Contact Avatars:** Replaced the broken 1.3-pixel radial gradient with a full-canvas diagonal `Brush.linearGradient` using harmonious analog hues (`baseHue + 45°`). Added a dedicated `Gradient Avatars Preview` card in `AvatarSettingsScreen.kt` so users can preview multi-tone gradient avatars in real time.
+- **Files Modified:**
+  - `app/build.gradle`
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Type.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/util/PreferenceManager.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoExpressiveUI.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoAvatar.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoLiquidGlass.kt` (new)
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoFrostedFAB.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/InterfaceScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/AvatarSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/BottomNavScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PrivateContactsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/ContactDetails.kt`
+- **Libraries & Tools:**
+  - Android Gradle Plugin: `8.13.2`
+  - Kotlin: `2.1.0`
+  - Jetpack Compose BOM: `2025.12.01`
+  - Material 3: `1.5.0-alpha18`
+  - AGSL RuntimeShader & RenderEffect (API 33+)
+- **Status:** 100% (All requested features, fixes, and architectural enhancements completed).

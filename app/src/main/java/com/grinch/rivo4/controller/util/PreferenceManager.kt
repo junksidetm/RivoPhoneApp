@@ -459,8 +459,8 @@ class PreferenceManager(context: Context) {
         const val DEFAULT_FONT_WEIGHT = 400
         const val DEFAULT_FONT_WIDTH = 100f
         const val DEFAULT_FONT_GRADE = 50f
-        const val DEFAULT_FONT_ROUNDNESS = 100f
-        const val DEFAULT_FONT_OPTICAL_SIZE = 12f
+        const val DEFAULT_FONT_ROUNDNESS = 71f
+        const val DEFAULT_FONT_OPTICAL_SIZE = 43f
         const val DEFAULT_FONT_SLANT = 0f
 
         const val KEY_IS_SUPPORTER = "is_supporter"

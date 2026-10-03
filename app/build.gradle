@@ -16,7 +16,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.grinch.rivo4"
+        applicationId = "com.mrdarksidetm.rivo"
         minSdk = 29
         targetSdk = 37
         versionCode = baseVersionCode + buildNumber

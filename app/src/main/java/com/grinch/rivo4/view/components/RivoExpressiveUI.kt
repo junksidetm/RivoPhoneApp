@@ -1,9 +1,15 @@
 package com.grinch.rivo4.view.components
 import androidx.compose.material.icons.outlined.Restore
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -769,8 +775,28 @@ fun RivoSwitchListItem(
         trailingContent = {
             Switch(
                 checked = checked,
-                onCheckedChange = null,
-                enabled = enabled
+                onCheckedChange = if (enabled) onCheckedChange else null,
+                enabled = enabled,
+                thumbContent = {
+                    AnimatedContent(
+                        targetState = checked,
+                        transitionSpec = {
+                            (scaleIn(initialScale = 0.5f) + fadeIn()) togetherWith
+                            (scaleOut(targetScale = 0.5f) + fadeOut())
+                        },
+                        label = "RivoSwitchThumbAnim"
+                    ) { isChecked ->
+                        if (isChecked) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.size(SwitchDefaults.IconSize))
+                        }
+                    }
+                }
             )
         }
     )
@@ -940,14 +966,23 @@ fun RivoSegmentedOptionRow(
                 enabled = enabled,
                 shape = SegmentedButtonDefaults.itemShape(index, options.size),
                 icon = {
-                    if (glyph != null) {
-                        Icon(
-                            imageVector = glyph,
-                            contentDescription = null,
-                            modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
-                        )
-                    } else {
-                        SegmentedButtonDefaults.Icon(active = isSelected)
+                    AnimatedContent(
+                        targetState = isSelected,
+                        transitionSpec = {
+                            (scaleIn(initialScale = 0.6f) + fadeIn()) togetherWith
+                            (scaleOut(targetScale = 0.6f) + fadeOut())
+                        },
+                        label = "SegmentedIconAnim"
+                    ) { active ->
+                        if (glyph != null) {
+                            Icon(
+                                imageVector = glyph,
+                                contentDescription = null,
+                                modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
+                            )
+                        } else {
+                            SegmentedButtonDefaults.Icon(active = active)
+                        }
                     }
                 },
                 label = {

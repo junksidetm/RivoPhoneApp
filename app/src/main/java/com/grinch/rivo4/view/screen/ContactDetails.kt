@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -1450,6 +1450,26 @@ fun ContactDetailsScreen(
                                                 onCheckedChange = { checked ->
                                                     isPriorityContact = checked
                                                     prefs.setPriorityContact(fc.id, phoneNumber ?: fc.phoneNumbers.firstOrNull(), checked)
+                                                },
+                                                thumbContent = {
+                                                    AnimatedContent(
+                                                        targetState = isPriorityContact,
+                                                        transitionSpec = {
+                                                            (scaleIn(initialScale = 0.5f) + fadeIn()) togetherWith
+                                                            (scaleOut(targetScale = 0.5f) + fadeOut())
+                                                        },
+                                                        label = "PrioritySwitchThumb"
+                                                    ) { checked ->
+                                                        if (checked) {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.Check,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                                                            )
+                                                        } else {
+                                                            Spacer(modifier = Modifier.size(SwitchDefaults.IconSize))
+                                                        }
+                                                    }
                                                 }
                                             )
                                         },
