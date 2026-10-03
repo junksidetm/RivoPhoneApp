@@ -294,3 +294,22 @@
   - GitHub Actions CI/CD (Deterministic Keystore Automation, `gh secret set`)
   - Obtainium Auto-Updater Specification
 - **Status:** 100% (Permanent signing keystore automation implemented, Obtainium links and documentation aligned).
+## [2026-10-04 02:04] - Verified Permanent Release Keystore & Deployed v2.2.401
+- **Action:** Verified GitHub Actions build execution, permanent release signing certificate, and repository keystore synchronization:
+  1. **Automated Keystore Deployment & Verification:**
+     - Workflow run `37151570859` successfully executed `Setup Keystore`, created the permanent production keystore, and committed `app/release.keystore` to `main` branch (commit `8f54502`).
+     - Release `v2.2.401` was successfully built and published with the permanent certificate.
+     - Extracted and verified permanent SHA256 certificate fingerprint: `4C:31:29:5A:D9:3B:09:28:15:D7:23:FB:B5:30:BC:A9:64:09:60:18:03:BD:CA:AE:C0:A7:C7:32:ED:CC:11:5C`.
+  2. **Multi-Remote Synchronization:**
+     - Pulled `app/release.keystore` to the local repository.
+     - Synchronized the keystore commit across all upstream and remote mirrors (GitHub, GitLab `mrdarksidetm/RivoPhoneApp`, Codeberg `mrdarksidetm/RivoPhoneApp`).
+  3. **Obtainium Update Stability:**
+     - Because `app/release.keystore` is permanently tracked in the repository, all future releases from GitHub Actions will use this exact same signing certificate, completely resolving the certificate mismatch update error for all future updates.
+- **Files Modified:**
+  - `app/release.keystore`
+  - `Version.md`
+- **Libraries & Tools:**
+  - GitHub Actions CI/CD (`softprops/action-gh-release@v2`, `actions/upload-artifact@v4`)
+  - Keytool & Android Apksigner
+  - Obtainium Auto-Updater
+- **Status:** 100% (Permanent keystore generated, committed, and verified; Release v2.2.401 live; multi-remote sync complete).
