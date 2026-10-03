@@ -127,13 +127,28 @@ object ShizukuCallingCardBridge {
         BridgeResult(success = false, message = reason)
     }
 
+    private fun startShizukuProcess(cmd: Array<String>): java.lang.Process? {
+        return try {
+            val method = Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,
+                Array<String>::class.java,
+                String::class.java
+            )
+            method.isAccessible = true
+            method.invoke(null, cmd, null, null) as? java.lang.Process
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     /**
      * Executes a shell command directly through Shizuku's remote server process.
      * This avoids UserService and app_process classpath execution, preventing SELinux/JVM deadlocks.
      */
     fun execShizukuCommand(cmd: String, timeoutMs: Long = 2000L): String? {
         return try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", cmd), null, null)
+            val process = startShizukuProcess(arrayOf("sh", "-c", cmd)) ?: return null
             val reader = process.inputStream.bufferedReader()
             val output = StringBuilder()
             val deadline = System.currentTimeMillis() + timeoutMs
@@ -165,7 +180,7 @@ object ShizukuCallingCardBridge {
     suspend fun readShizukuBitmap(filePath: String, timeoutMs: Long = 2000L): Bitmap? = withTimeoutOrNull(timeoutMs) {
         withContext(Dispatchers.IO) {
             try {
-                val process = Shizuku.newProcess(arrayOf("cat", filePath), null, null)
+                val process = startShizukuProcess(arrayOf("cat", filePath)) ?: return@withContext null
                 val bytes = try {
                     process.inputStream.use { it.readBytes() }
                 } finally {
