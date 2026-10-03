@@ -35,6 +35,10 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 
 ## Features
 
+- **Calling Cards & Contact Posters**: Full-screen high-resolution call backgrounds synced automatically from Google Phone & Google Contacts. Uses a non-blocking multi-tier bridge with instant native `ContactsContract.DisplayPhoto` (2560x2560) priority and direct elevated Shizuku shell process fallback (`Shizuku.newProcess`) without screen freezes.
+- **Liquid Glass & Frosted Blur Engine**: Hardware-accelerated Snell's Law AGSL refraction lens shader (`RuntimeShader` on Android 13+) and dual-branch hardware blur compositing with interactive live preview and specular rim reflections.
+- **Google Sans Flex Variable Typography**: High-fidelity variable font engine supporting real-time adjustments for Grade (`GRAD`), Weight (`wght`), Width (`wdth`), Roundness (`ROND`), Optical Size (`opsz`), and Slant (`slnt`).
+- **Smart Contrast & Gradient Avatars**: Dynamically calculated WCAG-compliant text contrast adapting between dark and crisp white text based on container luminance, plus dual-tone harmonious gradient contact avatars and customizable squircle/polygon shapes.
 - **T9 Search & Speed Dial**: Quick contact lookup by name or number right on the keypad, plus 1–9 speed dial shortcuts.
 - **Dual SIM Support**: Outbound SIM selector, per-contact preferred SIM memory, and carrier tags.
 - **Call Recording via Shizuku**: Internal 2-way call audio capture via Shizuku ADB permissions, without needing root or accessibility services. Standard microphone recording fallback included.
@@ -43,8 +47,8 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 - **Private Contacts Vault**: Keep specific contacts, their call history, and notifications locked behind biometrics or device PIN.
 - **Contact Management**: Edit multiple numbers, emails, and addresses per contact with custom labels, contact deduplication, and local or cloud account storage.
 - **Fake Incoming Call**: Simulate an incoming call with custom caller name, number, ringtone, and timer.
-- **Blocklist**: Block spam numbers directly from call logs or contact details.
-- **Customization**: Material You dynamic color theming, configurable dialpad layouts, avatar shapes, and app-level biometric lock.
+- **Blocklist & Spam Shield**: Block spam numbers directly from call logs or contact details.
+- **Customization**: Material 3 Expressive theming, configurable dialpad layouts, avatar shapes, call log grouping, and app-level biometric lock.
 
 ## Screenshots
 
