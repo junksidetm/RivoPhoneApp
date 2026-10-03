@@ -13,21 +13,17 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 
 <br>
 
-<a href="https://play.google.com/store/apps/details?id=com.grinch.rivo4">
-  <img src="https://raw.githubusercontent.com/user-grinch/RivoPhoneApp/main/images/play.png" alt="Get it on Google Play" height="40">
-</a>
-&nbsp;
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.grinch.rivo4%22,%22url%22:%22https://github.com/user-grinch/RivoPhoneApp%22,%22author%22:%22user-grinch%22,%22name%22:%22RivoPhoneApp%22}">
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.mrdarksidetm.rivo%22,%22url%22:%22https://github.com/junksidetm/RivoPhoneApp%22,%22author%22:%22junksidetm%22,%22name%22:%22RivoPhoneApp%22}">
   <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/b1c8ac6f2ab08497189721a788a5763e28ff64cd/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="40">
 </a>
 &nbsp;
-<a href="https://github.com/user-grinch/RivoPhoneApp/releases">
+<a href="https://github.com/junksidetm/RivoPhoneApp/releases">
   <img src="https://user-images.githubusercontent.com/69304392/148696068-0cfea65d-b18f-4685-82b5-329a330b1c0d.png" alt="Download APK from GitHub" height="40">
 </a>
 
 <br>
 
-[Patreon](https://www.patreon.com/c/grinch_) &bull; [Discord](https://discord.gg/NtEvU3726e) &bull; [Translate](https://crowdin.com/project/rivophone) &bull; [Releases](https://github.com/user-grinch/RivoPhoneApp/releases)
+[Releases](https://github.com/junksidetm/RivoPhoneApp/releases) &bull; [GitLab](https://gitlab.com/mrdarksidetm/RivoPhoneApp) &bull; [Codeberg](https://codeberg.org/mrdarksidetm/RivoPhoneApp) &bull; [Upstream Source](https://github.com/user-grinch/RivoPhoneApp)
 
 </div>
 
@@ -65,16 +61,18 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 
 ## Downloads
 
-- **Google Play**: [Play Store listing](https://play.google.com/store/apps/details?id=com.grinch.rivo4)
-- **Obtainium**: Add via [Obtainium link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.grinch.rivo4%22,%22url%22:%22https://github.com/user-grinch/RivoPhoneApp%22,%22author%22:%22user-grinch%22,%22name%22:%22RivoPhoneApp%22})
-- **GitHub**: Pre-built APKs on [Releases](https://github.com/user-grinch/RivoPhoneApp/releases)
+- **Obtainium**: One-click install & updates via [Obtainium link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.mrdarksidetm.rivo%22,%22url%22:%22https://github.com/junksidetm/RivoPhoneApp%22,%22author%22:%22junksidetm%22,%22name%22:%22RivoPhoneApp%22})
+- **GitHub Releases**: Download production release APKs on [GitHub Releases](https://github.com/junksidetm/RivoPhoneApp/releases)
+- **Source Mirrors**: Available across [GitLab](https://gitlab.com/mrdarksidetm/RivoPhoneApp) and [Codeberg](https://codeberg.org/mrdarksidetm/RivoPhoneApp)
 
-### APK Signing Certificate Hash
+### Note on Updating with Obtainium ("Different Certificate" Warning)
+If you previously installed an older build or the upstream `user-grinch` version and Obtainium shows:
+> *"The downloaded apk is signed with a different certificate then installed app. The install was skipped"*
 
-```text
-com.grinch.rivo4
-AF:7B:C8:10:1A:C9:D7:4B:93:5B:31:4B:71:C7:EE:1D:ED:0F:9D:45:AB:07:4C:72:7F:82:11:89:F4:56:50:C5
-```
+This is standard Android security enforcement (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`) when updating between different signing keys:
+1. **One-Time Fix:** In Obtainium, go to **Rivo Phone App** settings > enable **Allow reinstalling with different certificate** (or uninstall the old app version once).
+2. Install the new release.
+3. Every future update will share the permanent production release signing certificate and update automatically without warnings.
 
 ## Contributing
 

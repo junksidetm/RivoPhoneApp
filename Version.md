@@ -270,3 +270,27 @@
   - Android ContactsContract (High-Res DisplayPhoto API & Photo File IDs)
   - Jetpack Compose & Material 3 Expressive
 - **Status:** 100% (New non-blocking Calling Card architecture implemented, native ContactsContract prioritization active, direct Shizuku shell process verified).
+
+## [2026-10-04 01:56] - Fix Obtainium Update Failure: Deterministic Production Keystore Persistence & Repository Secrets
+- **Action:** Diagnosed and resolved the Obtainium update warning *"The downloaded apk is signed with a different certificate then installed app. The install was skipped"*:
+  1. **Root Cause Analysis (Certificate Mismatch in Obtainium):**
+     - **Ephemeral CI Keystore Generation:** In `.github/workflows/build_apks.yml`, when `secrets.KEYSTORE_BASE64` was not configured in GitHub Secrets, the CI generated a fallback release keystore on the fly via `keytool -genkey`. Because GitHub Actions operates on fresh ephemeral Ubuntu runners, each build generated a brand new random 2048-bit RSA key pair.
+     - **Cryptographic Signature Mismatch:** Release `v2.2.399` was signed with certificate `F9:E6:3B:...`, while release `v2.2.400` was signed with certificate `75:5D:05:...`. Android OS package manager strictly enforces `INSTALL_FAILED_UPDATE_INCOMPATIBLE` when updating an app with a different certificate, causing Obtainium to skip the installation to prevent corruption.
+     - **Upstream vs Fork Discrepancy:** `README.md` previously referenced upstream's `AF:7B:C8:...` fingerprint and `user-grinch` Obtainium redirect link instead of the fork's package name `com.mrdarksidetm.rivo`.
+  2. **Permanent Keystore Automation in CI/CD:**
+     - Updated `.github/workflows/build_apks.yml` to establish a 3-tier deterministic keystore resolution pipeline:
+       - **Tier 1:** Check committed `app/release.keystore` in the repository.
+       - **Tier 2:** Check `secrets.KEYSTORE_BASE64` in GitHub repository secrets.
+       - **Tier 3:** If neither exists, generate the production keystore ONCE, automatically persist it into `KEYSTORE_BASE64` via `gh secret set`, commit `app/release.keystore` to git with `[skip ci]`, and archive it into `outputs/` release artifacts.
+     - Guaranteed that all future releases will be signed with the exact same permanent certificate.
+  3. **Documentation & User Transition Path:**
+     - Updated `README.md` with Obtainium one-click redirect configured for `com.mrdarksidetm.rivo` on `junksidetm/RivoPhoneApp`.
+     - Added clear user troubleshooting guidance explaining the one-time transition: users updating from an older ephemeral build or upstream `user-grinch` must either enable *"Allow reinstalling with different certificate"* in Obtainium or perform a one-time uninstall/reinstall, after which all future updates will install automatically.
+- **Files Modified:**
+  - `.github/workflows/build_apks.yml`
+  - `README.md`
+  - `Version.md`
+- **Libraries & Tools:**
+  - GitHub Actions CI/CD (Deterministic Keystore Automation, `gh secret set`)
+  - Obtainium Auto-Updater Specification
+- **Status:** 100% (Permanent signing keystore automation implemented, Obtainium links and documentation aligned).

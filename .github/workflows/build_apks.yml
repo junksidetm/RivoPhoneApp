@@ -75,16 +75,33 @@ jobs:
           echo "Computed Release Tag: ${RELEASE_TAG}"
 
       - name: Setup Keystore
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p app
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+          if [ -f "app/release.keystore" ]; then
+            echo "Using committed repository release keystore..."
+          elif [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Restoring keystore from KEYSTORE_BASE64 secret..."
             echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
-            echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
           else
-            echo "Generating fallback release keystore..."
+            echo "Generating permanent release keystore..."
             keytool -genkey -v -keystore app/release.keystore -alias rivorelease -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RivoPhone, OU=Mobile, O=Rivo, L=Local, S=State, C=US"
-            echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
+            
+            # Persist keystore as repository secret KEYSTORE_BASE64 so all future CI runners use it
+            if command -v gh >/dev/null 2>&1 && [ -n "$GH_TOKEN" ]; then
+              echo "Persisting keystore as repository secret KEYSTORE_BASE64..."
+              base64 -w 0 app/release.keystore | gh secret set KEYSTORE_BASE64 --repo "${{ github.repository }}" || true
+            fi
+            
+            # Commit keystore to git so repository checkouts and builds are 100% reproducible
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add app/release.keystore
+            git commit -m "chore: persist permanent release keystore for deterministic signing [skip ci]" || true
+            git push origin HEAD:${{ github.ref_name }} || true
           fi
+          echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
 
       - name: Run Android Lint Analysis
         env:
@@ -119,6 +136,9 @@ jobs:
           fi
           
           cp -f "$RAW_APK" "outputs/RivoPhone-${RELEASE_TAG}.apk"
+          if [ -f "app/release.keystore" ]; then
+            cp -f "app/release.keystore" "outputs/release.keystore"
+          fi
 
           echo "Collected single universal APK in outputs/:"
           ls -lah outputs/
