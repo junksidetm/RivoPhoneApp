@@ -54,7 +54,9 @@ import com.ramcosta.composedestinations.generated.destinations.QuickResponsesScr
 import com.ramcosta.composedestinations.generated.destinations.SpeedDialScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.VoicemailScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 
 import android.net.Uri
@@ -636,8 +638,16 @@ fun CallAccountsScreen(
         }
 
         if (showSyncCardsDialog) {
-            val isShizukuRunning = remember(showSyncCardsDialog) { ShizukuCallingCardBridge.isShizukuAvailable() }
-            val hasShizukuPerm = remember(showSyncCardsDialog, isShizukuRunning) { ShizukuCallingCardBridge.hasShizukuPermission(context) }
+            val isShizukuRunning by produceState(initialValue = false, showSyncCardsDialog) {
+                if (showSyncCardsDialog) {
+                    value = withContext(Dispatchers.IO) { ShizukuCallingCardBridge.isShizukuAvailable() }
+                }
+            }
+            val hasShizukuPerm by produceState(initialValue = false, showSyncCardsDialog, isShizukuRunning) {
+                if (showSyncCardsDialog && isShizukuRunning) {
+                    value = withContext(Dispatchers.IO) { ShizukuCallingCardBridge.hasShizukuPermission(context) }
+                }
+            }
             RivoDialog(
                 onDismissRequest = {
                     if (!isSyncingCards) showSyncCardsDialog = false
@@ -649,9 +659,7 @@ fun CallAccountsScreen(
                     onClick = { showSyncCardsDialog = false }
                 ) else null,
                 confirmAction = if (!isSyncingCards) {
-                    if (!isShizukuRunning) {
-                        null
-                    } else if (!hasShizukuPerm) {
+                    if (isShizukuRunning && !hasShizukuPerm) {
                         RivoDialogAction(
                             label = "Grant Permission",
                             onClick = {
@@ -660,18 +668,20 @@ fun CallAccountsScreen(
                         )
                     } else {
                         RivoDialogAction(
-                            label = "Start Sync",
+                            label = if (isShizukuRunning && hasShizukuPerm) "Start Full Sync" else "Start Sync (Contacts)",
                             onClick = {
                                 scope.launch {
                                     isSyncingCards = true
                                     syncResultSummary = null
                                     try {
-                                        val res = ShizukuCallingCardBridge.syncAllCallingCards(
-                                            context = context,
-                                            overwriteExisting = false
-                                        ) { curr, tot, name ->
-                                            syncProgressValue = if (tot > 0) curr.toFloat() / tot.toFloat() else 0f
-                                            syncProgressText = "$curr / $tot: $name"
+                                        val res = withContext(Dispatchers.IO) {
+                                            ShizukuCallingCardBridge.syncAllCallingCards(
+                                                context = context,
+                                                overwriteExisting = false
+                                            ) { curr, tot, name ->
+                                                syncProgressValue = if (tot > 0) curr.toFloat() / tot.toFloat() else 0f
+                                                syncProgressText = "$curr / $tot: $name"
+                                            }
                                         }
                                         syncResultSummary = "Sync complete!\n" +
                                                 "• Scanned: ${res.totalContacts} contacts\n" +
@@ -690,20 +700,20 @@ fun CallAccountsScreen(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "Syncs calling cards and contact posters from Google Phone into Rivo Phone call backgrounds so they appear full-screen on calls.",
+                        text = "Syncs calling cards and contact posters from Google Phone & Contacts into Rivo Phone call backgrounds so they appear full-screen on calls.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     if (!isShizukuRunning) {
                         Text(
-                            text = "⚠ Shizuku is not running. Please start Shizuku with ADB or root to enable privileged sync.",
+                            text = "ℹ Shizuku is not running. Sync will extract high-resolution posters from Google Contacts. Start Shizuku to also scan Google Phone app internal storage.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else if (!hasShizukuPerm) {
                         Text(
-                            text = "Shizuku is running, but permission has not been granted yet.",
+                            text = "Shizuku is running, but permission has not been granted yet. Tap Grant Permission for privileged sync.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )

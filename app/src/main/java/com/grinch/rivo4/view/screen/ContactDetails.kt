@@ -606,36 +606,29 @@ fun ContactDetailsScreen(
             )
             RivoListItem(
                 headline = "Sync Calling Card (Google Phone)",
-                supporting = if (ShizukuCallingCardBridge.isShizukuAvailable()) "Extract poster via Shizuku" else "Requires Shizuku",
+                supporting = "Sync poster from Google Phone or Contacts",
                 leadingIcon = Icons.Default.Sync,
                 onClick = {
                     showBackgroundDialog = false
                     scope.launch {
-                        if (!ShizukuCallingCardBridge.isShizukuAvailable()) {
-                            snackbarHostState.showSnackbar("Shizuku is not running. Start Shizuku to sync Google Phone Calling Cards.")
-                            return@launch
-                        }
-                        if (!ShizukuCallingCardBridge.hasShizukuPermission(context)) {
-                            ShizukuCallingCardBridge.requestShizukuPermission()
-                            snackbarHostState.showSnackbar("Please grant Shizuku permission and try again.")
-                            return@launch
-                        }
-                        backgroundSaving = true
+                        snackbarHostState.showSnackbar("Syncing Calling Card in background...")
                         try {
-                            val result = ShizukuCallingCardBridge.syncContactCallingCard(
-                                context = context,
-                                contactId = backgroundContactId,
-                                numbers = backgroundNumbers,
-                                contactName = displayName
-                            )
+                            val result = withContext(Dispatchers.IO) {
+                                ShizukuCallingCardBridge.syncContactCallingCard(
+                                    context = context,
+                                    contactId = backgroundContactId,
+                                    numbers = backgroundNumbers,
+                                    contactName = displayName
+                                )
+                            }
                             if (result.success) {
-                                callBackground = CallBackgroundStore.peek(context, backgroundContactId, backgroundNumbers)
+                                callBackground = withContext(Dispatchers.IO) {
+                                    CallBackgroundStore.peek(context, backgroundContactId, backgroundNumbers)
+                                }
                             }
                             snackbarHostState.showSnackbar(result.message)
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar("Failed to sync: ${e.localizedMessage ?: "Unknown error"}")
-                        } finally {
-                            backgroundSaving = false
                         }
                     }
                 }

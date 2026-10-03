@@ -6,7 +6,9 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.IBinder
 import com.grinch.rivo4.IShellService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
@@ -23,10 +25,15 @@ class ShizukuConnectionManager(
 
         fun isAvailable(): Boolean {
             return try {
+                if (Shizuku.isPreV11()) return false
                 Shizuku.pingBinder()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 false
             }
+        }
+
+        suspend fun isAvailableAsync(): Boolean = withContext(Dispatchers.IO) {
+            isAvailable()
         }
 
         fun hasPermission(context: Context? = null): Boolean {
@@ -38,9 +45,13 @@ class ShizukuConnectionManager(
                 } else {
                     false
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 false
             }
+        }
+
+        suspend fun hasPermissionAsync(context: Context? = null): Boolean = withContext(Dispatchers.IO) {
+            hasPermission(context)
         }
 
         fun requestPermission() {
