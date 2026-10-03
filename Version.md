@@ -163,3 +163,29 @@
 - **Libraries & Tools:**
   - Android Gradle Plugin / GitHub Actions
 - **Status:** 100% (Single universal APK configured, previous releases sanitized).
+
+## [2026-10-03 22:45] - Google Phone Calling Cards & Posters Shizuku Bridge Integration
+- **Action:** Implemented privileged Shizuku bridge and Contact Poster extraction engine to seamlessly export Calling Cards from Google Phone (`com.google.android.dialer`) and Google Contacts (`com.google.android.contacts`) and synchronize them directly into Rivo Phone's call background architecture:
+  1. **Elevated Shizuku IPC (`IShellService.kt`, `ShellService.kt`):** Extended Rivo's elevated ADB UserService with `execCommand(command: String?): String?` and `readFile(path: String?): ParcelFileDescriptor?`, utilizing direct file descriptors with auto-streaming Linux pipe fallbacks for sandboxed Google Phone directories.
+  2. **Calling Card Extraction Bridge (`ShizukuCallingCardBridge.kt`):**
+     - Tier 1 (Shizuku Privileged Extraction): Discovers and matches Calling Cards and contact posters in Google Phone's data sandboxes (`/data/data/com.google.android.dialer/files/calling_cards`, `call_cards`, `posters`, `photos`) matching contact IDs, phone numbers, and image timestamps.
+     - Tier 2 (ContactsContract High-Res Fallback): Automatically extracts full-resolution display photos and contact poster streams via `ContactsContract.Contacts.Photo.DISPLAY_PHOTO` and `openContactPhotoInputStream` with `preferHighres = true`.
+     - Batch Sync: Added `syncAllCallingCards` method allowing automated background scanning and batch importing across all device contacts.
+  3. **CallBackgroundStore Direct Bitmap & Stream Support (`CallBackgroundStore.kt`):** Added `saveBitmap` and `saveStream` methods to immediately materialize imported Calling Cards into Rivo's encrypted/protected call background directory without intermediate temporary files.
+  4. **Contact Details Calling Card Sync UI (`ContactDetails.kt`):**
+     - Updated Call Background row click action to open options dialog even when no background is set.
+     - Added "Sync Calling Card (Google Phone)" option with real-time Shizuku status inspection, permission prompt, progress feedback, and instant preview.
+  5. **Settings Batch Sync Tile (`CallAccountsScreen.kt`):** Added "Sync Google Phone Calling Cards" tile under Call Backgrounds with dialog providing Shizuku status, permission grant action, live progress indicator, and detailed sync summary.
+- **Files Modified/Created:**
+  - `app/src/main/java/com/grinch/rivo4/IShellService.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/shizuku/ShellService.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/shizuku/ShizukuCallingCardBridge.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/util/CallBackgroundStore.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/ContactDetails.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallAccountsScreen.kt`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Rikka Shizuku API 13.1.5 (UserService, Binder IPC)
+  - Android ContactsContract (High-Res DisplayPhoto API)
+  - Jetpack Compose & Material 3 Expressive
+- **Status:** 100% (Shizuku Calling Card Bridge implemented, UI integrated, and ready for release).

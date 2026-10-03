@@ -27,6 +27,12 @@ interface IShellService : IInterface {
     @Throws(RemoteException::class)
     fun destroy()
 
+    @Throws(RemoteException::class)
+    fun execCommand(command: String?): String?
+
+    @Throws(RemoteException::class)
+    fun readFile(path: String?): ParcelFileDescriptor?
+
     abstract class Stub : Binder(), IShellService {
 
         init {
@@ -74,6 +80,31 @@ interface IShellService : IInterface {
                     data.enforceInterface(DESCRIPTOR)
                     destroy()
                     reply?.writeNoException()
+                    return true
+                }
+
+                TRANSACTION_execCommand -> {
+                    data.enforceInterface(DESCRIPTOR)
+                    val command = data.readString()
+                    val result = execCommand(command)
+                    reply?.writeNoException()
+                    reply?.writeString(result)
+                    return true
+                }
+
+                TRANSACTION_readFile -> {
+                    data.enforceInterface(DESCRIPTOR)
+                    val path = data.readString()
+                    val result = readFile(path)
+                    reply?.writeNoException()
+                    if (result != null) {
+                        reply?.writeInt(1)
+                        if (reply != null) {
+                            result.writeToParcel(reply, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
+                        }
+                    } else {
+                        reply?.writeInt(0)
+                    }
                     return true
                 }
             }
@@ -140,6 +171,44 @@ interface IShellService : IInterface {
                     parcelData.recycle()
                 }
             }
+
+            @Throws(RemoteException::class)
+            override fun execCommand(command: String?): String? {
+                val parcelData = Parcel.obtain()
+                val parcelReply = Parcel.obtain()
+                var result: String? = null
+                try {
+                    parcelData.writeInterfaceToken(DESCRIPTOR)
+                    parcelData.writeString(command)
+                    mRemote.transact(TRANSACTION_execCommand, parcelData, parcelReply, 0)
+                    parcelReply.readException()
+                    result = parcelReply.readString()
+                } finally {
+                    parcelReply.recycle()
+                    parcelData.recycle()
+                }
+                return result
+            }
+
+            @Throws(RemoteException::class)
+            override fun readFile(path: String?): ParcelFileDescriptor? {
+                val parcelData = Parcel.obtain()
+                val parcelReply = Parcel.obtain()
+                var result: ParcelFileDescriptor? = null
+                try {
+                    parcelData.writeInterfaceToken(DESCRIPTOR)
+                    parcelData.writeString(path)
+                    mRemote.transact(TRANSACTION_readFile, parcelData, parcelReply, 0)
+                    parcelReply.readException()
+                    if (parcelReply.readInt() != 0) {
+                        result = ParcelFileDescriptor.CREATOR.createFromParcel(parcelReply)
+                    }
+                } finally {
+                    parcelReply.recycle()
+                    parcelData.recycle()
+                }
+                return result
+            }
         }
 
         companion object {
@@ -147,6 +216,8 @@ interface IShellService : IInterface {
 
             const val TRANSACTION_startCapture = IBinder.FIRST_CALL_TRANSACTION + 0
             const val TRANSACTION_stopCapture = IBinder.FIRST_CALL_TRANSACTION + 1
+            const val TRANSACTION_execCommand = IBinder.FIRST_CALL_TRANSACTION + 2
+            const val TRANSACTION_readFile = IBinder.FIRST_CALL_TRANSACTION + 3
             const val TRANSACTION_destroy = 16777114
 
             @JvmStatic
@@ -164,6 +235,8 @@ interface IShellService : IInterface {
         const val DESCRIPTOR = "com.grinch.rivo4.IShellService"
         const val TRANSACTION_startCapture = IBinder.FIRST_CALL_TRANSACTION + 0
         const val TRANSACTION_stopCapture = IBinder.FIRST_CALL_TRANSACTION + 1
+        const val TRANSACTION_execCommand = IBinder.FIRST_CALL_TRANSACTION + 2
+        const val TRANSACTION_readFile = IBinder.FIRST_CALL_TRANSACTION + 3
         const val TRANSACTION_destroy = 16777114
     }
 }

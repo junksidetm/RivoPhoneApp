@@ -58,6 +58,7 @@ import com.grinch.rivo4.modal.db.CallNoteDao
 import com.grinch.rivo4.view.components.AddCallNoteDialog
 import com.grinch.rivo4.view.components.CallbackReminderDialog
 import com.grinch.rivo4.controller.CallRecorder
+import com.grinch.rivo4.controller.shizuku.ShizukuCallingCardBridge
 import com.ramcosta.composedestinations.generated.destinations.CallRecordingsScreenDestination
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -421,8 +422,7 @@ fun ContactDetailsScreen(
                 scope.launch { snackbarHostState.showSnackbar(backgroundNoTargetMessage) }
             }
 
-            callBackground != null -> showBackgroundDialog = true
-            else -> backgroundPickerLauncher.launch(arrayOf("image/*"))
+            else -> showBackgroundDialog = true
         }
     }
 
@@ -597,10 +597,44 @@ fun ContactDetailsScreen(
                 } else {
                     stringResource(R.string.contact_call_background_choose)
                 },
+                supporting = "Select from gallery",
                 leadingIcon = Icons.Default.Image,
                 onClick = {
                     showBackgroundDialog = false
                     backgroundPickerLauncher.launch(arrayOf("image/*"))
+                }
+            )
+            RivoListItem(
+                headline = "Sync Calling Card (Google Phone)",
+                supporting = if (ShizukuCallingCardBridge.isShizukuAvailable()) "Extract poster via Shizuku" else "Requires Shizuku",
+                leadingIcon = Icons.Default.Sync,
+                onClick = {
+                    showBackgroundDialog = false
+                    if (!ShizukuCallingCardBridge.isShizukuAvailable()) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Shizuku is not running. Start Shizuku to sync Google Phone Calling Cards.")
+                        }
+                    } else if (!ShizukuCallingCardBridge.hasShizukuPermission(context)) {
+                        ShizukuCallingCardBridge.requestShizukuPermission()
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Please grant Shizuku permission and try again.")
+                        }
+                    } else {
+                        scope.launch {
+                            backgroundSaving = true
+                            val result = ShizukuCallingCardBridge.syncContactCallingCard(
+                                context = context,
+                                contactId = backgroundContactId,
+                                numbers = backgroundNumbers,
+                                contactName = displayName
+                            )
+                            backgroundSaving = false
+                            if (result.success) {
+                                callBackground = CallBackgroundStore.peek(context, backgroundContactId, backgroundNumbers)
+                            }
+                            snackbarHostState.showSnackbar(result.message)
+                        }
+                    }
                 }
             )
             if (callBackground != null) {

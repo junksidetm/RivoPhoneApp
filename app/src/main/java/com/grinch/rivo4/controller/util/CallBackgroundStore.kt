@@ -200,6 +200,38 @@ object CallBackgroundStore {
             true
         }
 
+    suspend fun saveBitmap(
+        context: Context,
+        contactId: String?,
+        numbers: List<String>,
+        bitmap: Bitmap
+    ): Boolean = withContext(Dispatchers.IO) {
+        val app = context.applicationContext
+        val manager = prefs(app)
+        val keys = numberKeys(numbers)
+        if (contactId.isNullOrBlank() && keys.isEmpty()) return@withContext false
+        val imported = importBitmap(app, bitmap) ?: return@withContext false
+        writePointers(manager, contactId, keys, imported.absolutePath)
+        collectGarbage(app, manager)
+        true
+    }
+
+    suspend fun saveStream(
+        context: Context,
+        contactId: String?,
+        numbers: List<String>,
+        inputStream: InputStream
+    ): Boolean = withContext(Dispatchers.IO) {
+        val app = context.applicationContext
+        val manager = prefs(app)
+        val keys = numberKeys(numbers)
+        if (contactId.isNullOrBlank() && keys.isEmpty()) return@withContext false
+        val imported = importStream(app, inputStream) ?: return@withContext false
+        writePointers(manager, contactId, keys, imported.absolutePath)
+        collectGarbage(app, manager)
+        true
+    }
+
     suspend fun saveDefault(context: Context, source: Uri): Boolean =
         withContext(Dispatchers.IO) {
             val app = context.applicationContext
@@ -604,6 +636,43 @@ object CallBackgroundStore {
             null
         } finally {
             bitmap.recycle()
+        }
+    }
+
+    fun importBitmap(context: Context, sourceBitmap: Bitmap): File? {
+        val dir = storageDir(context) ?: return null
+        return try {
+            val target = File(dir, FILE_PREFIX + UUID.randomUUID().toString() + FILE_SUFFIX)
+            FileOutputStream(target).use { output ->
+                sourceBitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, output)
+                output.flush()
+            }
+            if (target.length() <= 0L) {
+                target.delete()
+                null
+            } else {
+                fileState[target.absolutePath] = true
+                missStrikes.remove(target.absolutePath)
+                target
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun importStream(context: Context, inputStream: InputStream): File? {
+        val dir = storageDir(context) ?: return null
+        return try {
+            val decoded = BitmapFactory.decodeStream(inputStream) ?: return null
+            try {
+                importBitmap(context, decoded)
+            } finally {
+                decoded.recycle()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

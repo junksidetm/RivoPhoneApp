@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.grinch.rivo4.R
+import com.grinch.rivo4.controller.shizuku.ShizukuCallingCardBridge
 import com.grinch.rivo4.controller.util.CallBackgroundStore
 import com.grinch.rivo4.controller.util.PreferenceManager
 import com.grinch.rivo4.controller.util.makeCall
@@ -104,6 +105,11 @@ fun CallAccountsScreen(
 
     var showDefaultBgDialog by remember { mutableStateOf(false) }
     var showUnknownBgDialog by remember { mutableStateOf(false) }
+    var showSyncCardsDialog by remember { mutableStateOf(false) }
+    var isSyncingCards by remember { mutableStateOf(false) }
+    var syncProgressText by remember { mutableStateOf("") }
+    var syncProgressValue by remember { mutableFloatStateOf(0f) }
+    var syncResultSummary by remember { mutableStateOf<String?>(null) }
 
     val defaultCallBgLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -554,6 +560,18 @@ fun CallAccountsScreen(
                                 onClick = { showUnknownBgDialog = true }
                             )
                         }
+                        item {
+                            RivoListItem(
+                                headline = "Sync Google Phone Calling Cards",
+                                supporting = "Batch import calling cards and contact posters via Shizuku",
+                                leadingIcon = Icons.Outlined.Sync,
+                                trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                onClick = {
+                                    syncResultSummary = null
+                                    showSyncCardsDialog = true
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -615,6 +633,105 @@ fun CallAccountsScreen(
                     unknownCallBg = null
                 }
             )
+        }
+
+        if (showSyncCardsDialog) {
+            val isShizukuRunning = ShizukuCallingCardBridge.isShizukuAvailable()
+            val hasShizukuPerm = ShizukuCallingCardBridge.hasShizukuPermission(context)
+            RivoDialog(
+                onDismissRequest = {
+                    if (!isSyncingCards) showSyncCardsDialog = false
+                },
+                title = "Sync Calling Cards",
+                icon = Icons.Outlined.Sync,
+                dismissAction = if (!isSyncingCards) RivoDialogAction(
+                    label = stringResource(R.string.action_cancel),
+                    onClick = { showSyncCardsDialog = false }
+                ) else null,
+                confirmAction = if (!isSyncingCards) {
+                    if (!isShizukuRunning) {
+                        null
+                    } else if (!hasShizukuPerm) {
+                        RivoDialogAction(
+                            label = "Grant Permission",
+                            onClick = {
+                                ShizukuCallingCardBridge.requestShizukuPermission()
+                            }
+                        )
+                    } else {
+                        RivoDialogAction(
+                            label = "Start Sync",
+                            onClick = {
+                                scope.launch {
+                                    isSyncingCards = true
+                                    syncResultSummary = null
+                                    val res = ShizukuCallingCardBridge.syncAllCallingCards(
+                                        context = context,
+                                        overwriteExisting = false
+                                    ) { curr, tot, name ->
+                                        syncProgressValue = if (tot > 0) curr.toFloat() / tot.toFloat() else 0f
+                                        syncProgressText = "$curr / $tot: $name"
+                                    }
+                                    isSyncingCards = false
+                                    syncResultSummary = "Sync complete!\n" +
+                                            "• Scanned: ${res.totalContacts} contacts\n" +
+                                            "• Imported: ${res.syncedCount} calling cards\n" +
+                                            "• Skipped/Current: ${res.skippedCount}"
+                                }
+                            }
+                        )
+                    }
+                } else null
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Syncs calling cards and contact posters from Google Phone into Rivo Phone call backgrounds so they appear full-screen on calls.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (!isShizukuRunning) {
+                        Text(
+                            text = "⚠ Shizuku is not running. Please start Shizuku with ADB or root to enable privileged sync.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else if (!hasShizukuPerm) {
+                        Text(
+                            text = "Shizuku is running, but permission has not been granted yet.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    if (isSyncingCards) {
+                        LinearProgressIndicator(
+                            progress = { syncProgressValue },
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp))
+                        )
+                        Text(
+                            text = syncProgressText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    syncResultSummary?.let { summary ->
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = summary,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(12.dp),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         if (showCallWaitingDialog) {

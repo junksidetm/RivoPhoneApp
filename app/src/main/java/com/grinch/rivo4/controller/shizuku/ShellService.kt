@@ -45,4 +45,47 @@ class ShellService : IShellService.Stub {
         stopCapture()
         exitProcess(0)
     }
+
+    override fun execCommand(command: String?): String? {
+        if (command.isNullOrBlank()) return null
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            process.waitFor()
+            output
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    override fun readFile(path: String?): ParcelFileDescriptor? {
+        if (path.isNullOrBlank()) return null
+        return try {
+            val file = java.io.File(path)
+            if (file.exists() && file.canRead()) {
+                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            } else {
+                val pipe = ParcelFileDescriptor.createPipe()
+                val readEnd = pipe[0]
+                val writeEnd = pipe[1]
+                Thread {
+                    try {
+                        val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "cat \"$path\""))
+                        ParcelFileDescriptor.AutoCloseOutputStream(writeEnd).use { out ->
+                            proc.inputStream.copyTo(out)
+                            out.flush()
+                        }
+                        proc.waitFor()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }.start()
+                readEnd
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }
