@@ -110,23 +110,17 @@ jobs:
       - name: Collect Output Artifacts
         run: |
           mkdir -p outputs
-          find app/build/outputs/apk/release/ -type f -name "*.apk" -exec cp {} outputs/ \; || true
-          find . -maxdepth 2 -type f -name "RivoPhone-*.apk" -exec cp {} outputs/ \; || true
+          rm -f outputs/*.apk outputs/*.sha256 outputs/*.txt
           
-          # Ensure RivoPhone-${RELEASE_TAG}.apk exists in outputs/
-          if [ -f "outputs/RivoPhone-${APP_VERSION_NAME}.apk" ]; then
-            cp -f "outputs/RivoPhone-${APP_VERSION_NAME}.apk" "outputs/RivoPhone-${RELEASE_TAG}.apk"
+          # Find and collect the single universal release APK
+          RAW_APK=$(find app/build/outputs/apk/release/ -type f -name "*.apk" | head -n 1)
+          if [ -z "$RAW_APK" ]; then
+            RAW_APK=$(find . -maxdepth 2 -type f -name "RivoPhone-*.apk" | head -n 1)
           fi
           
-          # Standardize primary release APK naming for direct download
-          for f in outputs/RivoPhone-*.apk; do
-            if [ -f "$f" ] && [ "$f" != "outputs/RivoPhone-release-latest.apk" ]; then
-              cp -f "$f" outputs/RivoPhone-release-latest.apk
-              break
-            fi
-          done
+          cp -f "$RAW_APK" "outputs/RivoPhone-${RELEASE_TAG}.apk"
 
-          echo "Collected files in outputs/:"
+          echo "Collected single universal APK in outputs/:"
           ls -lah outputs/
 
       - name: Extract Signing Certificate Fingerprint
@@ -209,7 +203,7 @@ jobs:
           # 🚀 Rivo Phone — Production Build Summary
 
           <p align="center">
-            <a href="https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk">
+            <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${APK_NAME}">
               <img src="https://raw.githubusercontent.com/${{ github.repository }}/main/images/Testing%20APK%20Pass.svg" alt="Testing APK Pass" height="100" onerror="this.src='https://raw.githubusercontent.com/junksidetm/RivoPhoneApp/main/images/Testing%20APK%20Pass.svg'" />
             </a>
           </p>
@@ -223,8 +217,7 @@ jobs:
 
           ### 📦 Build Artifacts & Direct Downloads
           - 🏷️ **Release Tag**: [**${{ env.RELEASE_TAG }}**](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }}) *(Version Code: `${{ env.APP_VERSION_CODE }}`)*
-          - 📱 **Direct Release APK**: [**${APK_NAME}**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${APK_NAME}) *(Pure `.apk` for Android 10+ devices, no unzipping required)*
-          - ⚡ **Latest APK Alias**: [**RivoPhone-release-latest.apk**](https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk)
+          - 📱 **Universal Release APK**: [**${APK_NAME}**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${APK_NAME}) *(Pure `.apk` for all Android 10+ devices, no unzipping required)*
           - 🔗 **GitHub Release**: [View Release ${{ env.RELEASE_TAG }}](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }})
           - 📦 **Actions Build Artifacts**: `RivoPhone-Production-APKs` *(Available in the Artifacts section below — includes APK, SHA256 checksums, and signing details)*
           - 🔏 **Signing Certificate SHA256**: `${SHA256_HASH}`

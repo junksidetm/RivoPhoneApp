@@ -150,3 +150,16 @@
   - Android VectorDrawable
   - Material 3 / Material You Adaptive Icons (API 26–37)
 - **Status:** 100% (App icon updated, calibrated, and ready for automated per-commit release).
+
+## [2026-10-03 21:39] - Single Universal APK Standardization & Asset Streamlining
+- **Action:** Consolidated release artifacts to output and distribute exactly one single universal APK per release:
+  1. **Standardized Single Universal APK (`.github/workflows/build_apks.yml`):** Removed duplicate alias copies (`RivoPhone-<version>.apk` and `RivoPhone-release-latest.apk`), ensuring the artifact collection step packages exclusively `RivoPhone-${RELEASE_TAG}.apk` (with its SHA256 checksum) into the release assets.
+  2. **Gradle Output File Standardization (`app/build.gradle`):** Updated `outputFileName` to prefix with `v` (`RivoPhone-v${variant.versionName}${buildTypeSuffix}.apk`), natively matching the release tag naming scheme.
+  3. **Release Asset Cleanup:** Cleaned up previous duplicate alias APK assets from GitHub Releases `v2.2.393` and `v2.2.394`.
+- **Files Modified:**
+  - `app/build.gradle`
+  - `.github/workflows/build_apks.yml`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Android Gradle Plugin / GitHub Actions
+- **Status:** 100% (Single universal APK configured, previous releases sanitized).

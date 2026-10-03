@@ -106,7 +106,7 @@ android {
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             def buildTypeSuffix = (variant.buildType.name == "debug") ? "-debug" : ""
-            outputFileName = "RivoPhone-${variant.versionName}${buildTypeSuffix}.apk"
+            outputFileName = "RivoPhone-v${variant.versionName}${buildTypeSuffix}.apk"
         }
     }
 }
