@@ -7,15 +7,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Gradient
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.grinch.rivo4.R
 import com.grinch.rivo4.controller.util.PreferenceManager
+import com.grinch.rivo4.view.components.RivoAvatar
 import com.grinch.rivo4.view.components.RivoAvatarShapeSelectorRow
 import com.grinch.rivo4.view.components.RivoDivider
 import com.grinch.rivo4.view.components.RivoExpressiveCard
@@ -49,6 +52,9 @@ fun AvatarSettingsScreen(
     }
     var hideAvatarWithBg by remember(settingsState) {
         mutableStateOf(prefs.getBoolean(PreferenceManager.KEY_HIDE_AVATAR_WITH_BACKGROUND, false))
+    }
+    var groupCalls by remember(settingsState) {
+        mutableStateOf(prefs.isCallLogGroupingEnabled())
     }
 
     Scaffold(
@@ -116,7 +122,7 @@ fun AvatarSettingsScreen(
                     item {
                         RivoSwitchListItem(
                             headline = stringResource(R.string.settings_interface_colorful_avatars),
-                            supporting = stringResource(R.string.settings_interface_colorful_avatars_supporting),
+                            supporting = "Smart adaptive contrast: automatically calculates background luminance to display crisp white or dark text for optimal legibility",
                             leadingIcon = Icons.Outlined.Palette,
                             checked = colorfulAvatars,
                             onCheckedChange = {
@@ -124,6 +130,67 @@ fun AvatarSettingsScreen(
                                 prefs.setBoolean(PreferenceManager.KEY_COLORFUL_AVATARS, it)
                             }
                         )
+                    }
+                    if (colorfulAvatars) {
+                        item {
+                            RivoExpressiveCard(
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Text(
+                                        text = "Smart Contrast Preview",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Text automatically adapts: dark blue backgrounds use crisp white text, and yellow backgrounds use dark text for high legibility.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            RivoAvatar(
+                                                name = "David",
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text("Blue", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            RivoAvatar(
+                                                name = "Yelena",
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text("Yellow", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            RivoAvatar(
+                                                name = "Grace",
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text("Green", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            RivoAvatar(
+                                                name = "Scarlett",
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text("Red", style = MaterialTheme.typography.labelSmall)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     item {
                         RivoSwitchListItem(
@@ -146,6 +213,27 @@ fun AvatarSettingsScreen(
                             onCheckedChange = {
                                 hideAvatarWithBg = it
                                 prefs.setBoolean(PreferenceManager.KEY_HIDE_AVATAR_WITH_BACKGROUND, it)
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Group Calls
+            item {
+                RivoExpressiveGroup(
+                    title = "Call History & Recents",
+                    icon = Icons.Outlined.Layers
+                ) {
+                    item {
+                        RivoSwitchListItem(
+                            headline = "Group calls",
+                            supporting = "Group consecutive calls from the same contact or number in recents",
+                            leadingIcon = Icons.Outlined.Layers,
+                            checked = groupCalls,
+                            onCheckedChange = {
+                                groupCalls = it
+                                prefs.setCallLogGroupingEnabled(it)
                             }
                         )
                     }

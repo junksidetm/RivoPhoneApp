@@ -874,13 +874,6 @@ fun CallLogFullContent(
                                     }
                                 }
                             }
-
-                            if (groupIndex % 3 == 0) {
-                                item(key = "ad_$groupIndex", contentType = "ad") {
-                                    com.grinch.rivo4.view.components.ad.BannerAd()
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
-                            }
                         }
                     }
                 }

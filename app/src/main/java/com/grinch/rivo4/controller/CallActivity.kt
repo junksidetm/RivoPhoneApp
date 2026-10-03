@@ -46,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.grinch.rivo4.R
 import com.grinch.rivo4.controller.util.CallBackgroundStore
-import com.grinch.rivo4.view.components.ad.AdPreloader
 import com.grinch.rivo4.controller.util.PreferenceManager
 import com.grinch.rivo4.modal.`interface`.IContactsRepository
 import com.grinch.rivo4.view.screen.ExpressiveCallScreen
@@ -121,7 +120,6 @@ class CallActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         CallBackgroundStore.attach(preferenceManager)
-        AdPreloader.preloadPostCallAd(this@CallActivity)
         CallRecorder.prepare(this)
 
         val telecomManager = getSystemService(Context.TELECOM_SERVICE) as? TelecomManager

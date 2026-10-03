@@ -5,7 +5,6 @@ import android.app.Application
 import android.os.Bundle
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import com.grinch.rivo4.view.components.ad.AdPreloader
 
 class RivoApp : Application() {
 
@@ -25,8 +24,6 @@ class RivoApp : Application() {
             androidContext(this@RivoApp)
             modules(appModule)
         }
-
-        AdPreloader.init(this@RivoApp)
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}

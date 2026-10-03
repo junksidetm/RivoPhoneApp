@@ -1,0 +1,232 @@
+name: Build & Release
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'images/**'
+      - '.idea/**'
+    branches:
+      - main
+      - develop
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'images/**'
+      - '.idea/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    name: Production Release & Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Setup Keystore
+        run: |
+          mkdir -p app
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
+            echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
+          else
+            echo "Generating fallback release keystore..."
+            keytool -genkey -v -keystore app/release.keystore -alias rivorelease -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=RivoPhone, OU=Mobile, O=Rivo, L=Local, S=State, C=US"
+            echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
+          fi
+
+      - name: Run Android Lint Analysis
+        env:
+          GRADLE_OPTS: "-Xmx4096m -XX:+UseParallelGC"
+        run: |
+          sed -i '/org.gradle.java.home/d' gradle.properties || true
+          ./gradlew lintRelease --no-daemon --continue | tee lint_analysis.log || true
+
+      - name: Build Production Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'android' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'rivorelease' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'android' }}
+          KEYSTORE_PATH: ../app/release.keystore
+          BUILD_NUMBER: ${{ github.run_number }}
+          PREVIEW_BUILD: ${{ github.ref == 'refs/heads/main' }}
+          GRADLE_OPTS: "-Xmx4096m -XX:+UseParallelGC"
+        run: |
+          ./gradlew assembleRelease --no-daemon --stacktrace | tee build_release.log
+
+      - name: Collect Output Artifacts
+        run: |
+          mkdir -p outputs
+          find app/build/outputs/apk/release/ -type f -name "*.apk" -exec cp {} outputs/ \; || true
+          find . -type f -name "RivoPhone-*.apk" -exec cp {} outputs/ \; || true
+          
+          # Standardize primary release APK naming for direct download
+          for f in outputs/RivoPhone-*.apk; do
+            if [ -f "$f" ]; then
+              cp "$f" outputs/RivoPhone-release-latest.apk
+              break
+            fi
+          done
+
+          echo "Collected files in outputs/:"
+          ls -lah outputs/
+
+      - name: Extract Signing Certificate Fingerprint
+        run: |
+          ALIAS_NAME="${{ secrets.KEY_ALIAS || 'rivorelease' }}"
+          PASS="${{ secrets.KEYSTORE_PASSWORD || 'android' }}"
+          keytool -list -v -keystore app/release.keystore -alias "$ALIAS_NAME" -storepass "$PASS" > outputs/certificate_details.txt || true
+          
+          echo "APK Signing Certificate SHA256 Fingerprint:" > outputs/SIGNING_CERTIFICATE_SHA256.txt
+          grep "SHA256: " outputs/certificate_details.txt | head -n 1 | cut -d " " -f 3 >> outputs/SIGNING_CERTIFICATE_SHA256.txt || true
+
+      - name: Generate SHA256 Checksums
+        run: |
+          cd outputs
+          sha256sum *.apk > SHA256SUMS.txt || true
+          for f in *.apk; do
+            if [ -f "$f" ]; then
+              sha256sum "$f" > "$f.sha256"
+            fi
+          done
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: RivoPhone-Production-APKs
+          path: outputs/
+          retention-days: 14
+
+      - name: Publish Errors to Job Summary
+        if: failure()
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # ❌ Rivo Phone — Build Failed
+
+          <p align="center">
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+              <img src="https://raw.githubusercontent.com/${{ github.repository }}/main/images/Testing%20APK%20Fail.svg" alt="Testing APK Fail" height="100" onerror="this.src='https://raw.githubusercontent.com/junksidetm/RivoPhoneApp/main/images/Testing%20APK%20Fail.svg'" />
+            </a>
+          </p>
+
+          > [!WARNING]
+          > **Build Execution Failure**:
+          > One or more compilation, build, linting, or packaging tasks failed during workflow execution.
+          > Review the compiler error diagnostics below or download the failure logs from the Artifacts section to troubleshoot.
+
+          ---
+
+          ### 🔍 Compiler & Build Diagnostics
+          ```text
+          EOF
+
+          LOG_FILE=""
+          if [ -f build_release.log ] && [ -s build_release.log ]; then
+            LOG_FILE="build_release.log"
+          elif [ -f lint_analysis.log ] && [ -s lint_analysis.log ]; then
+            LOG_FILE="lint_analysis.log"
+          fi
+          
+          if [ -n "$LOG_FILE" ] && [ -f "$LOG_FILE" ]; then
+            tail -n 120 "$LOG_FILE" >> $GITHUB_STEP_SUMMARY
+            ANNOTATION_MSG=$(tail -n 30 "$LOG_FILE" | tr '\r\n' ' | ' | sed 's/[^a-zA-Z0-9 ._:\/|-]/ /g' | cut -c 1-500)
+            echo "::error title=Build Error::$ANNOTATION_MSG"
+          else
+            echo "No build log found or failure occurred in a setup step." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish Success to Job Summary
+        if: success()
+        run: |
+          SHA256_HASH=$(cat outputs/SIGNING_CERTIFICATE_SHA256.txt 2>/dev/null | tail -n 1 || echo "Verified via CI")
+          APK_NAME=$(ls outputs/RivoPhone-*.apk 2>/dev/null | head -n 1 | xargs -n 1 basename || echo "RivoPhone-release.apk")
+
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # 🚀 Rivo Phone — Production Build Summary
+
+          <p align="center">
+            <a href="https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk">
+              <img src="https://raw.githubusercontent.com/${{ github.repository }}/main/images/Testing%20APK%20Pass.svg" alt="Testing APK Pass" height="100" onerror="this.src='https://raw.githubusercontent.com/junksidetm/RivoPhoneApp/main/images/Testing%20APK%20Pass.svg'" />
+            </a>
+          </p>
+
+          > [!NOTE]
+          > **Notice regarding downloaded formats**:
+          > Clicking on any of the build artifacts in the **Artifacts** section at the bottom of this Actions page will download them packaged inside a `.zip` file.
+          > To download the standalone, pure `.apk` directly to your phone/device ready to install without extracting any zip files, click the **Testing APK Pass** badge above or use the direct release links below!
+
+          ---
+
+          ### 📦 Build Artifacts & Direct Downloads
+          - 📱 **Direct Release APK**: [**RivoPhone-release-latest.apk**](https://github.com/${{ github.repository }}/releases/latest/download/RivoPhone-release-latest.apk) *(Pure `.apk` for Android 10+ devices, no unzipping required)*
+          - 🏷️ **GitHub Releases Portal**: [Latest Releases Page](https://github.com/${{ github.repository }}/releases/latest)
+          - 📦 **Actions Build Artifacts**: `RivoPhone-Production-APKs` *(Available in the Artifacts section below — includes APK, SHA256 checksums, and signing details)*
+          - 🔏 **Signing Certificate SHA256**: `${SHA256_HASH}`
+
+          ---
+
+          <details>
+          <summary>🛠️ <b>Build & Architecture Specifications</b> (Click to expand)</summary>
+
+          <br/>
+
+          | Attribute | Specification | Notes |
+          | :--- | :--- | :--- |
+          | **Target Platform** | Android 10.0+ to Android 15 (API 29–37) | Min SDK 29, Target/Compile SDK 37 |
+          | **Framework** | **Jetpack Compose** + Material 3 Expressive | Kotlin 2.1.0 with Compose Compiler |
+          | **Typography** | **Google Sans Flex** Variable Font | Dynamic Grade, Weight, Width, Roundness, Optical Size, Slant |
+          | **Design System** | **Material 3 Expressive** | Expressive motion schemes, 11 avatar shapes, adaptive contrast |
+          | **Dependency Injection** | **Koin 4.1** | Lightweight, native Kotlin DI container |
+          | **Local Database** | **Room 2.6** | Offline-first, reactive SQLite persistence |
+          | **Ads & Tracking** | **100% Free, Offline & Ad-Free** | Zero Google Play Services, zero AdMob, zero billing telemetry |
+          | **System Integration** | **Shizuku API 13.1** | High-privilege call recording & internal audio capture |
+
+          <br/>
+
+          - 🎨 **Google Sans Flex Variable Font**: Complete typography customization with full variable axes directly in Theme & Appearance.
+          - 🎭 **Smart Adaptive Avatars**: Contrast-aware initials overlay automatically calculates background luminance (white text on dark blue, dark text on yellow).
+          - 📞 **Smart Call Grouping**: Seamless call history grouping toggle to combine consecutive calls from the same contact or number.
+          - 🔒 **Privacy First & 100% Offline**: No network advertising or Google Play billing dependencies.
+
+          </details>
+          EOF
+
+      - name: Publish Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Rivo Phone Production Release"
+          files: |
+            outputs/*.apk
+            outputs/*.txt
+            outputs/*.sha256
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -327,10 +327,6 @@
     <string name="blocked_action_export_csv">导出CSV</string>
     <string name="blocked_search_placeholder">搜索被阻止的号码…</string>
     <string name="settings_group_support_about">关于支持 &amp;</string>
-    <string name="settings_display_banner_ads">显示横幅广告</string>
-    <string name="settings_display_banner_ads_supporting">在列表中显示非侵入式横幅广告以支持开发</string>
-    <string name="settings_rate_google_play">在 Google Play 上评分</string>
-    <string name="settings_rate_google_play_supporting">在 Google Play 商店支持 Rivo</string>
     <string name="settings_about_rivo">关于 Rivo</string>
     <string name="settings_about_rivo_supporting">版本，开源许可证 &amp; 贡献者</string>
     <string name="settings_group_alerts_ringtones">警报 &amp; 铃声</string>

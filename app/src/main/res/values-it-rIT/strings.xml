@@ -177,10 +177,6 @@
     <string name="blocked_action_export_csv">Esporta CSV</string>
     <string name="blocked_search_placeholder">Ricerca numeri bloccati…</string>
     <string name="settings_group_support_about">Supporto &amp; Informazioni</string>
-    <string name="settings_display_banner_ads">Visualizza Pubblicità Banner</string>
-    <string name="settings_display_banner_ads_supporting">Mostra gli annunci banner non intrusivi all\'interno delle liste per supportare lo sviluppo</string>
-    <string name="settings_rate_google_play">Valuta su Google Play</string>
-    <string name="settings_rate_google_play_supporting">Supporta Rivo su Google Play Store</string>
     <string name="settings_about_rivo">Informazioni Su Rivo</string>
     <string name="settings_about_rivo_supporting">Versione, licenze open source &amp; contributori</string>
     <string name="settings_group_alerts_ringtones">Avvisi &amp; Suonerie</string>

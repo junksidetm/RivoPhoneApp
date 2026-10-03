@@ -1,5 +1,6 @@
 package com.grinch.rivo4
-val PATREON_URL = "https://www.patreon.com/c/grinch_"
-val DISCORD_URL = "https://discord.gg/NtEvU3726e"
-val GITHUB_URL = "https://github.com/user-grinch/RivoPhoneApp"
-const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.grinch.rivo4&hl=en"
+const val PATREON_URL = "https://www.patreon.com/c/grinch_"
+const val DISCORD_URL = "https://discord.gg/NtEvU3726e"
+const val GITHUB_URL = "https://github.com/junksidetm/RivoPhoneApp"
+const val GITLAB_URL = "https://gitlab.com/mrdarksidetm/RivoPhoneApp"
+const val CODEBERG_URL = "https://codeberg.org/mrdarksidetm/RivoPhoneApp"

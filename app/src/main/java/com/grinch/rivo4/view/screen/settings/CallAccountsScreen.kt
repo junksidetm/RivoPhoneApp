@@ -94,6 +94,7 @@ fun CallAccountsScreen(
     var autoDeclineUnknown by remember(settingsState) { mutableStateOf(prefs.isAutoDeclineUnknownEnabled()) }
     var autoDeclineNonContacts by remember(settingsState) { mutableStateOf(prefs.isAutoDeclineNonContactsEnabled()) }
     var autoPasteClipboard by remember(settingsState) { mutableStateOf(prefs.isAutoPasteClipboardEnabled()) }
+    var groupCalls by remember(settingsState) { mutableStateOf(prefs.isCallLogGroupingEnabled()) }
     var callLogLimit by remember(settingsState) { mutableStateOf(prefs.getCallLogLimit()) }
 
     var defaultCallBg by remember(settingsState) { mutableStateOf(CallBackgroundStore.defaultModel(context)) }
@@ -350,6 +351,18 @@ fun CallAccountsScreen(
                                 leadingIcon = Icons.Outlined.Quickreply,
                                 onClick = {
                                     navigator.navigate(QuickResponsesScreenDestination())
+                                }
+                            )
+                        }
+                        item {
+                            RivoSwitchListItem(
+                                headline = "Group calls",
+                                supporting = "Group consecutive calls from the same contact or number in recents",
+                                leadingIcon = Icons.Outlined.Layers,
+                                checked = groupCalls,
+                                onCheckedChange = {
+                                    groupCalls = it
+                                    prefs.setCallLogGroupingEnabled(it)
                                 }
                             )
                         }

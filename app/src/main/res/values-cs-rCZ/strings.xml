@@ -177,10 +177,6 @@
     <string name="blocked_action_export_csv">Exportovat CSV</string>
     <string name="blocked_search_placeholder">Hledat blokovaná čísla…</string>
     <string name="settings_group_support_about">Podpora &amp; O</string>
-    <string name="settings_display_banner_ads">Zobrazit reklamy na banneru</string>
-    <string name="settings_display_banner_ads_supporting">Zobrazit nerušivé reklamy bannerů v seznamech pro podporu vývoje</string>
-    <string name="settings_rate_google_play">Ohodnoťte na Google Play</string>
-    <string name="settings_rate_google_play_supporting">Podpořte Rivo v Google Play Store</string>
     <string name="settings_about_rivo">O společnosti Rivo</string>
     <string name="settings_about_rivo_supporting">Verze, open source licence &amp; přispěvatelé</string>
     <string name="settings_group_alerts_ringtones">Upozornění &amp; vyzvánění</string>

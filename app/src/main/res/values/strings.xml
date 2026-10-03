@@ -974,10 +974,6 @@
     <string name="blocked_action_export_csv">Export CSV</string>
     <string name="blocked_search_placeholder">Search blocked numbers…</string>
     <string name="settings_group_support_about">Support &amp; About</string>
-    <string name="settings_display_banner_ads">Display Banner Ads</string>
-    <string name="settings_display_banner_ads_supporting">Show non-intrusive banner ads inside lists to support development</string>
-    <string name="settings_rate_google_play">Rate on Google Play</string>
-    <string name="settings_rate_google_play_supporting">Support Rivo on Google Play Store</string>
     <string name="settings_about_rivo">About Rivo</string>
     <string name="settings_about_rivo_supporting">Version, open source licenses &amp; contributors</string>
     <string name="settings_group_alerts_ringtones">Alerts &amp; Ringtones</string>

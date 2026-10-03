@@ -104,10 +104,6 @@ fun AZListScroll(
             currentIndex += 1
             // 1 for each contact
             currentIndex += contactsForChar.size
-            // 1 for banner ad if groupIndex % 3 == 1
-            if (groupIndex % 3 == 1) {
-                currentIndex += 1
-            }
         }
         map
     }
@@ -263,14 +259,6 @@ fun AZListScroll(
                                 modifier = Modifier.padding(horizontal = 16.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
                             )
-                        }
-                    }
-                }
-
-                if (groupIndex % 3 == 1) {
-                    item(key = "ad_$groupIndex") {
-                        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                            com.grinch.rivo4.view.components.ad.BannerAd()
                         }
                     }
                 }

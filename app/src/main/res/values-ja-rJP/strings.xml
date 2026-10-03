@@ -171,10 +171,6 @@
     <string name="blocked_action_add_number">番号を追加</string>
     <string name="blocked_action_import_csv">CSVをインポート</string>
     <string name="blocked_action_export_csv">CSVエクスポート</string>
-    <string name="settings_display_banner_ads">バナー広告を表示</string>
-    <string name="settings_display_banner_ads_supporting">開発をサポートするための非侵入型バナー広告をリスト内に表示する</string>
-    <string name="settings_rate_google_play">Google Playで評価</string>
-    <string name="settings_rate_google_play_supporting">Google Play ストアで Rivo をサポート</string>
     <string name="settings_about_rivo">Rivo について</string>
     <string name="settings_about_rivo_supporting">バージョン、オープンソースライセンス &amp; 貢献者</string>
     <string name="settings_group_alerts_ringtones">アラート &amp; 着信音</string>

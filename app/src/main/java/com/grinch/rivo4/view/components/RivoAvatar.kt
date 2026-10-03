@@ -127,35 +127,42 @@ fun rivoAvatarHueIndex(name: String): Int =
 private fun hslColor(hue: Float, saturation: Float, lightness: Float): Color =
     Color(ColorUtils.HSLToColor(floatArrayOf(hue, saturation, lightness)))
 
+/**
+ * Computes an adaptive, high-contrast text/icon overlay color (crisp white or dark on-surface)
+ * based on the luminance of the avatar background container color.
+ *
+ * Example:
+ * - If container color is dark blue (low luminance), overlay text is white.
+ * - If container color is yellow or light tone (high luminance), overlay text is dark.
+ */
+fun adaptiveAvatarContentColor(containerColor: Color): Color {
+    return if (containerColor.luminance() > 0.45f) {
+        Color(0xFF1C1B1F) // High-contrast dark on bright/yellow backgrounds
+    } else {
+        Color.White       // High-contrast white on dark blue/deep backgrounds
+    }
+}
+
 private fun rivoTintedAvatarColors(name: String, dark: Boolean): RivoAvatarColors {
     val hue = rivoAvatarHueIndex(name) * (360f / RivoAvatarDefaults.HueCount)
-    return if (dark) {
-        RivoAvatarColors(
-            container = hslColor(
-                hue,
-                RivoAvatarDefaults.DarkContainerSaturation,
-                RivoAvatarDefaults.DarkContainerLightness
-            ),
-            content = hslColor(
-                hue,
-                RivoAvatarDefaults.DarkContentSaturation,
-                RivoAvatarDefaults.DarkContentLightness
-            )
+    val container = if (dark) {
+        hslColor(
+            hue,
+            RivoAvatarDefaults.DarkContainerSaturation,
+            RivoAvatarDefaults.DarkContainerLightness
         )
     } else {
-        RivoAvatarColors(
-            container = hslColor(
-                hue,
-                RivoAvatarDefaults.LightContainerSaturation,
-                RivoAvatarDefaults.LightContainerLightness
-            ),
-            content = hslColor(
-                hue,
-                RivoAvatarDefaults.LightContentSaturation,
-                RivoAvatarDefaults.LightContentLightness
-            )
+        hslColor(
+            hue,
+            RivoAvatarDefaults.LightContainerSaturation,
+            RivoAvatarDefaults.LightContainerLightness
         )
     }
+    val content = adaptiveAvatarContentColor(container)
+    return RivoAvatarColors(
+        container = container,
+        content = content
+    )
 }
 
 @Composable
@@ -316,6 +323,14 @@ fun RivoAvatar(
         Modifier.background(colors.container, avatarShape)
     }
 
+    val effectiveContentColor = remember(colors, style.gradient, dark) {
+        if (style.gradient) {
+            if (dark) Color.White else Color(0xFF1C1B1F)
+        } else {
+            colors.content
+        }
+    }
+
     Box(modifier = rootModifier) {
         Box(
             modifier = Modifier
@@ -335,27 +350,27 @@ fun RivoAvatar(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = colors.content,
+                    tint = effectiveContentColor,
                     modifier = Modifier.size(RivoAvatarDefaults.IconSize)
                 )
             } else if (photoUri == "voicemail://icon" || name.equals("Voicemail", ignoreCase = true) || name.equals("Messagerie vocale", ignoreCase = true) || name.equals("Poczta głosowa", ignoreCase = true)) {
                 Icon(
                     imageVector = Icons.Outlined.Voicemail,
                     contentDescription = null,
-                    tint = colors.content,
+                    tint = effectiveContentColor,
                     modifier = Modifier.size(RivoAvatarDefaults.IconSize)
                 )
             } else if (style.showFirstLetter && hasLetters) {
                 Text(
                     text = contactInitials(name, style.gradient),
                     style = textStyle,
-                    color = colors.content
+                    color = effectiveContentColor
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = colors.content,
+                    tint = effectiveContentColor,
                     modifier = Modifier.size(RivoAvatarDefaults.IconSize)
                 )
             }

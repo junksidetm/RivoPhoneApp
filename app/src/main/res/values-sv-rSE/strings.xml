@@ -177,10 +177,6 @@
     <string name="blocked_action_export_csv">Exportera CSV</string>
     <string name="blocked_search_placeholder">Sök blockerade nummer…</string>
     <string name="settings_group_support_about">Support &amp; Om</string>
-    <string name="settings_display_banner_ads">Visa banner-annonser</string>
-    <string name="settings_display_banner_ads_supporting">Visa icke-störande bannerannonser inuti listor för att stödja utvecklingen</string>
-    <string name="settings_rate_google_play">Betygsätt på Google Play</string>
-    <string name="settings_rate_google_play_supporting">Stöd Rivo på Google Play Store</string>
     <string name="settings_about_rivo">Om Rivo</string>
     <string name="settings_about_rivo_supporting">Version, open source-licenser &amp; bidragsgivare</string>
     <string name="settings_group_alerts_ringtones">Varningar &amp; Ringsignaler</string>

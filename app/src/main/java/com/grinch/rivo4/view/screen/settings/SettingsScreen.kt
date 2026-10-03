@@ -48,7 +48,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.grinch.rivo4.PATREON_URL
-import com.grinch.rivo4.PLAY_STORE_URL
 import com.grinch.rivo4.R
 import com.grinch.rivo4.controller.util.PreferenceManager
 import com.grinch.rivo4.controller.util.getAppVersion
@@ -61,7 +60,6 @@ import com.grinch.rivo4.view.components.RivoExpressiveCard
 import com.grinch.rivo4.view.components.RivoExpressiveGroup
 import com.grinch.rivo4.view.components.RivoListItem
 import com.grinch.rivo4.view.components.RivoSwitchListItem
-import com.grinch.rivo4.view.components.ad.IS_ADS_SUPPORTED
 import com.grinch.rivo4.view.theme.RivoMaterialShapes
 import com.grinch.rivo4.view.theme.rememberRivoMorphShape
 import com.ramcosta.composedestinations.annotation.Destination
@@ -83,8 +81,6 @@ fun SettingsScreen(
     val appInfo = getAppVersion(context)
     val logoMorph = rememberRivoMorphShape(RivoMaterialShapes.Cookie12Sided, RivoMaterialShapes.Circle) { 0.2f }
 
-    var enableAds by remember(settingsState) { mutableStateOf(prefs.getBoolean(PreferenceManager.KEY_ENABLE_ADS, true)) }
-    var showDisableAdsDialog by remember { mutableStateOf(false) }
     var showTipJarDialog by remember { mutableStateOf(false) }
     val isSupporter = remember(settingsState) { prefs.isSupporter() }
 
@@ -380,6 +376,14 @@ val searchItems = remember(settingsState, isSupporter) {
             ),
 
             // ==================== CALLING & BEHAVIOR ====================
+            SettingSearchItem(
+                title = "Group calls",
+                supporting = "Group consecutive calls from the same contact or number in recents",
+                category = "Calling & Behavior",
+                icon = Icons.Outlined.Layers,
+                keywords = listOf("group calls", "call grouping", "merge calls", "combine calls", "recents grouping", "call log group"),
+                onClick = { navigator.navigate(CallAccountsScreenDestination) }
+            ),
             SettingSearchItem(
                 title = context.getString(R.string.settings_call_settings_headline),
                 supporting = context.getString(R.string.settings_call_settings_supporting),
@@ -971,29 +975,6 @@ val searchItems = remember(settingsState, isSupporter) {
                 onClick = { showTipJarDialog = true }
             ),
             SettingSearchItem(
-                title = "Display Banner Ads",
-                supporting = "Toggle support banner ads on settings and screens",
-                category = "Support & About",
-                icon = Icons.Outlined.AdUnits,
-                keywords = listOf("ads", "banner ads", "disable ads", "turn off ads", "advertisements"),
-                onClick = {
-                    if (enableAds) {
-                        showDisableAdsDialog = true
-                    } else {
-                        enableAds = true
-                        prefs.setBoolean(PreferenceManager.KEY_ENABLE_ADS, true)
-                    }
-                }
-            ),
-            SettingSearchItem(
-                title = context.getString(R.string.settings_rate_google_play),
-                supporting = context.getString(R.string.settings_rate_google_play_supporting),
-                category = "Support & About",
-                icon = Icons.Default.Star,
-                keywords = listOf("rate", "review", "google play", "store", "feedback"),
-                onClick = { openLink(context, PLAY_STORE_URL) }
-            ),
-            SettingSearchItem(
                 title = context.getString(R.string.settings_about_rivo),
                 supporting = context.getString(R.string.settings_about_rivo_supporting),
                 category = "Support & About",
@@ -1562,6 +1543,21 @@ val searchItems = remember(settingsState, isSupporter) {
                         )
                     }
                     item {
+                        var groupCallsSetting by remember(settingsState) {
+                            mutableStateOf(prefs.isCallLogGroupingEnabled())
+                        }
+                        RivoSwitchListItem(
+                            headline = "Group calls",
+                            supporting = "Group consecutive calls from the same contact or number in recents",
+                            leadingIcon = Icons.Outlined.Layers,
+                            checked = groupCallsSetting,
+                            onCheckedChange = {
+                                groupCallsSetting = it
+                                prefs.setCallLogGroupingEnabled(it)
+                            }
+                        )
+                    }
+                    item {
                         RivoListItem(
                             headline = stringResource(R.string.settings_swipe_actions_title),
                             supporting = stringResource(R.string.settings_swipe_actions_supporting),
@@ -1695,38 +1691,12 @@ val searchItems = remember(settingsState, isSupporter) {
                     title = stringResource(R.string.settings_group_support_about),
                     icon = Icons.AutoMirrored.Outlined.HelpOutline
                 ) {
-                    if (IS_ADS_SUPPORTED) {
-                        item {
-                            RivoSwitchListItem(
-                                headline = stringResource(R.string.settings_display_banner_ads),
-                                supporting = stringResource(R.string.settings_display_banner_ads_supporting),
-                                leadingIcon = Icons.Outlined.AdUnits,
-                                checked = enableAds,
-                                onCheckedChange = { checked ->
-                                    if (!checked) {
-                                        showDisableAdsDialog = true
-                                    } else {
-                                        enableAds = true
-                                        prefs.setBoolean(PreferenceManager.KEY_ENABLE_ADS, true)
-                                    }
-                                }
-                            )
-                        }
-                    }
                     item {
                         RivoListItem(
                             headline = if (isSupporter) "Rivo Supporter ⭐" else "Support Us",
-                            supporting = if (isSupporter) "Thank you for supporting Rivo!" else "Support development via Tip Jar or Patreon",
+                            supporting = if (isSupporter) "Thank you for supporting Rivo!" else "Support development via Patreon or GitHub",
                             leadingIcon = if (isSupporter) Icons.Outlined.Star else Icons.Outlined.Favorite,
                             onClick = { showTipJarDialog = true }
-                        )
-                    }
-                    item {
-                        RivoListItem(
-                            headline = stringResource(R.string.settings_rate_google_play),
-                            supporting = stringResource(R.string.settings_rate_google_play_supporting),
-                            leadingIcon = Icons.Default.Star,
-                            onClick = { openLink(context, PLAY_STORE_URL) }
                         )
                     }
                     item {
@@ -1741,10 +1711,6 @@ val searchItems = remember(settingsState, isSupporter) {
             }
 
             item {
-                com.grinch.rivo4.view.components.ad.BannerAd()
-            }
-
-            item {
                 Text(
                     text = stringResource(R.string.about_copyright),
                     style = MaterialTheme.typography.labelMedium,
@@ -1756,45 +1722,6 @@ val searchItems = remember(settingsState, isSupporter) {
                 )
             }
         }
-        }
-
-        if (showDisableAdsDialog) {
-            RivoDialog(
-                onDismissRequest = { showDisableAdsDialog = false },
-                title = stringResource(R.string.ads_disable_dialog_title),
-                icon = Icons.Outlined.Favorite,
-                confirmAction = RivoDialogAction(
-                    label = stringResource(R.string.ads_disable_dialog_confirm),
-                    onClick = {
-                        enableAds = false
-                        prefs.setBoolean(PreferenceManager.KEY_ENABLE_ADS, false)
-                        showDisableAdsDialog = false
-                    }
-                ),
-                dismissAction = RivoDialogAction(
-                    label = stringResource(R.string.ads_disable_dialog_keep),
-                    onClick = { showDisableAdsDialog = false }
-                )
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = stringResource(R.string.ads_disable_dialog_body),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    TextButton(
-                        onClick = {
-                            openLink(context, PATREON_URL)
-                            showDisableAdsDialog = false
-                        }
-                    ) {
-                        Icon(Icons.Outlined.VolunteerActivism, contentDescription = null)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.patreon_prompt_confirm))
-                    }
-                }
-            }
         }
 
         if (showTipJarDialog) {

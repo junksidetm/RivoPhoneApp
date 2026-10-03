@@ -225,13 +225,14 @@ class CallLogRepository(
                 ids = listOf(callId)
             )
 
+            val isGroupingEnabled = preferenceManager.isCallLogGroupingEnabled()
             val lastEntry = tempLogs.lastOrNull()
             val sameContact = if (lastEntry != null) {
                 (contactId != null && lastEntry.contactId == contactId) ||
                 areNumbersEqual(lastEntry.number, number)
             } else false
 
-            if (lastEntry != null && sameContact) {
+            if (isGroupingEnabled && lastEntry != null && sameContact) {
                 val currentSubLogs = if (lastEntry.subLogs.isEmpty()) listOf(lastEntry) else lastEntry.subLogs
                 tempLogs[tempLogs.size - 1] = lastEntry.copy(
                     types = lastEntry.types + type,

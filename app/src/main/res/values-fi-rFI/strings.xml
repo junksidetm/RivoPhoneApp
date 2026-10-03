@@ -176,10 +176,6 @@
     <string name="blocked_action_export_csv">Vie CSV</string>
     <string name="blocked_search_placeholder">Etsi estetty numerot…</string>
     <string name="settings_group_support_about">Tuki &amp; Tietoja</string>
-    <string name="settings_display_banner_ads">Näytä Mainospalkit</string>
-    <string name="settings_display_banner_ads_supporting">Näytä ei-häiritsevät mainospalkin mainokset listojen sisällä tukemaan kehitystä</string>
-    <string name="settings_rate_google_play">Arvostele Google Playssa</string>
-    <string name="settings_rate_google_play_supporting">Tue Rivoa Google Play Kaupassa</string>
     <string name="settings_about_rivo">Tietoja Rivosta</string>
     <string name="settings_about_rivo_supporting">Versio, avoimen lähdekoodin lisenssit &amp; osallistujat</string>
     <string name="settings_group_alerts_ringtones">Hälytykset &amp; Soittoäänet</string>

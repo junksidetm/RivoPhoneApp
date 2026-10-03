@@ -587,10 +587,6 @@ fun ContactSearchContent(
                                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp),
                                     verticalArrangement = Arrangement.spacedBy(3.dp)
                                 ) {
-                                    item {
-                                        com.grinch.rivo4.view.components.ad.BannerAd()
-                                    }
-
                                     if (showContacts && filteredContacts.isNotEmpty()) {
                                         item {
                                             RivoSectionHeader(

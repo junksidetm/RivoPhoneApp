@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "com.grinch.rivo4"
-        minSdk = 31
+        minSdk = 29
         targetSdk = 37
         versionCode = baseVersionCode + buildNumber
         versionName = isPreviewBuild ? "${baseVersionName}.${buildNumber}-preview" : baseVersionName
@@ -88,41 +88,15 @@ android {
         }
     }
 
-    flavorDimensions "distribution"
-    productFlavors {
-        play {
-            dimension "distribution"
-            isDefault = true
-        }
-        foss {
-            dimension "distribution"
-            minSdk = 29
-        }
-    }
-
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            def flavorSuffix = (variant.flavorName == "foss") ? "-foss" : ""
             def buildTypeSuffix = (variant.buildType.name == "debug") ? "-debug" : ""
-            outputFileName = "RivoPhone-${variant.versionName}${flavorSuffix}${buildTypeSuffix}.apk"
+            outputFileName = "RivoPhone-${variant.versionName}${buildTypeSuffix}.apk"
         }
     }
 }
 
 afterEvaluate {
-    tasks.matching { it.name == "bundlePlayRelease" }.configureEach { task ->
-        task.doLast {
-            def outDir = layout.buildDirectory.dir("outputs/bundle/playRelease").get().asFile
-            if (outDir.exists()) {
-                outDir.listFiles()?.each { file ->
-                    if (file.name.endsWith(".aab") && !file.name.contains("RivoPhone")) {
-                        file.renameTo(new File(outDir, "RivoPhone-${android.defaultConfig.versionName}.aab"))
-                    }
-                }
-            }
-        }
-    }
-
     // Prevent Windows java.nio.file.FileAlreadyExistsException during KSP compilation
     tasks.matching { it.name.startsWith("ksp") && it.name.endsWith("Kotlin") }.configureEach { task ->
         task.doFirst {
@@ -136,8 +110,6 @@ afterEvaluate {
 }
 
 dependencies {
-    playImplementation 'com.google.android.gms:play-services-ads:23.6.0'
-    playImplementation 'com.android.billingclient:billing-ktx:8.0.0'
     implementation platform('androidx.compose:compose-bom:2025.12.01')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.material3:material3:1.5.0-alpha18'

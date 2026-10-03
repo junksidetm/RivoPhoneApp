@@ -29,8 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.*
 import com.grinch.rivo4.DISCORD_URL
 import com.grinch.rivo4.GITHUB_URL
+import com.grinch.rivo4.GITLAB_URL
+import com.grinch.rivo4.CODEBERG_URL
 import com.grinch.rivo4.PATREON_URL
-import com.grinch.rivo4.PLAY_STORE_URL
 import com.grinch.rivo4.R
 import com.grinch.rivo4.controller.util.PreferenceManager
 import com.grinch.rivo4.controller.util.getAppVersion
@@ -153,7 +154,7 @@ fun AboutScreen(navigator: DestinationsNavigator) {
             }
 
             Button(
-                onClick = { openLink(context, PLAY_STORE_URL) },
+                onClick = { openLink(context, GITHUB_URL) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -163,10 +164,10 @@ fun AboutScreen(navigator: DestinationsNavigator) {
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             ) {
-                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(22.dp), tint = Color(0xFFFFB300))
+                Icon(Icons.Outlined.Code, contentDescription = null, modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = stringResource(R.string.about_rate_on_google_play),
+                    text = "Star on GitHub",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -224,18 +225,26 @@ fun AboutScreen(navigator: DestinationsNavigator) {
             RivoExpressiveGroup {
                 item {
                     RivoListItem(
-                        headline = stringResource(R.string.about_discord),
-                        supporting = stringResource(R.string.about_discord_supporting),
-                        leadingIcon = Icons.AutoMirrored.Filled.Chat,
-                        onClick = { openLink(context, DISCORD_URL) }
+                        headline = stringResource(R.string.about_source_code),
+                        supporting = "GitHub: junksidetm/RivoPhoneApp",
+                        leadingIcon = Icons.Outlined.Code,
+                        onClick = { openLink(context, GITHUB_URL) }
                     )
                 }
                 item {
                     RivoListItem(
-                        headline = stringResource(R.string.about_source_code),
-                        supporting = stringResource(R.string.about_source_code_supporting),
+                        headline = "GitLab Mirror",
+                        supporting = "GitLab: mrdarksidetm/RivoPhoneApp",
                         leadingIcon = Icons.Outlined.Code,
-                        onClick = { openLink(context, GITHUB_URL) }
+                        onClick = { openLink(context, GITLAB_URL) }
+                    )
+                }
+                item {
+                    RivoListItem(
+                        headline = "Codeberg Mirror",
+                        supporting = "Codeberg: mrdarksidetm/RivoPhoneApp",
+                        leadingIcon = Icons.Outlined.Code,
+                        onClick = { openLink(context, CODEBERG_URL) }
                     )
                 }
                 item {
@@ -244,6 +253,14 @@ fun AboutScreen(navigator: DestinationsNavigator) {
                         supporting = stringResource(R.string.about_current_version, appInfo.first),
                         leadingIcon = Icons.Outlined.SystemUpdate,
                         onClick = { openLink(context, "$GITHUB_URL/releases") }
+                    )
+                }
+                item {
+                    RivoListItem(
+                        headline = stringResource(R.string.about_discord),
+                        supporting = stringResource(R.string.about_discord_supporting),
+                        leadingIcon = Icons.AutoMirrored.Filled.Chat,
+                        onClick = { openLink(context, DISCORD_URL) }
                     )
                 }
             }

@@ -207,64 +207,6 @@ open class MainActivity : androidx.fragment.app.FragmentActivity() {
                                 navController = navController,
                                 defaultTransitions = getAppTransition(transitionStyle)
                             )
-
-                        var showRatePrompt by remember { mutableStateOf(false) }
-                        val rateShown = remember { prefs.getBoolean(PreferenceManager.KEY_RATE_APP_SHOWN, false) }
-
-                        LaunchedEffect(rateShown) {
-                            if (!rateShown) {
-                                var currentUsage = prefs.getInt(PreferenceManager.KEY_APP_USAGE_SECONDS, 0)
-                                val snoozeTime = prefs.getString(PreferenceManager.KEY_RATE_APP_SNOOZED_TIME, null)?.toLongOrNull() ?: 0L
-                                val isSnoozed = System.currentTimeMillis() < snoozeTime
-
-                                while (!rateShown && !isSnoozed) {
-                                    kotlinx.coroutines.delay(1000L)
-                                    currentUsage++
-                                    if (currentUsage % 15 == 0) {
-                                        prefs.setInt(PreferenceManager.KEY_APP_USAGE_SECONDS, currentUsage)
-                                    }
-                                    if (currentUsage >= 300) {
-                                        showRatePrompt = true
-                                        break
-                                    }
-                                }
-                            }
-                        }
-
-                        if (showRatePrompt) {
-                            val context = LocalContext.current
-                            RivoDialog(
-                                onDismissRequest = {
-                                    prefs.setBoolean(PreferenceManager.KEY_RATE_APP_SHOWN, true)
-                                    showRatePrompt = false
-                                },
-                                title = "Enjoying Rivo Phone?",
-                                icon = Icons.Default.Star,
-                                confirmAction = com.grinch.rivo4.view.components.RivoDialogAction(
-                                    label = "Rate on Google Play",
-                                    onClick = {
-                                        openLink(context, PLAY_STORE_URL)
-                                        prefs.setBoolean(PreferenceManager.KEY_RATE_APP_SHOWN, true)
-                                        showRatePrompt = false
-                                    }
-                                ),
-                                dismissAction = com.grinch.rivo4.view.components.RivoDialogAction(
-                                    label = "Remind Me Later",
-                                    onClick = {
-                                        val threeDaysLater = System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L)
-                                        prefs.setString(PreferenceManager.KEY_RATE_APP_SNOOZED_TIME, threeDaysLater.toString())
-                                        showRatePrompt = false
-                                    }
-                                )
-                            ) {
-                                Text(
-                                    text = "If Rivo has made managing your calls better, please consider leaving a 5-star rating on Google Play. Your support helps us keep the app free and independent!",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
                     }
                 }
 

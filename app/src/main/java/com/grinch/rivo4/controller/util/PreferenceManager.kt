@@ -62,6 +62,18 @@ class PreferenceManager(context: Context) {
         prefs.edit().putInt(key, value).apply()
     }
 
+    fun getFloat(key: String, defaultValue: Float): Float {
+        return try {
+            prefs.getFloat(key, defaultValue)
+        } catch (e: Exception) {
+            defaultValue
+        }
+    }
+
+    fun setFloat(key: String, value: Float) {
+        prefs.edit().putFloat(key, value).apply()
+    }
+
     fun setLastUsedNumber(contactId: String, number: String) {
         prefs.edit().putString("last_used_number_$contactId", number).apply()
     }
@@ -436,7 +448,21 @@ class PreferenceManager(context: Context) {
         const val KEY_BOTTOM_NAV_HIDDEN = "bottom_nav_hidden"
         const val KEY_MERGE_FAVORITES_RECENTS = "merge_favorites_recents"
         const val KEY_RECENTS_FAVORITES_COLLAPSED = "recents_favorites_collapsed"
-        const val KEY_ENABLE_ADS = "enable_ads"
+        const val KEY_USE_GOOGLE_SANS_FLEX = "use_google_sans_flex"
+        const val KEY_FONT_WEIGHT = "font_weight"
+        const val KEY_FONT_WIDTH = "font_width"
+        const val KEY_FONT_GRADE = "font_grade"
+        const val KEY_FONT_ROUNDNESS = "font_roundness"
+        const val KEY_FONT_OPTICAL_SIZE = "font_optical_size"
+        const val KEY_FONT_SLANT = "font_slant"
+
+        const val DEFAULT_FONT_WEIGHT = 400
+        const val DEFAULT_FONT_WIDTH = 100f
+        const val DEFAULT_FONT_GRADE = 50f
+        const val DEFAULT_FONT_ROUNDNESS = 100f
+        const val DEFAULT_FONT_OPTICAL_SIZE = 12f
+        const val DEFAULT_FONT_SLANT = 0f
+
         const val KEY_IS_SUPPORTER = "is_supporter"
         const val KEY_POST_CALL_SCREEN = "post_call_screen"
         const val KEY_NAV_BAR_STYLE = "nav_bar_style"
@@ -602,5 +628,46 @@ class PreferenceManager(context: Context) {
     fun setShowCountryCodeEnabled(enabled: Boolean) {
         setBoolean(KEY_SHOW_COUNTRY_CODE, enabled)
         clearFormattedNumberCache()
+    }
+
+    // Call Log Grouping
+    fun isCallLogGroupingEnabled(): Boolean = getBoolean(KEY_CALL_LOG_GROUPING, true)
+    fun setCallLogGroupingEnabled(enabled: Boolean) {
+        setBoolean(KEY_CALL_LOG_GROUPING, enabled)
+    }
+
+    // Google Sans Flex Variable Typography
+    fun isGoogleSansFlexEnabled(): Boolean = getBoolean(KEY_USE_GOOGLE_SANS_FLEX, true)
+    fun setGoogleSansFlexEnabled(enabled: Boolean) = setBoolean(KEY_USE_GOOGLE_SANS_FLEX, enabled)
+
+    fun getFontWeight(): Int = getInt(KEY_FONT_WEIGHT, DEFAULT_FONT_WEIGHT)
+    fun setFontWeight(weight: Int) = setInt(KEY_FONT_WEIGHT, weight)
+
+    fun getFontWidth(): Float = getFloat(KEY_FONT_WIDTH, DEFAULT_FONT_WIDTH)
+    fun setFontWidth(width: Float) = setFloat(KEY_FONT_WIDTH, width)
+
+    fun getFontGrade(): Float = getFloat(KEY_FONT_GRADE, DEFAULT_FONT_GRADE)
+    fun setFontGrade(grade: Float) = setFloat(KEY_FONT_GRADE, grade)
+
+    fun getFontRoundness(): Float = getFloat(KEY_FONT_ROUNDNESS, DEFAULT_FONT_ROUNDNESS)
+    fun setFontRoundness(roundness: Float) = setFloat(KEY_FONT_ROUNDNESS, roundness)
+
+    fun getFontOpticalSize(): Float = getFloat(KEY_FONT_OPTICAL_SIZE, DEFAULT_FONT_OPTICAL_SIZE)
+    fun setFontOpticalSize(opsz: Float) = setFloat(KEY_FONT_OPTICAL_SIZE, opsz)
+
+    fun getFontSlant(): Float = getFloat(KEY_FONT_SLANT, DEFAULT_FONT_SLANT)
+    fun setFontSlant(slant: Float) = setFloat(KEY_FONT_SLANT, slant)
+
+    fun resetTypography() {
+        prefs.edit()
+            .putBoolean(KEY_USE_GOOGLE_SANS_FLEX, true)
+            .putInt(KEY_FONT_WEIGHT, DEFAULT_FONT_WEIGHT)
+            .putFloat(KEY_FONT_WIDTH, DEFAULT_FONT_WIDTH)
+            .putFloat(KEY_FONT_GRADE, DEFAULT_FONT_GRADE)
+            .putFloat(KEY_FONT_ROUNDNESS, DEFAULT_FONT_ROUNDNESS)
+            .putFloat(KEY_FONT_OPTICAL_SIZE, DEFAULT_FONT_OPTICAL_SIZE)
+            .putFloat(KEY_FONT_SLANT, DEFAULT_FONT_SLANT)
+            .apply()
+        _settingsChanged.value += 1
     }
 }

@@ -169,10 +169,6 @@
     <string name="blocked_action_add_number">Додати номер</string>
     <string name="blocked_action_import_csv">Імпортувати CSV</string>
     <string name="blocked_action_export_csv">Експортувати в CSV</string>
-    <string name="settings_display_banner_ads">Відображення реклами банерів</string>
-    <string name="settings_display_banner_ads_supporting">Показ реклами банера в списках для підтримки розробки</string>
-    <string name="settings_rate_google_play">Оцінити в Google Play</string>
-    <string name="settings_rate_google_play_supporting">Підтримка Rivo у магазині Google Play</string>
     <string name="settings_about_rivo">Про Rivo</string>
     <string name="settings_about_rivo_supporting">Версія, відкриті ліцензії &amp; учасники</string>
     <string name="blocked_title_block_numbers">Заблокувати Номери або Контакти</string>

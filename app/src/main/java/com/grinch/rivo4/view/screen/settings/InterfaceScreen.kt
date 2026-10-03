@@ -25,6 +25,7 @@ import com.grinch.rivo4.view.components.RivoDialogAction
 import com.grinch.rivo4.view.components.RivoElevation
 import com.grinch.rivo4.view.theme.RivoMaterialShapes
 import com.grinch.rivo4.view.theme.RivoMotion
+import com.grinch.rivo4.view.theme.createGoogleSansFlexFamily
 import com.grinch.rivo4.view.theme.rememberRivoMorphShape
 import com.grinch.rivo4.view.theme.rivoPolygonShape
 import kotlin.math.atan2
@@ -109,6 +110,28 @@ fun InterfaceScreen(
     }
     var dualSimButtons by remember(settingsState) {
         mutableStateOf(prefs.isDualSimDialpadButtonsEnabled())
+    }
+
+    var useGoogleSans by remember(settingsState) {
+        mutableStateOf(prefs.isGoogleSansFlexEnabled())
+    }
+    var fontWeight by remember(settingsState) {
+        mutableIntStateOf(prefs.getFontWeight())
+    }
+    var fontWidth by remember(settingsState) {
+        mutableFloatStateOf(prefs.getFontWidth())
+    }
+    var fontGrade by remember(settingsState) {
+        mutableFloatStateOf(prefs.getFontGrade())
+    }
+    var fontRoundness by remember(settingsState) {
+        mutableFloatStateOf(prefs.getFontRoundness())
+    }
+    var fontOpticalSize by remember(settingsState) {
+        mutableFloatStateOf(prefs.getFontOpticalSize())
+    }
+    var fontSlant by remember(settingsState) {
+        mutableFloatStateOf(prefs.getFontSlant())
     }
 
     val presetColors = listOf(
@@ -230,6 +253,151 @@ fun InterfaceScreen(
                                     triggerThemeRestart()
                                 }
                             )
+                        }
+                    }
+                }
+
+                // Typography & Variable Font Axes
+                item {
+                    RivoExpressiveGroup(
+                        title = "Typography",
+                        icon = Icons.Outlined.FontDownload
+                    ) {
+                        item {
+                            RivoSwitchListItem(
+                                headline = "Google Sans Flex",
+                                supporting = "Enable variable weight, width, and optical axes optimizations",
+                                leadingIcon = Icons.Outlined.FontDownload,
+                                checked = useGoogleSans,
+                                onCheckedChange = { enabled ->
+                                    useGoogleSans = enabled
+                                    prefs.setGoogleSansFlexEnabled(enabled)
+                                }
+                            )
+                        }
+                        if (useGoogleSans) {
+                            item {
+                                Box(modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)) {
+                                    RivoTypeTester(
+                                        useGoogleSans = useGoogleSans,
+                                        weight = fontWeight,
+                                        width = fontWidth,
+                                        grade = fontGrade,
+                                        roundness = fontRoundness,
+                                        opticalSize = fontOpticalSize,
+                                        slant = fontSlant
+                                    )
+                                }
+                            }
+                            item {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    RivoTypographySliderTile(
+                                        label = "Grade",
+                                        code = "GRAD",
+                                        value = fontGrade,
+                                        min = -200f,
+                                        max = 150f,
+                                        displayValue = fontGrade.toInt().toString(),
+                                        onValueChange = {
+                                            fontGrade = it
+                                            prefs.setFontGrade(it)
+                                        }
+                                    )
+                                    RivoTypographySliderTile(
+                                        label = "Weight",
+                                        code = "wght",
+                                        value = fontWeight.toFloat(),
+                                        min = 100f,
+                                        max = 1000f,
+                                        displayValue = fontWeight.toString(),
+                                        onValueChange = {
+                                            fontWeight = it.toInt()
+                                            prefs.setFontWeight(it.toInt())
+                                        }
+                                    )
+                                    RivoTypographySliderTile(
+                                        label = "Width",
+                                        code = "wdth",
+                                        value = fontWidth,
+                                        min = 50f,
+                                        max = 150f,
+                                        displayValue = "${fontWidth.toInt()}%",
+                                        onValueChange = {
+                                            fontWidth = it
+                                            prefs.setFontWidth(it)
+                                        }
+                                    )
+                                    RivoTypographySliderTile(
+                                        label = "Roundness",
+                                        code = "ROND",
+                                        value = fontRoundness,
+                                        min = 0f,
+                                        max = 100f,
+                                        displayValue = "${fontRoundness.toInt()}%",
+                                        onValueChange = {
+                                            fontRoundness = it
+                                            prefs.setFontRoundness(it)
+                                        }
+                                    )
+                                    RivoTypographySliderTile(
+                                        label = "Optical Size",
+                                        code = "opsz",
+                                        value = fontOpticalSize,
+                                        min = 8f,
+                                        max = 144f,
+                                        displayValue = "${fontOpticalSize.toInt()}pt",
+                                        onValueChange = {
+                                            fontOpticalSize = it
+                                            prefs.setFontOpticalSize(it)
+                                        }
+                                    )
+                                    RivoTypographySliderTile(
+                                        label = "Slant",
+                                        code = "slnt",
+                                        value = fontSlant,
+                                        min = -10f,
+                                        max = 0f,
+                                        displayValue = "${fontSlant.toInt()}°",
+                                        onValueChange = {
+                                            fontSlant = it
+                                            prefs.setFontSlant(it)
+                                        }
+                                    )
+                                }
+                            }
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    FilledTonalButton(
+                                        onClick = {
+                                            prefs.resetTypography()
+                                            useGoogleSans = true
+                                            fontWeight = PreferenceManager.DEFAULT_FONT_WEIGHT
+                                            fontWidth = PreferenceManager.DEFAULT_FONT_WIDTH
+                                            fontGrade = PreferenceManager.DEFAULT_FONT_GRADE
+                                            fontRoundness = PreferenceManager.DEFAULT_FONT_ROUNDNESS
+                                            fontOpticalSize = PreferenceManager.DEFAULT_FONT_OPTICAL_SIZE
+                                            fontSlant = PreferenceManager.DEFAULT_FONT_SLANT
+                                        },
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.RestartAlt,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            "Reset Typography",
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -684,6 +852,141 @@ fun RivoColorPickerDialog(
                     ) {}
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RivoTypeTester(
+    useGoogleSans: Boolean,
+    weight: Int,
+    width: Float,
+    grade: Float,
+    roundness: Float,
+    opticalSize: Float,
+    slant: Float
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val previewFontFamily = remember(useGoogleSans, weight, width, grade, roundness, opticalSize, slant) {
+        if (useGoogleSans) {
+            createGoogleSansFlexFamily(weight, width, grade, roundness, opticalSize, slant)
+        } else {
+            androidx.compose.ui.text.font.FontFamily.Default
+        }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = colorScheme.primaryContainer.copy(alpha = 0.25f),
+        border = BorderStroke(1.dp, colorScheme.primaryContainer.copy(alpha = 0.6f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    shape = CircleShape,
+                    color = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.FontDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Google Sans Flex Preview",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = previewFontFamily
+                )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                text = "The quick brown fox jumps over the lazy dog 1234567890",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                fontFamily = previewFontFamily,
+                color = colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Variable axes: GRAD ${grade.toInt()}, wght $weight, wdth ${width.toInt()}%, ROND ${roundness.toInt()}%, opsz ${opticalSize.toInt()}pt, slnt ${slant.toInt()}°",
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = previewFontFamily,
+                color = colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun RivoTypographySliderTile(
+    label: String,
+    code: String,
+    value: Float,
+    min: Float,
+    max: Float,
+    displayValue: String,
+    onValueChange: (Float) -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.35f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = colorScheme.surfaceContainerHighest.copy(alpha = 0.7f)
+                    ) {
+                        Text(
+                            text = code,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = displayValue,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                        fontWeight = FontWeight.ExtraBold,
+                        color = colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Slider(
+                value = value.coerceIn(min, max),
+                onValueChange = onValueChange,
+                valueRange = min..max,
+                colors = SliderDefaults.colors(
+                    thumbColor = colorScheme.primary,
+                    activeTrackColor = colorScheme.primary,
+                    inactiveTrackColor = colorScheme.surfaceContainerHighest
+                )
+            )
         }
     }
 }

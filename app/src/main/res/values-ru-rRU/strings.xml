@@ -923,10 +923,6 @@
     <string name="blocked_action_export_csv">Экспорт CSV</string>
     <string name="blocked_search_placeholder">Поиск заблокированных номеров…</string>
     <string name="settings_group_support_about">Поддержка &amp; О программе</string>
-    <string name="settings_display_banner_ads">Отображать баннер рекламы</string>
-    <string name="settings_display_banner_ads_supporting">Показывать ненавязчивую баннерную рекламу в списках для поддержки разработки</string>
-    <string name="settings_rate_google_play">Оценить на Google Play</string>
-    <string name="settings_rate_google_play_supporting">Поддержка Rivo в Google Play Store</string>
     <string name="settings_about_rivo">О Риво</string>
     <string name="settings_about_rivo_supporting">Версия, лицензии с открытым исходным кодом &amp; участников</string>
     <string name="settings_group_alerts_ringtones">Оповещения &amp; Мелодии звонков</string>

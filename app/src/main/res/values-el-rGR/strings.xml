@@ -171,10 +171,6 @@
     <string name="blocked_action_import_csv">Εισαγωγή CSV</string>
     <string name="blocked_action_export_csv">Εξαγωγή CSV</string>
     <string name="settings_group_support_about">Υποστήριξη &amp; Σχετικά</string>
-    <string name="settings_display_banner_ads">Εμφάνιση Διαφημίσεων Banner</string>
-    <string name="settings_display_banner_ads_supporting">Εμφάνιση μη παρεμβατικών διαφημίσεων μέσα σε λίστες για την υποστήριξη ανάπτυξης</string>
-    <string name="settings_rate_google_play">Βαθμολογήστε στο Google Play</string>
-    <string name="settings_rate_google_play_supporting">Υποστηρίξτε το Rivo στο Google Play Store</string>
     <string name="settings_about_rivo">Σχετικά Με Rivo</string>
     <string name="settings_about_rivo_supporting">Έκδοση, άδειες ανοικτού κώδικα &amp; συνεισφέροντες</string>
     <string name="settings_group_alerts_ringtones">Ειδοποιήσεις &amp; Ringtones</string>

@@ -9,7 +9,6 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
-import com.grinch.rivo4.view.components.ad.AdPreloader
 import com.grinch.rivo4.view.screen.PostCallScreen
 import com.grinch.rivo4.view.theme.Rivo4Theme
 
@@ -17,7 +16,6 @@ class PostCallActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AdPreloader.preloadPostCallAd(this@PostCallActivity)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 

@@ -49,7 +49,6 @@ import com.grinch.rivo4.view.components.CallNotesSheet
 import com.grinch.rivo4.MainActivity
 import com.grinch.rivo4.view.components.AddToContactBottomSheet
 import com.grinch.rivo4.view.components.RivoAvatar
-import com.grinch.rivo4.view.components.ad.PostCallNativeAd
 import java.util.Date
 
 @Composable
@@ -464,13 +463,6 @@ fun MissedCallScreen(
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Big Ad Card (Native Advanced with MediaView in Play variant)
-                    PostCallNativeAd(
-                        modifier = Modifier.fillMaxWidth()
-                    )
 
                     Spacer(modifier = Modifier.height(4.dp))
                 }

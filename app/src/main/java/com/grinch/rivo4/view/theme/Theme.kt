@@ -68,6 +68,47 @@ fun Rivo4Theme(
 
     val surfaceStyle = rememberRivoSurfaceStyle(prefs)
 
+    val useGoogleSans = remember(settingsVersion) {
+        prefs.isGoogleSansFlexEnabled()
+    }
+    val fontWeight = remember(settingsVersion) {
+        prefs.getFontWeight()
+    }
+    val fontWidth = remember(settingsVersion) {
+        prefs.getFontWidth()
+    }
+    val fontGrade = remember(settingsVersion) {
+        prefs.getFontGrade()
+    }
+    val fontRoundness = remember(settingsVersion) {
+        prefs.getFontRoundness()
+    }
+    val fontOpticalSize = remember(settingsVersion) {
+        prefs.getFontOpticalSize()
+    }
+    val fontSlant = remember(settingsVersion) {
+        prefs.getFontSlant()
+    }
+
+    val appFontFamily = remember(useGoogleSans, fontWeight, fontWidth, fontGrade, fontRoundness, fontOpticalSize, fontSlant) {
+        if (useGoogleSans) {
+            createGoogleSansFlexFamily(
+                weight = fontWeight,
+                width = fontWidth,
+                grade = fontGrade,
+                roundness = fontRoundness,
+                opticalSize = fontOpticalSize,
+                slant = fontSlant
+            )
+        } else {
+            androidx.compose.ui.text.font.FontFamily.Default
+        }
+    }
+
+    val dynamicTypography = remember(appFontFamily) {
+        createRivoTypography(appFontFamily)
+    }
+
     CompositionLocalProvider(
         LocalCallColors provides callColors,
         LocalCardRoundness provides cardRoundness,
@@ -78,7 +119,7 @@ fun Rivo4Theme(
             colorScheme = colorScheme,
             motionScheme = MotionScheme.expressive(),
             shapes = shapes,
-            typography = RivoTypography,
+            typography = dynamicTypography,
             content = content
         )
     }
