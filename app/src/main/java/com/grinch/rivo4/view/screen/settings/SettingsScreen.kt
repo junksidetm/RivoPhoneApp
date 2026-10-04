@@ -1099,7 +1099,7 @@ val searchItems = remember(settingsState, isSupporter) {
                                 isSearchActive = false
                                 searchQuery = ""
                             },
-                            shape = RoundedCornerShape(14.dp),
+                            shape = CircleShape,
                             color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(start = 12.dp)
@@ -1134,7 +1134,7 @@ val searchItems = remember(settingsState, isSupporter) {
                     actions = {
                         Surface(
                             onClick = { isSearchActive = true },
-                            shape = RoundedCornerShape(14.dp),
+                            shape = CircleShape,
                             color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(end = 12.dp)

@@ -137,9 +137,12 @@ fun CallLogFullScreen(
 
     val filteredLogsByContact = remember(allLogs, contactId, phoneNumber) {
         if (contactId == null && phoneNumber == null) allLogs
-        else allLogs.filter { log ->
-            (contactId != null && contactId != "null" && log.contactId == contactId) || 
-            (phoneNumber != null && log.number.replace(" ", "").contains(phoneNumber.replace(" ", "")))
+        else {
+            val matching = allLogs.filter { log ->
+                (contactId != null && contactId != "null" && log.contactId == contactId) || 
+                (phoneNumber != null && log.number.replace(" ", "").contains(phoneNumber.replace(" ", "")))
+            }
+            matching.flatMap { if (it.subLogs.isNotEmpty()) it.subLogs else listOf(it) }.sortedByDescending { it.date }
         }
     }
 
@@ -294,7 +297,7 @@ fun CallLogFullScreen(
                                     key = { _, lg -> lg.id },
                                     contentType = { _, _ -> "call_log" }
                                 ) { index, lg ->
-                                    val shape = rivoGroupedItemShape(index, logsInGroup.size)
+                                    val shape = RoundedCornerShape(16.dp)
 
                                     val handleCall: () -> Unit = {
                                         val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(

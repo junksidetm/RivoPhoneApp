@@ -93,10 +93,6 @@ fun ThemeSettingsScreen(
         Color(0xFF5F5E5E), Color(0xFF525E7D), Color(0xFF4A635F)
     )
 
-    fun triggerRestart() {
-        (context as? Activity)?.recreate()
-    }
-
     Scaffold(
         topBar = {
             MenuTopAppBar(
@@ -147,7 +143,6 @@ fun ThemeSettingsScreen(
                                         .clickable {
                                             themeMode = mode
                                             prefs.setThemeMode(mode)
-                                            triggerRestart()
                                         },
                                     shape = RoundedCornerShape(16.dp),
                                     color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -196,7 +191,6 @@ fun ThemeSettingsScreen(
                             onCheckedChange = {
                                 dynamicColors = it
                                 prefs.setBoolean(PreferenceManager.KEY_DYNAMIC_COLORS, it)
-                                triggerRestart()
                             }
                         )
 
@@ -213,7 +207,6 @@ fun ThemeSettingsScreen(
                                 onColorSelected = { color ->
                                     customPrimaryColor = color.toArgb()
                                     prefs.setInt("custom_primary_color", color.toArgb())
-                                    triggerRestart()
                                 }
                             )
                         }
@@ -244,7 +237,6 @@ fun ThemeSettingsScreen(
                             onClick = {
                                 selectedVariant = variant.id
                                 prefs.setDynamicColorVariant(variant.id)
-                                triggerRestart()
                             }
                         ) {
                             Row(
@@ -302,7 +294,6 @@ fun ThemeSettingsScreen(
                         onCheckedChange = {
                             amoledMode = it
                             prefs.setBoolean(PreferenceManager.KEY_AMOLED_MODE, it)
-                            triggerRestart()
                         }
                     )
                 }

@@ -267,7 +267,7 @@ fun ContactSearchContent(
                             ) {
                                 if (query.isEmpty()) {
                                     Text(
-                                        text = stringResource(R.string.search_contacts_placeholder),
+                                        text = stringResource(R.string.top_bar_search_placeholder),
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                         maxLines = 1,
@@ -310,7 +310,7 @@ fun ContactSearchContent(
                 navigationIcon = {
                     Surface(
                         onClick = { navigator.navigateUp() },
-                        shape = RoundedCornerShape(14.dp),
+                        shape = CircleShape,
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 12.dp)

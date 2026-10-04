@@ -837,6 +837,7 @@ fun CallLogFullContent(
                                             onToggleSelection(log)
                                         },
                                         selected = selectedEntries.any { it.id == lg.id },
+                                        isSelectionMode = selectedEntries.isNotEmpty(),
                                         onSwipeAction = { action, log ->
                                             if (action == SwipeActionType.DELETE) {
                                                 viewModel.deleteCallLogsByIds(log.ids)

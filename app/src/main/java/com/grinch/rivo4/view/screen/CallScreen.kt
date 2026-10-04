@@ -23,6 +23,7 @@ import java.util.Calendar
 import com.grinch.rivo4.controller.reminder.CallbackReminderManager
 import com.grinch.rivo4.view.components.CallNotesSheet
 import com.grinch.rivo4.view.components.ConferenceManagementSheet
+import com.grinch.rivo4.view.theme.createGoogleSansFlexFamily
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -196,6 +197,29 @@ fun ExpressiveCallScreen(
     }
     val hasBackground = !backgroundUri.isNullOrEmpty()
     val shouldShowAvatar = showCallScreenAvatar && !(hideAvatarWithBg && hasBackground)
+
+    val customCallNameFont = remember(settingsState) {
+        preferenceManager.isCallNameCustomFontEnabled()
+    }
+    val callNameWeight = remember(settingsState) { preferenceManager.getCallNameWeight() }
+    val callNameWidth = remember(settingsState) { preferenceManager.getCallNameWidth() }
+    val callNameGrade = remember(settingsState) { preferenceManager.getCallNameGrade() }
+    val callNameRoundness = remember(settingsState) { preferenceManager.getCallNameRoundness() }
+    val callNameOpticalSize = remember(settingsState) { preferenceManager.getCallNameOpticalSize() }
+    val callNameSlant = remember(settingsState) { preferenceManager.getCallNameSlant() }
+
+    val callNameFontFamily = remember(customCallNameFont, callNameWeight, callNameWidth, callNameGrade, callNameRoundness, callNameOpticalSize, callNameSlant) {
+        if (customCallNameFont) {
+            createGoogleSansFlexFamily(
+                weight = callNameWeight,
+                width = callNameWidth,
+                grade = callNameGrade,
+                roundness = callNameRoundness,
+                opticalSize = callNameOpticalSize,
+                slant = callNameSlant
+            )
+        } else null
+    }
     
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -468,9 +492,19 @@ fun ExpressiveCallScreen(
                 }
             }
 
+            val baseNameStyle = if (isLandscape) MaterialTheme.typography.headlineMediumEmphasized else MaterialTheme.typography.displaySmallEmphasized
+            val finalNameStyle = if (callNameFontFamily != null) {
+                baseNameStyle.copy(
+                    fontFamily = callNameFontFamily,
+                    fontWeight = FontWeight(callNameWeight)
+                )
+            } else {
+                baseNameStyle
+            }
+
             Text(
                 text = contactName,
-                style = if (isLandscape) MaterialTheme.typography.headlineMediumEmphasized else MaterialTheme.typography.displaySmallEmphasized,
+                style = finalNameStyle,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 1,

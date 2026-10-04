@@ -197,6 +197,7 @@ fun CallLogTile(
     onButtonClick: (CallLogEntry) -> Unit,
     onLongClick: (CallLogEntry) -> Unit = {},
     selected: Boolean = false,
+    isSelectionMode: Boolean = false,
     displayOrder: Int = LocalCallLogTileConfig.current.displayOrder,
     showSim: Boolean = LocalCallLogTileConfig.current.showSim,
     isFavorite: Boolean = false,
@@ -286,7 +287,7 @@ fun CallLogTile(
                         headlineColor = headlineColor,
                         trailingIcon = null,
                         onClick = {
-                            if (selected) onTileClick(log) else isExpanded = !isExpanded
+                            if (selected || isSelectionMode) onTileClick(log) else isExpanded = !isExpanded
                         },
                         onLongClick = { onLongClick(log) },
                         selected = selected

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.DashboardCustomize
 import androidx.compose.material.icons.outlined.FiberManualRecord
 import androidx.compose.material.icons.outlined.NotificationImportant
 import androidx.compose.material.icons.outlined.SimCard
@@ -21,6 +22,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CallAccountsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.CallRecordingsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.CallScreenCustomizeSettingsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.PriorityContactsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.SwipeActionsScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -55,6 +57,18 @@ fun CallingBehaviorSettingsScreen(
                         leadingIcon = Icons.Outlined.SimCard,
                         trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         onClick = { navigator.navigate(CallAccountsScreenDestination) }
+                    )
+                }
+            }
+
+            item {
+                RivoExpressiveCard {
+                    RivoListItem(
+                        headline = "Call Screen Customization",
+                        supporting = "Caller name variable typography, rearrange active call buttons & controls",
+                        leadingIcon = Icons.Outlined.DashboardCustomize,
+                        trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        onClick = { navigator.navigate(CallScreenCustomizeSettingsScreenDestination) }
                     )
                 }
             }

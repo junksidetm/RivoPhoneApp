@@ -22,6 +22,22 @@ const val CUSTOM_PRIMARY_COLOR_UNSET: Int = -1
 
 val LocalNavBarStyle: ProvidableCompositionLocal<Int> =
     staticCompositionLocalOf { PreferenceManager.NAV_BAR_STYLE_STANDARD }
+ 
+private val DYNAMIC_VARIANT_SEEDS = mapOf(
+    0 to 0xFF6750A4.toInt(), // Tonal Spot
+    1 to 0xFF7E5265.toInt(), // Expressive
+    2 to 0xFF5F5E5E.toInt(), // Neutral
+    3 to 0xFF0061A4.toInt(), // Vibrant
+    4 to 0xFF006A60.toInt(), // Fruit Salad
+    5 to 0xFF984061.toInt(), // Rainbow
+    6 to 0xFF436916.toInt(), // Content
+    7 to 0xFF006874.toInt(), // Fidelity
+    8 to 0xFF303030.toInt(), // Monochrome
+    9 to 0xFF9C4146.toInt(), // Big Clock
+    10 to 0xFFB52750.toInt(), // Candy
+    11 to 0xFF00658E.toInt(), // Deep Ocean
+    12 to 0xFF8B5000.toInt()  // Sunset Glow
+)
 
 @Composable
 fun Rivo4Theme(
@@ -56,10 +72,17 @@ fun Rivo4Theme(
         prefs.getInt(PreferenceManager.KEY_CARD_ROUNDNESS, RivoShapeDefaults.DefaultRoundness).coerceAtLeast(5)
     }
 
-    val colorScheme = remember(dynamicColor, amoledMode, customPrimaryInt, effectiveDarkTheme) {
+    val dynamicVariant = remember(settingsVersion) {
+        prefs.getDynamicColorVariant()
+    }
+
+    val colorScheme = remember(dynamicColor, dynamicVariant, amoledMode, customPrimaryInt, effectiveDarkTheme) {
         val base = when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            dynamicColor && dynamicVariant == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (effectiveDarkTheme) androidx.compose.material3.dynamicDarkColorScheme(context) else androidx.compose.material3.dynamicLightColorScheme(context)
+
+            dynamicColor && dynamicVariant > 0 ->
+                rivoColorSchemeFromSeed(DYNAMIC_VARIANT_SEEDS[dynamicVariant] ?: 0xFF6750A4.toInt(), effectiveDarkTheme)
 
             customPrimaryInt != CUSTOM_PRIMARY_COLOR_UNSET ->
                 rivoColorSchemeFromSeed(customPrimaryInt, effectiveDarkTheme)

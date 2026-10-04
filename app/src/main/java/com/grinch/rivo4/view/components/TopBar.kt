@@ -56,7 +56,7 @@ fun TopBar(navController: NavController, navigator: DestinationsNavigator) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 6.dp)
                 .heightIn(min = TopBarSearchMinHeight),
-            shape = RoundedCornerShape(26.dp),
+            shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ) {

@@ -238,7 +238,7 @@ class CallLogRepository(
                     }
                     cal.timeInMillis
                 }
-                val personKey = contactId ?: lookupKey
+                val personKey = contactId ?: if (lookupKey.isNotEmpty()) lookupKey else normalizePhoneNumber(number).ifEmpty { number }
                 val groupKey = Pair(dayKey, personKey)
                 val existingIndex = dayGroupMap[groupKey]
 

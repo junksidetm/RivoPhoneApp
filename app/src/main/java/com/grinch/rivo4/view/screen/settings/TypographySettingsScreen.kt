@@ -299,7 +299,7 @@ private fun RivoTypeTester(
 }
 
 @Composable
-private fun RivoTypographySliderTile(
+internal fun RivoTypographySliderTile(
     label: String,
     code: String,
     value: Float,

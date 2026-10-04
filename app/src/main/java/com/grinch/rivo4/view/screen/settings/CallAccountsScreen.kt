@@ -518,51 +518,7 @@ fun CallAccountsScreen(
                     }
                 }
 
-                item {
-                    RivoExpressiveGroup(
-                        title = stringResource(R.string.settings_call_backgrounds_title),
-                        icon = Icons.Outlined.Wallpaper
-                    ) {
-                        item {
-                            CallBackgroundSettingTile(
-                                headline = stringResource(R.string.settings_call_default_background),
-                                supporting = if (defaultCallBg != null) {
-                                    stringResource(R.string.settings_call_default_background_set)
-                                } else {
-                                    stringResource(R.string.settings_call_default_background_none)
-                                },
-                                backgroundModel = defaultCallBg,
-                                icon = Icons.Outlined.Wallpaper,
-                                onClick = { showDefaultBgDialog = true }
-                            )
-                        }
-                        item {
-                            CallBackgroundSettingTile(
-                                headline = stringResource(R.string.settings_call_unknown_background),
-                                supporting = if (unknownCallBg != null) {
-                                    stringResource(R.string.settings_call_unknown_background_set)
-                                } else {
-                                    stringResource(R.string.settings_call_unknown_background_none)
-                                },
-                                backgroundModel = unknownCallBg,
-                                icon = Icons.AutoMirrored.Outlined.ContactSupport,
-                                onClick = { showUnknownBgDialog = true }
-                            )
-                        }
-                        item {
-                            RivoListItem(
-                                headline = "Sync Google Phone Calling Cards",
-                                supporting = "Batch import calling cards and contact posters via Shizuku",
-                                leadingIcon = Icons.Outlined.Sync,
-                                trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                onClick = {
-                                    syncResultSummary = null
-                                    showSyncCardsDialog = true
-                                }
-                            )
-                        }
-                    }
-                }
+
 
                 item {
                 }

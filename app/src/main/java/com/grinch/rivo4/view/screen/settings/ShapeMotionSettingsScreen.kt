@@ -45,10 +45,6 @@ fun ShapeMotionSettingsScreen(
         mutableIntStateOf(prefs.getInt(PreferenceManager.KEY_TRANSITION_STYLE, 0))
     }
 
-    fun triggerRestart() {
-        (context as? Activity)?.recreate()
-    }
-
     Scaffold(
         topBar = {
             MenuTopAppBar(
@@ -115,7 +111,6 @@ fun ShapeMotionSettingsScreen(
                             onValueChange = {
                                 transitionStyle = it
                                 prefs.setInt(PreferenceManager.KEY_TRANSITION_STYLE, it)
-                                triggerRestart()
                             }
                         ) { value, selected ->
                             val icon = when (value) {

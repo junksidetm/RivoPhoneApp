@@ -424,3 +424,66 @@
   - `certificate_details.txt`
 - **Release URL:** `https://github.com/junksidetm/RivoPhoneApp/releases/tag/v2.2.406`
 - **Status:** 100% Complete & Verified Live.
+
+### [2026-10-04 19:15] - Comprehensive Home Screen, Settings & Calling Screen Customization Overhaul
+- **Context:** Implementing user-requested UI/UX enhancements and bug fixes across Home Screen, Settings architecture, Theme reactivity, and In-Call experience:
+- **Home Screen & Call Logs:**
+  - Removed Call Analytics and Tracking status banners completely.
+  - Removed star icon for Favourites on call log tiles to preserve clean Material 3 Expressive styling.
+  - Grouped calls per calendar day per contact in `CallLogRepository.kt` using robust composite keys (`dayKey` and normalized `personKey`), ordering chronologically descending so the tile reflects the latest activity (incoming, outgoing, missed) and displays the total call count badge directly to the left of the call button.
+  - Implemented single-tap contact tile action menu with smooth slide-down animation revealing `History`, `Message`, and `Video call` options separated by gaps in list view with no subtitles.
+  - History screen (`CallLogs.kt`): Unpacked `subLogs` in `filteredLogsByContact` so all individual calls (incoming, outgoing, missed, not connected) are shown; transformed history list items into individual gap-separated rounded cards (`RoundedCornerShape(16.dp)` with 8.dp vertical gaps) without divider lines.
+  - Restyled top search bar container to `CircleShape` globally and updated placeholder to "Search in Call Logs/Contacts".
+  - Updated all action and navigation icon button containers across the app (search back buttons, top bar action buttons) from squircle to `CircleShape` (except the dialing FAB on the home screen).
+- **Settings Architecture & Reactive Theme Engine:**
+  - Excised top Rivo banner from Settings page completely.
+  - Reorganized Settings into 5 gap-separated main categories: 1. Personalization & Display, 2. Calling & Behaviour, 3. Security, 4. Storage, 5. About.
+  - Fixed Theme Recreation & Dialpad Reset Bug: Excised `triggerRestart()` (`(context as? Activity)?.recreate()`) from `ThemeSettingsScreen.kt` and `ShapeMotionSettingsScreen.kt`.
+  - Added full Material 3 Dynamic Variants support in `Theme.kt` via `DYNAMIC_VARIANT_SEEDS` (13 dynamic variants: Tonal Spot, Expressive, Fidelity, Fruit Salad, etc.) that update reactively in Compose without activity recreation.
+  - Liquid Glass: Integrated inline frosted glass & blur switch with live preview.
+  - Shifted "Dual SIM Call Buttons" toggle into "Call Settings" under "Calling & Behaviour".
+  - Removed the "Call backgrounds" section entirely from `CallAccountsScreen.kt`.
+  - Set global circular avatar styling and ensured Group Calls toggle is located exclusively under Avatar & Contact Cards.
+  - About Screen (`About.kt`): Aligned design with `Wallet-Flutter` featuring App icon, app name, version chip with 7-tap easter egg, Abhijeet Yadav developer card with GitHub & Email pills, and open source links.
+- **Calling Screen & Controls Customization:**
+  - Added new "Call Screen Customization" screen (`CallScreenCustomizeSettingsScreen.kt`) and registered destination in "Calling & Behaviour" (`CallingBehaviorSettingsScreen.kt`).
+  - Added Google Sans Flex variable font axes customization for Caller Name (`wght`, `wdth`, `GRAD`, `ROND`, `opsz`, `slnt`) with live preview and wired directly into `CallScreen.kt`.
+  - Added 6-button active call grid reordering (Mute, Keypad, Audio Route, Record, Hold, Add/Merge Call) in `CallScreenControls.kt` with Move Up/Down controls and persistence via `PreferenceManager.kt`.
+  - Redesigned `EndCallButton` in `CallScreenControls.kt` to full circle capsule (`CircleShape`), full width (`fillMaxWidth().height(56.dp/64.dp)`), and persistent red (`Color(0xFFDC2626)` / pressed `Color(0xFFB91C1C)`) unaffected by Dynamic Colour.
+- **Files Modified/Created:**
+  - `app/src/main/java/com/grinch/rivo4/modal/repository/CallLogRepository.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/util/PreferenceManager.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Theme.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/CallLogTile.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/MenuTopAppBar.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/TopBar.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/Recents.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/Search.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/CallLogs.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/CallScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/CallScreenControls.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/SettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/TypographySettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ShapeMotionSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallAccountsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallingBehaviorSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallScreenCustomizeSettingsScreen.kt` (Created)
+  - `Version.md` (Appended)
+- **Status:** 100% (All user mandates implemented with surgical precision; ready for remote verification).
+
+### [2026-10-04 19:20] - Legacy App Icon Deprecation & Global Updated Green Icon Deployment
+- **Context:** Complete removal of previous blue/debug app icon assets from all app screens and resources, replacing with the updated green vector icon:
+- **Icon Assets Sanitization:**
+  - Removed deprecated raster `logo.png` from `app/src/main/res/drawable/` and replaced with vector `logo.xml` based on `Phone-AppLogo-Green.svg`.
+  - Updated all in-app logo references (`AboutScreen`, `MissedCallScreen`, `PostCallScreen`) to seamlessly display the modern green phone vector logo.
+  - Removed outdated debug icon overrides (`app/src/debug/res/drawable/ic_launcher_foreground.xml` and `app/src/debug/res/values/ic_launcher_background.xml`), guaranteeing debug builds inherit the official updated launcher icon and white background from `main`.
+  - Removed obsolete `assests/icons/Phone-AppLogo.svg` from source repository.
+- **Files Modified/Removed:**
+  - `app/src/main/res/drawable/logo.xml` (Created)
+  - `app/src/main/res/drawable/logo.png` (Removed)
+  - `app/src/debug/res/drawable/ic_launcher_foreground.xml` (Removed)
+  - `app/src/debug/res/values/ic_launcher_background.xml` (Removed)
+  - `assests/icons/Phone-AppLogo.svg` (Removed)
+  - `Version.md` (Appended)
+- **Status:** 100% (Previous app icon fully eradicated; updated green icon live across all build types and in-app surfaces).

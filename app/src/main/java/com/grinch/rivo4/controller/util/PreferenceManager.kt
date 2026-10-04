@@ -538,6 +538,24 @@ class PreferenceManager(context: Context) {
         const val KEY_CALL_ANALYTICS_TRACKING = "call_analytics_tracking"
         const val KEY_SHOW_CONTACT_MANAGEMENT_CARD = "show_contact_management_card"
         const val KEY_SHOW_COUNTRY_CODE = "show_country_code"
+
+        const val KEY_CALL_BUTTON_ORDER = "call_button_order"
+        const val DEFAULT_CALL_BUTTON_ORDER = "mute,keypad,audio,record,hold,add_call"
+
+        const val KEY_CALL_NAME_CUSTOM_FONT = "call_name_custom_font"
+        const val KEY_CALL_NAME_WEIGHT = "call_name_weight"
+        const val KEY_CALL_NAME_WIDTH = "call_name_width"
+        const val KEY_CALL_NAME_GRADE = "call_name_grade"
+        const val KEY_CALL_NAME_ROUNDNESS = "call_name_roundness"
+        const val KEY_CALL_NAME_OPTICAL_SIZE = "call_name_optical_size"
+        const val KEY_CALL_NAME_SLANT = "call_name_slant"
+
+        const val DEFAULT_CALL_NAME_WEIGHT = 500
+        const val DEFAULT_CALL_NAME_WIDTH = 100f
+        const val DEFAULT_CALL_NAME_GRADE = 50f
+        const val DEFAULT_CALL_NAME_ROUNDNESS = 71f
+        const val DEFAULT_CALL_NAME_OPTICAL_SIZE = 48f
+        const val DEFAULT_CALL_NAME_SLANT = 0f
     }
 
     fun getCallLogLimit(): Int = getInt(KEY_CALL_LOG_LIMIT, CALL_LOG_LIMIT_DEFAULT)
@@ -682,6 +700,58 @@ class PreferenceManager(context: Context) {
             .putFloat(KEY_FONT_ROUNDNESS, DEFAULT_FONT_ROUNDNESS)
             .putFloat(KEY_FONT_OPTICAL_SIZE, DEFAULT_FONT_OPTICAL_SIZE)
             .putFloat(KEY_FONT_SLANT, DEFAULT_FONT_SLANT)
+            .apply()
+        _settingsChanged.value += 1
+    }
+
+    fun getCallButtonOrder(): List<String> {
+        val str = getString(KEY_CALL_BUTTON_ORDER, DEFAULT_CALL_BUTTON_ORDER) ?: DEFAULT_CALL_BUTTON_ORDER
+        val list = str.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val allValid = listOf("mute", "keypad", "audio", "record", "hold", "add_call")
+        val result = list.filter { it in allValid }.toMutableList()
+        allValid.forEach { if (!result.contains(it)) result.add(it) }
+        return result
+    }
+
+    fun setCallButtonOrder(order: List<String>) {
+        setString(KEY_CALL_BUTTON_ORDER, order.joinToString(","))
+    }
+
+    fun resetCallButtonOrder() {
+        setString(KEY_CALL_BUTTON_ORDER, DEFAULT_CALL_BUTTON_ORDER)
+    }
+
+    fun isCallNameCustomFontEnabled(): Boolean = getBoolean(KEY_CALL_NAME_CUSTOM_FONT, false)
+    fun setCallNameCustomFontEnabled(enabled: Boolean) = setBoolean(KEY_CALL_NAME_CUSTOM_FONT, enabled)
+
+    fun getCallNameWeight(): Int = getInt(KEY_CALL_NAME_WEIGHT, DEFAULT_CALL_NAME_WEIGHT)
+    fun setCallNameWeight(weight: Int) = setInt(KEY_CALL_NAME_WEIGHT, weight)
+
+    fun getCallNameWidth(): Float = getFloat(KEY_CALL_NAME_WIDTH, DEFAULT_CALL_NAME_WIDTH)
+    fun setCallNameWidth(width: Float) = setFloat(KEY_CALL_NAME_WIDTH, width)
+
+    fun getCallNameGrade(): Float = getFloat(KEY_CALL_NAME_GRADE, DEFAULT_CALL_NAME_GRADE)
+    fun setCallNameGrade(grade: Float) = setFloat(KEY_CALL_NAME_GRADE, grade)
+
+    fun getCallNameRoundness(): Float = getFloat(KEY_CALL_NAME_ROUNDNESS, DEFAULT_CALL_NAME_ROUNDNESS)
+    fun setCallNameRoundness(roundness: Float) = setFloat(KEY_CALL_NAME_ROUNDNESS, roundness)
+
+    fun getCallNameOpticalSize(): Float = getFloat(KEY_CALL_NAME_OPTICAL_SIZE, DEFAULT_CALL_NAME_OPTICAL_SIZE)
+    fun setCallNameOpticalSize(opsz: Float) = setFloat(KEY_CALL_NAME_OPTICAL_SIZE, opsz)
+
+    fun getCallNameSlant(): Float = getFloat(KEY_CALL_NAME_SLANT, DEFAULT_CALL_NAME_SLANT)
+    fun setCallNameSlant(slant: Float) = setFloat(KEY_CALL_NAME_SLANT, slant)
+
+    fun resetCallScreenCustomization() {
+        prefs.edit()
+            .putString(KEY_CALL_BUTTON_ORDER, DEFAULT_CALL_BUTTON_ORDER)
+            .putBoolean(KEY_CALL_NAME_CUSTOM_FONT, false)
+            .putInt(KEY_CALL_NAME_WEIGHT, DEFAULT_CALL_NAME_WEIGHT)
+            .putFloat(KEY_CALL_NAME_WIDTH, DEFAULT_CALL_NAME_WIDTH)
+            .putFloat(KEY_CALL_NAME_GRADE, DEFAULT_CALL_NAME_GRADE)
+            .putFloat(KEY_CALL_NAME_ROUNDNESS, DEFAULT_CALL_NAME_ROUNDNESS)
+            .putFloat(KEY_CALL_NAME_OPTICAL_SIZE, DEFAULT_CALL_NAME_OPTICAL_SIZE)
+            .putFloat(KEY_CALL_NAME_SLANT, DEFAULT_CALL_NAME_SLANT)
             .apply()
         _settingsChanged.value += 1
     }

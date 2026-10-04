@@ -84,7 +84,7 @@ fun MenuTopAppBar(
         navigationIcon = {
             Surface(
                 onClick = onBackClick,
-                shape = RoundedCornerShape(14.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(start = 12.dp)
@@ -126,7 +126,7 @@ fun RivoTopBarIconButton(
     Surface(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
+        shape = androidx.compose.foundation.shape.CircleShape,
         color = containerColor,
         contentColor = tint,
         modifier = modifier.padding(end = 8.dp)
