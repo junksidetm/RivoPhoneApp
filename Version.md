@@ -404,3 +404,11 @@
   - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt`
   - `Version.md`
 - **Status:** 100% (All release build compilation errors resolved; ready for CI/CD build and automated release APK packaging).
+
+### [2026-10-04 11:01] - Dynamic Variant Selection Scope Correction
+- **Context:** Resolving scoped variable resolution in `ThemeSettingsScreen.kt` for GitHub Actions release build.
+- **Change:** Restored `val isSelected = selectedVariant == variant.id` inside `DYNAMIC_VARIANTS.forEach { item { ... } }`.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt`
+  - `Version.md`
+- **Status:** 100% (Clean code, all compiler references resolved).

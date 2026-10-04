@@ -235,6 +235,7 @@ fun ThemeSettingsScreen(
 
                 DYNAMIC_VARIANTS.forEach { variant ->
                     item(key = variant.id) {
+                        val isSelected = selectedVariant == variant.id
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(20.dp),
