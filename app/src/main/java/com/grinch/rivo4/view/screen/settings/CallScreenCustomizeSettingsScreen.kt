@@ -224,7 +224,7 @@ fun CallScreenCustomizeSettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             row2.forEach { key ->
-                                val btn = buttonMap[key]
+                                val btn = BUTTON_MAP[key]
                                 if (btn != null) {
                                     Surface(
                                         shape = RoundedCornerShape(16.dp),

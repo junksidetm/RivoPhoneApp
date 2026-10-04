@@ -496,3 +496,12 @@
   - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallScreenCustomizeSettingsScreen.kt`
   - `Version.md` (Appended)
 - **Status:** 100% (Compilation error resolved cleanly; verified scope adherence).
+
+### [2026-10-04 20:15] - Resolve Unresolved buttonMap Reference in CallScreenCustomizeSettingsScreen
+- **Context:** Resolving build failure on GitHub Actions CI (`Unresolved reference 'buttonMap'`).
+- **Root Cause:** In `CallScreenCustomizeSettingsScreen.kt` line 227 (row 2 preview), `buttonMap` was referenced after removing local declaration.
+- **Surgical Fix:** Replaced `buttonMap[key]` with top-level `BUTTON_MAP[key]`.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallScreenCustomizeSettingsScreen.kt`
+  - `Version.md` (Appended)
+- **Status:** 100% (All references resolved to top-level BUTTON_MAP).
