@@ -151,6 +151,8 @@ class CallLogRepository(
         val componentNameIdx = cursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_COMPONENT_NAME)
 
         val tempLogs = mutableListOf<CallLogEntry>()
+        val dayGroupMap = mutableMapOf<Pair<Long, String>, Int>()
+        val isGroupingEnabled = preferenceManager.isCallLogGroupingEnabled()
         val simCache = mutableMapOf<String, String>()
         val unknownLabel = context.getString(R.string.label_unknown)
         val hiddenNumbers = if (!preferenceManager.isHiddenContactsVisible()) {
@@ -225,21 +227,35 @@ class CallLogRepository(
                 ids = listOf(callId)
             )
 
-            val isGroupingEnabled = preferenceManager.isCallLogGroupingEnabled()
-            val lastEntry = tempLogs.lastOrNull()
-            val sameContact = if (lastEntry != null) {
-                (contactId != null && lastEntry.contactId == contactId) ||
-                areNumbersEqual(lastEntry.number, number)
-            } else false
+            if (isGroupingEnabled) {
+                val dayKey = run {
+                    val cal = java.util.Calendar.getInstance().apply {
+                        timeInMillis = date
+                        set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        set(java.util.Calendar.MINUTE, 0)
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }
+                    cal.timeInMillis
+                }
+                val personKey = contactId ?: lookupKey
+                val groupKey = Pair(dayKey, personKey)
+                val existingIndex = dayGroupMap[groupKey]
 
-            if (isGroupingEnabled && lastEntry != null && sameContact) {
-                val currentSubLogs = if (lastEntry.subLogs.isEmpty()) listOf(lastEntry) else lastEntry.subLogs
-                tempLogs[tempLogs.size - 1] = lastEntry.copy(
-                    types = lastEntry.types + type,
-                    ids = lastEntry.ids + callId,
-                    isBlocked = lastEntry.isBlocked || isBlocked,
-                    subLogs = currentSubLogs + singleEntry
-                )
+                if (existingIndex != null) {
+                    val existing = tempLogs[existingIndex]
+                    val currentSubLogs = if (existing.subLogs.isEmpty()) listOf(existing) else existing.subLogs
+                    tempLogs[existingIndex] = existing.copy(
+                        types = existing.types + type,
+                        ids = existing.ids + callId,
+                        isBlocked = existing.isBlocked || isBlocked,
+                        subLogs = currentSubLogs + singleEntry
+                    )
+                } else {
+                    val entry = singleEntry.copy(subLogs = listOf(singleEntry))
+                    tempLogs.add(entry)
+                    dayGroupMap[groupKey] = tempLogs.size - 1
+                }
             } else {
                 tempLogs.add(singleEntry)
             }

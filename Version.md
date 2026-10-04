@@ -313,3 +313,74 @@
   - Keytool & Android Apksigner
   - Obtainium Auto-Updater
 - **Status:** 100% (Permanent keystore generated, committed, and verified; Release v2.2.401 live; multi-remote sync complete).
+
+## [2026-10-04 09:50] - Comprehensive UI/UX Redesign: Home Screen & Expressive Settings Architecture
+
+- **Action:** Executed major architectural and interface redesign across Home Screen (Recents & Call Logs) and Settings architecture in compliance with Material 3 Expressive standards:
+  1. **Home Screen Refactor (`Recents.kt`, `CallLogTile.kt`, `CallLogs.kt`, `TopBar.kt`):**
+     - **Banner Removal:** Fully removed Call Analytics and Tracking status banners (`showRecentsStats`, `RecentsDailyStatusHeader`, `DailyStatCard`).
+     - **Search Bar Modernization:** Replaced search bar placeholder with `"Search in Call Logs/Contacts"`. Replaced trailing icon with `Icons.Default.Settings` enclosed in a global `CircleShape` container.
+     - **Day-Based Call Grouping:** Refactored `CallLogRepository` grouping logic to group all consecutive and non-consecutive calls for each contact by calendar day into a single consolidated log entry. Preserved chronological descending order (`DATE DESC`) so the entry icon displays the exact latest activity (incoming if called, outgoing if returned, missed, or blocked) instead of a generic mixed icon.
+     - **Tile Layout & Call Counts:** Removed avatar count badge; rendered call frequency `${log.count}` badge cleanly to the immediate left of the call button. Removed star icon for favorite contacts on call logs.
+     - **Sliding Action Menu:** Single tap on any call log tile smoothly expands a sliding action drawer with gap-separated pill cards for `History`, `Message`, and `Video Call` with clean circular icons and no subtitle clutter.
+     - **Gap-Separated Call History:** Wired `History` action to `CallLogFullScreen` displaying complete call history (incoming, outgoing, missed, rejected, not connected) in a gap-separated list view (`8.dp` spacing) with all horizontal divider lines eliminated.
+     - **Missed Call Summaries:** Restricted post-call summary prompts exclusively to missed calls (`MissedCallScreen.kt`), eliminating post-call summary popups upon hanging up connected calls (`CallActivity.kt`).
+     - **Global Avatar Geometry:** Standardized all avatar shapes globally to `CircleShape` in `Shape.kt` and `AvatarSettingsScreen.kt`.
+  2. **Settings Architecture Refactor (`SettingsScreen.kt` & Sub-Menus):**
+     - **Banner Removal:** Completely eliminated top Rivo promotion/version banner from `SettingsScreen.kt`.
+     - **Five Gap-Separated Main Categories:** Replaced root settings listing with 5 distinct elevated cards separated by 10dp gaps:
+       1. *Personalization & Display* (`PersonalizationSettingsScreen.kt`)
+       2. *Calling & Behaviour* (`CallingBehaviorSettingsScreen.kt`)
+       3. *Security* (`SecuritySettingsScreen.kt`)
+       4. *Storage* (`StorageSettingsScreen.kt`)
+       5. *About* (`About.kt`)
+     - **Personalization & Display Hierarchy:**
+       - *Theme & Appearance* (`InterfaceScreen.kt`): Redesigned as a sub-menu linking to dedicated sub-pages (`ThemeSettingsScreen`, `TypographySettingsScreen`, `ShapeMotionSettingsScreen`) alongside an inline Liquid Glass switch with real-time blur preview. Removed Dual SIM toggle (relocated to Call Settings).
+       - *Theme Sub-Screen* (`ThemeSettingsScreen.kt`): Segmented Theme Mode picker (System, Light, Dark), Dynamic Color on/off, 13 Material 3 Dynamic Variants (Tonal Spot, Expressive, Neutral, Vibrant, Fruit Salad, Rainbow, Content, Fidelity, Monochrome, Big Clock, Candy, Deep Ocean, Sunset Glow), custom color picker fallback, and AMOLED pitch-black switch.
+       - *Typography Sub-Screen* (`TypographySettingsScreen.kt`): Variable typography axes with `RivoTypeTester` preview at the top, Google Sans Flex master toggle directly below, granular sliders (`GRAD`, `wght`, `wdth`, `ROND`, `opsz`, `slnt`), and bottom Reset Typography button.
+       - *Shape & Motion Sub-Screen* (`ShapeMotionSettingsScreen.kt`): Cards layout toggle, interactive card roundness slider (5dp–32dp), and screen transition animations selector (Standard, Slide, Fade, None).
+       - *Navigation Bar* (`BottomNavScreen.kt`): Segmented into distinct gap-separated section cards (Style & Appearance, Tab Layout & Order, Behavior & Defaults).
+       - *Avatars & Contact Cards* (`AvatarSettingsScreen.kt`): Global circular avatar enforcement with full toggle suite and sole source of truth for "Group calls" preference.
+       - *Sound & Vibration* (`SoundVibrationScreen.kt`): Section-divided list architecture with 10dp gaps (Dialpad Tones, Call Vibration & Haptics, Gestures & DND, Alerts & Ringtones).
+     - **Calling & Behaviour Hierarchy:**
+       - *Call Settings* (`CallAccountsScreen.kt`): Section-divided architecture with Dual SIM dialpad buttons toggle added under SIM Preferences. Removed duplicate "Group calls" toggle and connected post-call summary toggle.
+       - *Swipe Actions* & *Call Recordings*: Preserved direct access.
+       - *Call Analytics Elimination*: Completely excised Call Analytics from navigation, settings lists, and search queries.
+       - *Priority Contacts* (`PriorityContactsScreen.kt`): Automatically indexes starred contacts alongside custom VIP additions with DND bypass.
+     - **Security & Storage:** Dedicated gap-separated category destinations preserving all app lock, private storage, blocked numbers, contact management, visibility, and backup features.
+     - **About Page Redesign (`About.kt`):**
+       - Re-engineered inspired by `Wallet-Flutter` (`about_page.dart`): Centered circular Rivo logo, bold title, interactive version badge with 7-tap developer easter egg, developer profile card (Abhijeet Yadav) with GitHub and Email pill buttons, segmented action links (Check for Updates, Open Source GitHub, Contributors, Supporter Tip Jar, Discord Community, OSS Licenses), and device architecture footer.
+- **Files Modified/Created:**
+  - `app/src/main/res/values/strings.xml`
+  - `app/src/main/java/com/grinch/rivo4/controller/util/PreferenceManager.kt`
+  - `app/src/main/java/com/grinch/rivo4/controller/CallActivity.kt`
+  - `app/src/main/java/com/grinch/rivo4/modal/repository/CallLogRepository.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/TopBar.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/CallLogTile.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/Recents.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/CallLogs.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/MissedCallScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Shape.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Theme.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/SettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PersonalizationSettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallingBehaviorSettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/SecuritySettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/StorageSettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/TypographySettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ShapeMotionSettingsScreen.kt` (New)
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/InterfaceScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/BottomNavScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/AvatarSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/SoundVibrationScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallAccountsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PriorityContactsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/About.kt`
+  - `Version.md`
+- **Libraries & Tools:**
+  - Jetpack Compose & Material 3 Expressive
+  - Compose Destinations (KSP RootGraph)
+  - Koin Dependency Injection
+  - Android Telecom & ContactsContract
+- **Status:** 100% (Complete Home Screen refactoring and 5-category sectioned settings redesign implemented, gap-separated list views active, Wallet-Flutter inspired about page live).

@@ -202,23 +202,17 @@ fun CallLogTile(
     swipeEnabled: Boolean = LocalCallLogTileConfig.current.swipeEnabled && !selected,
     swipeRightAction: SwipeActionType = LocalCallLogTileConfig.current.swipeRightAction,
     swipeLeftAction: SwipeActionType = LocalCallLogTileConfig.current.swipeLeftAction,
-    onSwipeAction: ((SwipeActionType, CallLogEntry) -> Unit)? = null
+    onSwipeAction: ((SwipeActionType, CallLogEntry) -> Unit)? = null,
+    onHistoryClick: ((CallLogEntry) -> Unit)? = null,
+    onMessageClick: ((CallLogEntry) -> Unit)? = null,
+    onVideoCallClick: ((CallLogEntry) -> Unit)? = null
 ) {
     val isBlocked = log.isBlocked || log.type == CallLog.Calls.BLOCKED_TYPE
     val isMissedOrRejected = log.type == CallLog.Calls.MISSED_TYPE || log.type == CallLog.Calls.REJECTED_TYPE
 
-    val isMergedMixed = remember(log.types) {
-        if (log.types.size > 1) {
-            val distinctTypes = log.types.toSet()
-            distinctTypes.size > 1
-        } else false
-    }
-
-    val icon = remember(log.type, isBlocked, isMergedMixed) {
+    val icon = remember(log.type, isBlocked) {
         if (isBlocked) {
             Icons.Default.Block
-        } else if (isMergedMixed) {
-            Icons.AutoMirrored.Outlined.CallMerge
         } else {
             when (log.type) {
                 CallLog.Calls.MISSED_TYPE, CallLog.Calls.REJECTED_TYPE -> Icons.AutoMirrored.Filled.CallMissed
@@ -283,85 +277,37 @@ fun CallLogTile(
                         headline = headlineText,
                         supporting = timeSimText,
                         supporting2 = null,
-                        avatarName = if (isStacked) null else displayName,
-                        photoUri = if (isStacked) null else log.photoUri,
-                        badgeIcon = if (isStacked) null else icon,
-                        badgeColor = if (isStacked) null else badgeColor,
-                        leadingContent = if (isStacked) {
-                            {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(bottom = 6.dp)
-                                        .size(RivoListItemDefaults.AvatarSize)
-                                        .clickable { isExpanded = !isExpanded }
-                                ) {
-                                    RivoAvatar(
-                                        name = displayName,
-                                        photoUri = log.photoUri,
-                                        badgeIcon = null,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                    Surface(
-                                        modifier = Modifier
-                                            .align(Alignment.BottomStart)
-                                            .offset(x = (-4).dp, y = 8.dp)
-                                            .height(20.dp)
-                                            .widthIn(min = 28.dp),
-                                        shape = RoundedCornerShape(10.dp),
-                                        color = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
-                                        shadowElevation = RivoElevation.Raised
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(horizontal = 5.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Text(
-                                                text = "${log.count}",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 10.sp,
-                                                color = if (isExpanded) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Spacer(modifier = Modifier.width(1.dp))
-                                            Icon(
-                                                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(12.dp),
-                                                tint = if (isExpanded) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    }
-                                    Surface(
-                                        modifier = Modifier
-                                            .align(Alignment.BottomEnd)
-                                            .offset(x = 4.dp, y = 8.dp)
-                                            .size(20.dp),
-                                        shape = CircleShape,
-                                        color = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
-                                        shadowElevation = RivoElevation.Raised
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Icon(
-                                                imageVector = icon,
-                                                contentDescription = null,
-                                                tint = if (isExpanded) MaterialTheme.colorScheme.onPrimary else badgeColor,
-                                                modifier = Modifier.size(13.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        } else null,
+                        avatarName = displayName,
+                        photoUri = log.photoUri,
+                        badgeIcon = icon,
+                        badgeColor = badgeColor,
+                        leadingContent = null,
                         headlineColor = headlineColor,
-                        trailingIcon = if (isFavorite) Icons.Default.Star else null,
-                        onClick = { onTileClick(log) },
+                        trailingIcon = null,
+                        onClick = {
+                            if (selected) onTileClick(log) else isExpanded = !isExpanded
+                        },
                         onLongClick = { onLongClick(log) },
                         selected = selected
                     )
                 }
 
                 if (!selected) {
+                    if (log.count > 1) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Text(
+                                text = "${log.count}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
                     IconButton(
                         onClick = { onButtonClick(log) },
                         modifier = Modifier.padding(end = 10.dp)
@@ -380,77 +326,117 @@ fun CallLogTile(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                val subItems = if (log.subLogs.isNotEmpty()) log.subLogs else listOf(log)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 72.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
+                        .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    subItems.forEachIndexed { idx, subLog ->
-                        val subBlocked = subLog.isBlocked || subLog.type == CallLog.Calls.BLOCKED_TYPE
-                        val subMissed = subLog.type == CallLog.Calls.MISSED_TYPE || subLog.type == CallLog.Calls.REJECTED_TYPE
-                        val subIcon = when {
-                            subBlocked -> Icons.Default.Block
-                            subLog.type == CallLog.Calls.MISSED_TYPE || subLog.type == CallLog.Calls.REJECTED_TYPE -> Icons.AutoMirrored.Filled.CallMissed
-                            subLog.type == CallLog.Calls.INCOMING_TYPE -> Icons.AutoMirrored.Filled.CallReceived
-                            subLog.type == CallLog.Calls.OUTGOING_TYPE -> Icons.AutoMirrored.Filled.CallMade
-                            else -> Icons.Default.Call
-                        }
-                        val subColor = when {
-                            subBlocked || subMissed -> MaterialTheme.colorScheme.error
-                            else -> MaterialTheme.colorScheme.primary
-                        }
-                        val subTypeLabel = when {
-                            subBlocked -> stringResource(R.string.call_type_blocked)
-                            subLog.type == CallLog.Calls.INCOMING_TYPE -> stringResource(R.string.call_type_incoming)
-                            subLog.type == CallLog.Calls.OUTGOING_TYPE -> stringResource(R.string.call_type_outgoing)
-                            subMissed -> stringResource(R.string.call_type_missed)
-                            else -> stringResource(R.string.action_call)
-                        }
-
+                    Surface(
+                        onClick = { onHistoryClick?.invoke(log) },
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { onTileClick(subLog) }
-                                .padding(vertical = 5.dp, horizontal = 4.dp),
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = subIcon,
-                                contentDescription = null,
-                                tint = subColor,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = subTypeLabel,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Medium,
-                                color = subColor
-                            )
-                            if (showSim && !subLog.simLabel.isNullOrBlank()) {
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "•  ${subLog.simLabel}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.History,
+                                        contentDescription = stringResource(R.string.call_history_title),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
-                            Spacer(modifier = Modifier.weight(1f))
+                            Spacer(modifier = Modifier.width(14.dp))
                             Text(
-                                text = formatTime(context, subLog.date),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = stringResource(R.string.call_history_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
                             )
-                            if (subLog.duration > 0) {
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "(${android.text.format.DateUtils.formatElapsedTime(subLog.duration)})",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                                )
+                        }
+                    }
+
+                    Surface(
+                        onClick = { onMessageClick?.invoke(log) },
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Message,
+                                        contentDescription = stringResource(R.string.action_message),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = stringResource(R.string.action_message),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    Surface(
+                        onClick = { onVideoCallClick?.invoke(log) },
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Videocam,
+                                        contentDescription = stringResource(R.string.video_call_title),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = stringResource(R.string.video_call_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }

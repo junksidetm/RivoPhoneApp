@@ -344,6 +344,11 @@ class PreferenceManager(context: Context) {
         const val CONTACT_BACKGROUND_NUMBER_PREFIX = "contact_background_num_"
 
         const val KEY_DYNAMIC_COLORS = "dynamic_colors"
+        const val KEY_THEME_MODE = "theme_mode"
+        const val THEME_MODE_SYSTEM = 0
+        const val THEME_MODE_LIGHT = 1
+        const val THEME_MODE_DARK = 2
+        const val KEY_DYNAMIC_COLOR_VARIANT = "dynamic_color_variant"
         const val KEY_AMOLED_MODE = "amoled_mode"
         const val KEY_SHOW_FIRST_LETTER = "show_first_letter"
         const val KEY_COLORFUL_AVATARS = "colorful_avatars"
@@ -657,6 +662,16 @@ class PreferenceManager(context: Context) {
 
     fun getFontSlant(): Float = getFloat(KEY_FONT_SLANT, DEFAULT_FONT_SLANT)
     fun setFontSlant(slant: Float) = setFloat(KEY_FONT_SLANT, slant)
+
+    fun getThemeMode(): Int = getInt(KEY_THEME_MODE, THEME_MODE_SYSTEM)
+    fun setThemeMode(mode: Int) {
+        setInt(KEY_THEME_MODE, mode)
+    }
+
+    fun getDynamicColorVariant(): Int = getInt(KEY_DYNAMIC_COLOR_VARIANT, 0)
+    fun setDynamicColorVariant(variant: Int) {
+        setInt(KEY_DYNAMIC_COLOR_VARIANT, variant)
+    }
 
     fun resetTypography() {
         prefs.edit()

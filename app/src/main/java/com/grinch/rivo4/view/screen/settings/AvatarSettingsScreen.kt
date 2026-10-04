@@ -47,9 +47,6 @@ fun AvatarSettingsScreen(
     val prefs = koinInject<PreferenceManager>()
     val settingsState by prefs.settingsChanged.collectAsState()
 
-    var avatarShape by remember(settingsState) {
-        mutableIntStateOf(prefs.getInt(PreferenceManager.KEY_AVATAR_SHAPE, 0))
-    }
     var showPicture by remember(settingsState) {
         mutableStateOf(prefs.getBoolean(PreferenceManager.KEY_SHOW_PICTURE, true))
     }
@@ -82,37 +79,6 @@ fun AvatarSettingsScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            item {
-                RivoExpressiveGroup(
-                    title = stringResource(R.string.settings_interface_avatar_shape),
-                    icon = Icons.Outlined.Palette
-                ) {
-                    item {
-                        RivoAvatarShapeSelectorRow(
-                            headline = stringResource(R.string.settings_interface_avatar_shape),
-                            supporting = stringResource(R.string.settings_interface_avatar_shape_supporting),
-                            options = listOf(
-                                stringResource(R.string.settings_interface_avatar_shape_squircle) to 0,
-                                stringResource(R.string.settings_interface_avatar_shape_circle) to 1,
-                                stringResource(R.string.settings_interface_avatar_shape_square) to 2,
-                                stringResource(R.string.settings_interface_avatar_shape_cookie) to 3,
-                                stringResource(R.string.settings_interface_avatar_shape_clover) to 4,
-                                stringResource(R.string.settings_interface_avatar_shape_arch) to 5,
-                                stringResource(R.string.settings_interface_avatar_shape_pill) to 6,
-                                stringResource(R.string.settings_interface_avatar_shape_gem) to 7,
-                                stringResource(R.string.settings_interface_avatar_shape_sunny) to 8,
-                                stringResource(R.string.settings_interface_avatar_shape_heart) to 9,
-                                stringResource(R.string.settings_interface_avatar_shape_burst) to 10
-                            ),
-                            selectedValue = avatarShape,
-                            onValueChange = { selected ->
-                                avatarShape = selected
-                                prefs.setInt(PreferenceManager.KEY_AVATAR_SHAPE, selected)
-                            }
-                        )
-                    }
-                }
-            }
 
             item {
                 RivoExpressiveGroup(title = "Display Options", icon = Icons.Outlined.AccountCircle) {

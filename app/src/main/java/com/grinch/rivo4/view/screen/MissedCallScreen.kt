@@ -172,7 +172,7 @@ fun MissedCallScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = stringResource(R.string.notif_channel_missed_calls),
+                                    text = "Call Summary",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface

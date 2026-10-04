@@ -110,7 +110,7 @@
     <string name="default_dialer_set_as_default">Set as default</string>
 
     <!-- Top bar / bottom navigation -->
-    <string name="top_bar_search_placeholder">Search in Rivo</string>
+    <string name="top_bar_search_placeholder">Search in Call Logs/Contacts</string>
     <string name="content_desc_search">Search</string>
 
     <!-- Recents / Call log -->

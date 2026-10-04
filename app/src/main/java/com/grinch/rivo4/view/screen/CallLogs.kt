@@ -278,8 +278,8 @@ fun CallLogFullScreen(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             groupedLogs.entries.forEachIndexed { groupIndex, (header, logsInGroup) ->
                                 item(key = "header_${header}_$groupIndex", contentType = "header") {
@@ -434,13 +434,8 @@ fun CallLogFullScreen(
                                             Box(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .then(
-                                                        if (showCards) {
-                                                            Modifier
-                                                                .clip(shape)
-                                                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                                                        } else Modifier
-                                                    )
+                                                    .clip(shape)
+                                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                                             ) {
                                                 CallLogTileSimple(
                                                 log = lg,
@@ -472,12 +467,6 @@ fun CallLogFullScreen(
                                                     }
                                                 }
                                             )
-                                            }
-                                            if (!showCards && index < logsInGroup.size - 1) {
-                                                HorizontalDivider(
-                                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
-                                                )
                                             }
                                         }
                                     }

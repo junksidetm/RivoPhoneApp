@@ -14,10 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -83,7 +84,7 @@ fun TopBar(navController: NavController, navigator: DestinationsNavigator) {
                 )
                 Surface(
                     onClick = { navigator.navigate(SettingsScreenDestination) },
-                    shape = RoundedCornerShape(14.dp),
+                    shape = CircleShape,
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ) {
@@ -92,7 +93,7 @@ fun TopBar(navController: NavController, navigator: DestinationsNavigator) {
                         modifier = Modifier.size(38.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Tune,
+                            imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.settings_title),
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant

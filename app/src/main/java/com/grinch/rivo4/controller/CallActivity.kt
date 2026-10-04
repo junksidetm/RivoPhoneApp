@@ -253,22 +253,6 @@ class CallActivity : ComponentActivity() {
                                 )
                             }
                             releaseProximityLock()
-                            val isPostCallEnabled = preferenceManager.isPostCallScreenEnabled()
-                            val currentId = identity ?: lastKnownIdentity
-                            delay(350)
-                            if (isPostCallEnabled && currentId != null && lastConnectTime > 0 && !postCallShown) {
-                                val duration = (System.currentTimeMillis() - lastConnectTime) / 1000
-                                if (duration > 0) {
-                                    postCallShown = true
-                                    PostCallActivity.start(
-                                        context = this@CallActivity,
-                                        contactName = currentId.name,
-                                        phoneNumber = currentId.number,
-                                        photoUri = currentId.photoUri,
-                                        durationSeconds = duration
-                                    )
-                                }
-                            }
                             dismissCallScreen()
                         }
 
@@ -276,22 +260,6 @@ class CallActivity : ComponentActivity() {
                     }
 
                     if (session == null) {
-                        val isPostCallEnabled = preferenceManager.isPostCallScreenEnabled()
-                        val currentId = lastKnownIdentity
-                        delay(350)
-                        if (isPostCallEnabled && currentId != null && lastConnectTime > 0 && !postCallShown) {
-                            val duration = (System.currentTimeMillis() - lastConnectTime) / 1000
-                            if (duration > 0) {
-                                postCallShown = true
-                                PostCallActivity.start(
-                                    context = this@CallActivity,
-                                    contactName = currentId.name,
-                                    phoneNumber = currentId.number,
-                                    photoUri = currentId.photoUri,
-                                    durationSeconds = duration
-                                )
-                            }
-                        }
                         if (CallService.allCalls.value.none { it.state != Call.STATE_DISCONNECTED }) {
                             dismissCallScreen()
                         }

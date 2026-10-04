@@ -92,12 +92,11 @@ fun CallAccountsScreen(
     var defaultSim by remember(settingsState) { mutableStateOf(prefs.getInt("default_sim", 0)) }
     var alwaysFullScreenCalls by remember(settingsState) { mutableStateOf(prefs.getBoolean(PreferenceManager.KEY_ALWAYS_FULL_SCREEN_CALLS, false)) }
     var pocketMode by remember(settingsState) { mutableStateOf(prefs.getBoolean(PreferenceManager.KEY_POCKET_MODE, false)) }
-    var postCallSummary by remember(settingsState) { mutableStateOf(prefs.isPostCallScreenEnabled()) }
+    var dualSimButtons by remember(settingsState) { mutableStateOf(prefs.isDualSimDialpadButtonsEnabled()) }
     var missedCallCard by remember(settingsState) { mutableStateOf(prefs.isMissedCallCardEnabled()) }
     var autoDeclineUnknown by remember(settingsState) { mutableStateOf(prefs.isAutoDeclineUnknownEnabled()) }
     var autoDeclineNonContacts by remember(settingsState) { mutableStateOf(prefs.isAutoDeclineNonContactsEnabled()) }
     var autoPasteClipboard by remember(settingsState) { mutableStateOf(prefs.isAutoPasteClipboardEnabled()) }
-    var groupCalls by remember(settingsState) { mutableStateOf(prefs.isCallLogGroupingEnabled()) }
     var callLogLimit by remember(settingsState) { mutableStateOf(prefs.getCallLogLimit()) }
 
     var defaultCallBg by remember(settingsState) { mutableStateOf(CallBackgroundStore.defaultModel(context)) }
@@ -171,8 +170,8 @@ fun CallAccountsScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 80.dp, start = 16.dp, end = 16.dp, top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item {
                     val askEveryTimeLabel = stringResource(R.string.sim_ask_every_time)
@@ -183,6 +182,18 @@ fun CallAccountsScreen(
                                 supporting = if (speedDial) stringResource(R.string.settings_call_enabled) else stringResource(R.string.settings_call_disabled),
                                 leadingIcon = Icons.Outlined.Speed,
                                 onClick = { navigator.navigate(SpeedDialScreenDestination) }
+                            )
+                        }
+                        item {
+                            RivoSwitchListItem(
+                                headline = stringResource(R.string.settings_interface_dual_sim_buttons_title),
+                                supporting = stringResource(R.string.settings_interface_dual_sim_buttons_supporting),
+                                leadingIcon = Icons.Outlined.SimCard,
+                                checked = dualSimButtons,
+                                onCheckedChange = {
+                                    dualSimButtons = it
+                                    prefs.setDualSimDialpadButtonsEnabled(it)
+                                }
                             )
                         }
                         item {
@@ -363,18 +374,6 @@ fun CallAccountsScreen(
                             )
                         }
                         item {
-                            RivoSwitchListItem(
-                                headline = "Group calls",
-                                supporting = "Group consecutive calls from the same contact or number in recents",
-                                leadingIcon = Icons.Outlined.Layers,
-                                checked = groupCalls,
-                                onCheckedChange = {
-                                    groupCalls = it
-                                    prefs.setCallLogGroupingEnabled(it)
-                                }
-                            )
-                        }
-                        item {
                             RivoSelectListItem(
                                 headline = stringResource(R.string.settings_call_log_limit),
                                 supporting = stringResource(R.string.settings_call_log_limit_supporting),
@@ -390,18 +389,6 @@ fun CallAccountsScreen(
                                 onValueChange = {
                                     callLogLimit = it
                                     prefs.setCallLogLimit(it)
-                                }
-                            )
-                        }
-                        item {
-                            RivoSwitchListItem(
-                                headline = "Post-Call Summary",
-                                supporting = "Show call duration and quick actions (call back, SMS, note) after ending a call",
-                                leadingIcon = Icons.Outlined.CallEnd,
-                                checked = postCallSummary,
-                                onCheckedChange = {
-                                    postCallSummary = it
-                                    prefs.setPostCallScreenEnabled(it)
                                 }
                             )
                         }

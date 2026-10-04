@@ -47,6 +47,7 @@ import com.grinch.rivo4.controller.util.normalizePhoneNumber
 import com.grinch.rivo4.view.components.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CallLogFullScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactSelectionScreenDestination
@@ -466,9 +467,6 @@ fun CallLogFullContent(
             mutableStateOf(prefs.getBoolean(com.grinch.rivo4.controller.util.PreferenceManager.KEY_RECENTS_FAVORITES_COLLAPSED, false))
         }
         var showAddFavoriteDialog by remember { mutableStateOf(false) }
-        val showRecentsStats = remember(settingsState) {
-            prefs.isCallAnalyticsTrackingEnabled()
-        }
 
         val favRowState = rememberLazyListState()
         val favItems = remember { mutableStateListOf<Contact>() }
@@ -605,22 +603,6 @@ fun CallLogFullContent(
                         contentPadding = PaddingValues(bottom = 100.dp),
                         verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        if (showRecentsStats && selectedFilter == CallLogFilter.All && logs.isNotEmpty()) {
-                            item {
-                                RecentsDailyStatusHeader(
-                                    totalCalls = todayStats.totalCalls,
-                                    incomingCalls = todayStats.incomingCalls,
-                                    outgoingCalls = todayStats.outgoingCalls,
-                                    missedCalls = todayStats.missedCalls,
-                                    totalDurationSeconds = todayStats.totalDurationSeconds,
-                                    onOpenAnalytics = {
-                                        navigator.navigate(com.ramcosta.composedestinations.generated.destinations.CallAnalyticsScreenDestination())
-                                    },
-                                    modifier = Modifier.padding(vertical = 6.dp)
-                                )
-                            }
-                        }
-
                         if (favorites.isNotEmpty() && selectedFilter == CallLogFilter.All) {
                             item {
                                 Row(
@@ -822,21 +804,30 @@ fun CallLogFullContent(
                                         contact = matchedContact,
                                         displayOrder = displayOrder,
                                         showSim = callLogConfig.showSim,
-                                        isFavorite = lg.contactId != null && lg.contactId in favoriteContactIds,
+                                        isFavorite = false,
                                         swipeEnabled = callLogConfig.swipeEnabled,
                                         swipeRightAction = callLogConfig.swipeRightAction,
                                         swipeLeftAction = callLogConfig.swipeLeftAction,
                                         onTileClick = { log ->
                                             if (selectedEntries.isNotEmpty()) {
                                                 onToggleSelection(log)
-                                            } else {
-                                                navigator.navigate(
-                                                    ContactDetailsScreenDestination(
-                                                        contactId = log.contactId ?: "null",
-                                                        phoneNumber = log.number
-                                                    )
-                                                )
                                             }
+                                        },
+                                        onHistoryClick = { log ->
+                                            navigator.navigate(
+                                                CallLogFullScreenDestination(
+                                                    contactId = log.contactId,
+                                                    phoneNumber = log.number
+                                                )
+                                            )
+                                        },
+                                        onMessageClick = { log ->
+                                            val contact = matchedContact ?: contactsById[log.contactId]
+                                            messageLauncher.sendMessage(log.number, contact)
+                                        },
+                                        onVideoCallClick = { log ->
+                                            val contact = matchedContact ?: contactsById[log.contactId]
+                                            videoLauncher.startVideoCall(log.number, contact)
                                         },
                                         onButtonClick = { log ->
                                             val contact = matchedContact ?: contactsById[log.contactId]
@@ -925,175 +916,5 @@ fun EmptyCallLogsState() {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         )
-    }
-}
-
-@Composable
-fun RecentsDailyStatusHeader(
-    totalCalls: Int,
-    incomingCalls: Int = 0,
-    outgoingCalls: Int = 0,
-    missedCalls: Int = 0,
-    totalDurationSeconds: Long = 0L,
-    onOpenAnalytics: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        // 1. Today (Total Calls)
-        item(key = "today_total") {
-            DailyStatCard(
-                value = "$totalCalls",
-                label = "Today",
-                icon = Icons.AutoMirrored.Filled.CallReceived,
-                containerColor = if (isDark) Color(0xFF253138) else Color(0xFFE2EFF6),
-                badgeColor = if (isDark) Color(0xFF3F596C) else Color(0xFFBEDEEF),
-                iconColor = if (isDark) Color(0xFF73BAE7) else Color(0xFF19658E),
-                valueColor = if (isDark) Color(0xFFEDE8DF) else Color(0xFF16252C),
-                labelColor = if (isDark) Color(0xFFA1AFB6) else Color(0xFF4C6674),
-                onClick = onOpenAnalytics
-            )
-        }
-
-        // 2. Call Time (Total Talk Time)
-        item(key = "today_call_time") {
-            DailyStatCard(
-                value = formatShortDuration(totalDurationSeconds),
-                label = "Call Time",
-                icon = Icons.Outlined.Schedule,
-                containerColor = if (isDark) Color(0xFF3B2E1E) else Color(0xFFFFF4E5),
-                badgeColor = if (isDark) Color(0xFF614A2E) else Color(0xFFFFE0B8),
-                iconColor = if (isDark) Color(0xFFE5B56A) else Color(0xFF875200),
-                valueColor = if (isDark) Color(0xFFEDE8DF) else Color(0xFF2B1D0B),
-                labelColor = if (isDark) Color(0xFFB6A694) else Color(0xFF745738),
-                onClick = onOpenAnalytics
-            )
-        }
-
-        // 3. Incoming (if incomingCalls > 0)
-        if (incomingCalls > 0) {
-            item(key = "today_incoming") {
-                DailyStatCard(
-                    value = "$incomingCalls",
-                    label = "Incoming",
-                    icon = Icons.AutoMirrored.Filled.CallReceived,
-                    containerColor = if (isDark) Color(0xFF1E2F38) else Color(0xFFE0F4FF),
-                    badgeColor = if (isDark) Color(0xFF335566) else Color(0xFFB8E4FF),
-                    iconColor = if (isDark) Color(0xFF5CC4FF) else Color(0xFF00668B),
-                    valueColor = if (isDark) Color(0xFFEDE8DF) else Color(0xFF0F2633),
-                    labelColor = if (isDark) Color(0xFF90B5C6) else Color(0xFF496879),
-                    onClick = onOpenAnalytics
-                )
-            }
-        }
-
-        // 4. Missed
-        item(key = "today_missed") {
-            DailyStatCard(
-                value = "$missedCalls",
-                label = "Missed",
-                icon = Icons.AutoMirrored.Filled.CallMissed,
-                containerColor = if (isDark) Color(0xFF3B252B) else Color(0xFFFFECEF),
-                badgeColor = if (isDark) Color(0xFF6B3B48) else Color(0xFFFFCDD6),
-                iconColor = if (isDark) Color(0xFFE87597) else Color(0xFFBA1A3E),
-                valueColor = if (isDark) Color(0xFFEDE8DF) else Color(0xFF2E151A),
-                labelColor = if (isDark) Color(0xFFB59DA2) else Color(0xFF7E4E57),
-                onClick = onOpenAnalytics
-            )
-        }
-
-        // 5. Outgoing
-        item(key = "today_outgoing") {
-            DailyStatCard(
-                value = "$outgoingCalls",
-                label = "Outgoing",
-                icon = Icons.AutoMirrored.Filled.CallMade,
-                containerColor = if (isDark) Color(0xFF253422) else Color(0xFFEBF7EA),
-                badgeColor = if (isDark) Color(0xFF3D5936) else Color(0xFFC7ECC4),
-                iconColor = if (isDark) Color(0xFF78D78E) else Color(0xFF286D2C),
-                valueColor = if (isDark) Color(0xFFEDE8DF) else Color(0xFF152613),
-                labelColor = if (isDark) Color(0xFFA3B39F) else Color(0xFF4C664A),
-                onClick = onOpenAnalytics
-            )
-        }
-    }
-}
-
-@Composable
-private fun DailyStatCard(
-    value: String,
-    label: String,
-    icon: ImageVector,
-    containerColor: Color,
-    badgeColor: Color,
-    iconColor: Color,
-    valueColor: Color,
-    labelColor: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val roundness = LocalCardRoundness.current
-    Surface(
-        modifier = modifier
-            .width(104.dp)
-            .height(100.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(rivoCornerDp(22, roundness)),
-        color = containerColor
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-        ) {
-            // Top-right circular badge
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.TopEnd)
-                    .clip(CircleShape)
-                    .background(badgeColor),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(17.dp)
-                )
-            }
-
-            // Bottom-left stats
-            Column(
-                modifier = Modifier.align(Alignment.BottomStart)
-            ) {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = if (value.length > 4) 20.sp else 24.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = valueColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.height(1.dp))
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = labelColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
     }
 }

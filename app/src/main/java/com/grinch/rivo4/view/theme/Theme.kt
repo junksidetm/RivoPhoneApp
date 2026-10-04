@@ -32,6 +32,17 @@ fun Rivo4Theme(
     val settingsVersion by prefs.settingsChanged.collectAsState()
     val context = LocalContext.current
 
+    val themeMode = remember(settingsVersion) {
+        prefs.getThemeMode()
+    }
+    val effectiveDarkTheme = remember(themeMode, darkTheme) {
+        when (themeMode) {
+            PreferenceManager.THEME_MODE_LIGHT -> false
+            PreferenceManager.THEME_MODE_DARK -> true
+            else -> darkTheme
+        }
+    }
+
     val dynamicColor = remember(settingsVersion) {
         prefs.getBoolean(PreferenceManager.KEY_DYNAMIC_COLORS, true)
     }
@@ -45,22 +56,22 @@ fun Rivo4Theme(
         prefs.getInt(PreferenceManager.KEY_CARD_ROUNDNESS, RivoShapeDefaults.DefaultRoundness).coerceAtLeast(5)
     }
 
-    val colorScheme = remember(dynamicColor, amoledMode, customPrimaryInt, darkTheme) {
+    val colorScheme = remember(dynamicColor, amoledMode, customPrimaryInt, effectiveDarkTheme) {
         val base = when {
             dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-                if (darkTheme) androidx.compose.material3.dynamicDarkColorScheme(context) else androidx.compose.material3.dynamicLightColorScheme(context)
+                if (effectiveDarkTheme) androidx.compose.material3.dynamicDarkColorScheme(context) else androidx.compose.material3.dynamicLightColorScheme(context)
 
             customPrimaryInt != CUSTOM_PRIMARY_COLOR_UNSET ->
-                rivoColorSchemeFromSeed(customPrimaryInt, darkTheme)
+                rivoColorSchemeFromSeed(customPrimaryInt, effectiveDarkTheme)
 
-            darkTheme -> RivoDarkColorScheme
+            effectiveDarkTheme -> RivoDarkColorScheme
             else -> RivoLightColorScheme
         }
-        if (darkTheme && amoledMode) base.toAmoledColorScheme() else base
+        if (effectiveDarkTheme && amoledMode) base.toAmoledColorScheme() else base
     }
 
     val shapes = remember(cardRoundness) { rivoShapes(cardRoundness) }
-    val callColors = remember(colorScheme, darkTheme) { rivoCallColors(colorScheme, darkTheme) }
+    val callColors = remember(colorScheme, effectiveDarkTheme) { rivoCallColors(colorScheme, effectiveDarkTheme) }
 
     val navBarStyle = remember(settingsVersion) {
         prefs.getInt(PreferenceManager.KEY_NAV_BAR_STYLE, PreferenceManager.NAV_BAR_STYLE_STANDARD)

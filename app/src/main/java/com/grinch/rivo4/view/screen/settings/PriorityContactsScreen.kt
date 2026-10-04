@@ -91,7 +91,7 @@ fun PriorityContactsScreen(
     val priorityContactsList = remember(allContacts, settingsState, displayOrder) {
         val prioritySet = prefs.getPriorityContacts()
         allContacts.filter { contact ->
-            prefs.isPriorityContact(contact.id, contact.phoneNumbers.firstOrNull())
+            contact.isFavorite || prefs.isPriorityContact(contact.id, contact.phoneNumbers.firstOrNull())
         }.sortedWith { c1, c2 -> ContactUtils.compareContacts(c1, c2, displayOrder) }
     }
 
@@ -293,6 +293,13 @@ fun PriorityContactsScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.SemiBold
                                 )
+                                if (contact.isFavorite) {
+                                    Text(
+                                        text = "Starred contact",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                                 val phone = contact.phoneNumbers.firstOrNull()
                                 if (!phone.isNullOrBlank()) {
                                     Text(
@@ -304,6 +311,9 @@ fun PriorityContactsScreen(
                             }
                             IconButton(
                                 onClick = {
+                                    if (contact.isFavorite) {
+                                        contactsVM.toggleFavorite(contact)
+                                    }
                                     prefs.setPriorityContact(contact.id, contact.phoneNumbers.firstOrNull(), false)
                                 }
                             ) {
