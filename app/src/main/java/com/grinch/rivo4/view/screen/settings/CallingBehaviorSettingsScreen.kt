@@ -62,7 +62,7 @@ fun CallingBehaviorSettingsScreen(
             item {
                 RivoExpressiveCard {
                     RivoListItem(
-                        headline = stringResource(R.string.settings_swipe_actions_headline),
+                        headline = stringResource(R.string.settings_swipe_actions_title),
                         supporting = stringResource(R.string.settings_swipe_actions_supporting),
                         leadingIcon = Icons.Outlined.Swipe,
                         trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,

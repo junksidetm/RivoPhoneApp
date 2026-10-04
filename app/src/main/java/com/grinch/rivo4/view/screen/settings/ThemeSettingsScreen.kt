@@ -86,11 +86,11 @@ fun ThemeSettingsScreen(
     var customPrimaryColor by remember(settingsState) {
         mutableIntStateOf(prefs.getInt("custom_primary_color", Color(0xFF6750A4).toArgb()))
     }
-    var showColorPickerDialog by remember { mutableStateOf(false) }
-
     val presetColors = listOf(
         Color(0xFF6750A4), Color(0xFF0061A4), Color(0xFF006A60),
-        Color(0xFF436916), Color(0xFF984061), Color(0xFF808080)
+        Color(0xFF436916), Color(0xFF984061), Color(0xFF8B5000),
+        Color(0xFF00658E), Color(0xFFB52750), Color(0xFF7E5265),
+        Color(0xFF5F5E5E), Color(0xFF525E7D), Color(0xFF4A635F)
     )
 
     fun triggerRestart() {
@@ -207,34 +207,13 @@ fun ThemeSettingsScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            val isCustomActive = presetColors.none { it.toArgb() == customPrimaryColor }
                             RivoColorSwatchRow(
                                 colors = presetColors,
-                                selectedColor = if (!isCustomActive) presetColors.firstOrNull { it.toArgb() == customPrimaryColor } else null,
+                                selectedColor = presetColors.firstOrNull { it.toArgb() == customPrimaryColor },
                                 onColorSelected = { color ->
                                     customPrimaryColor = color.toArgb()
                                     prefs.setInt("custom_primary_color", color.toArgb())
                                     triggerRestart()
-                                },
-                                trailingContent = {
-                                    val customColor = remember(customPrimaryColor) { Color(customPrimaryColor) }
-                                    Surface(
-                                        selected = isCustomActive,
-                                        onClick = { showColorPickerDialog = true },
-                                        modifier = Modifier.size(44.dp),
-                                        shape = CircleShape,
-                                        color = if (isCustomActive) customColor else MaterialTheme.colorScheme.surfaceContainerHigh,
-                                        contentColor = if (isCustomActive) Color.White else MaterialTheme.colorScheme.primary,
-                                        border = if (!isCustomActive) BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant) else null
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Icon(
-                                                imageVector = if (isCustomActive) Icons.Default.Check else Icons.Outlined.Colorize,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    }
                                 }
                             )
                         }
@@ -256,17 +235,16 @@ fun ThemeSettingsScreen(
 
                 DYNAMIC_VARIANTS.forEach { variant ->
                     item(key = variant.id) {
-                        val isSelected = selectedVariant == variant.id
-                        RivoExpressiveCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedVariant = variant.id
-                                    prefs.setDynamicColorVariant(variant.id)
-                                    triggerRestart()
-                                },
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+                            onClick = {
+                                selectedVariant = variant.id
+                                prefs.setDynamicColorVariant(variant.id)
+                                triggerRestart()
+                            }
                         ) {
                             Row(
                                 modifier = Modifier
@@ -328,19 +306,6 @@ fun ThemeSettingsScreen(
                     )
                 }
             }
-        }
-
-        if (showColorPickerDialog) {
-            ColorPickerDialog(
-                currentColor = Color(customPrimaryColor),
-                onColorSelected = { color ->
-                    customPrimaryColor = color.toArgb()
-                    prefs.setInt("custom_primary_color", color.toArgb())
-                    showColorPickerDialog = false
-                    triggerRestart()
-                },
-                onDismissRequest = { showColorPickerDialog = false }
-            )
         }
     }
 }

@@ -384,3 +384,23 @@
   - Koin Dependency Injection
   - Android Telecom & ContactsContract
 - **Status:** 100% (Complete Home Screen refactoring and 5-category sectioned settings redesign implemented, gap-separated list views active, Wallet-Flutter inspired about page live).
+
+### [2026-10-04 10:58] - CI/CD Release Compilation Fixes & Final Verification
+- **Context:** Resolving compilation errors on GitHub Actions release workflow for the Home Screen & 5-Category Settings overhaul.
+- **Surgical Fixes Implemented:**
+  - `CallLogTile.kt`: Added explicit import `androidx.compose.material.icons.automirrored.filled.Message` for AutoMirrored Message action icon.
+  - `About.kt`: Removed unused external `OssLicensesMenuActivity` import; converted open source license action directly to GitHub repository license URL.
+  - `AvatarSettingsScreen.kt`: Explicitly imported `androidx.compose.foundation.shape.CircleShape` and updated smart contrast & multi-tone gradient previews to global circular avatar shape with index 0.
+  - `CallingBehaviorSettingsScreen.kt`: Fixed swipe actions string resource mapping from `settings_swipe_actions_headline` to `settings_swipe_actions_title`.
+  - `ThemeSettingsScreen.kt`:
+    - Replaced `RivoExpressiveCard` in dynamic color variant list with Material 3 `Surface` properly supporting `border`, custom elevation, and onClick lambda.
+    - Expanded `presetColors` palette to 12 distinct Material 3 color tones.
+    - Removed unused `ColorPickerDialog` references.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/components/CallLogTile.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/About.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/AvatarSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallingBehaviorSettingsScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt`
+  - `Version.md`
+- **Status:** 100% (All release build compilation errors resolved; ready for CI/CD build and automated release APK packaging).

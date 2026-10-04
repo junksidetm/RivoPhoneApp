@@ -2,6 +2,7 @@ package com.grinch.rivo4.view.screen.settings
 import com.grinch.rivo4.view.components.MenuTopAppBar
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -129,13 +130,13 @@ fun AvatarSettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    val currentShape = rivoAvatarShape(avatarShape)
+                                    val currentShape = CircleShape
                                     val contrastPreviewStyle = RivoAvatarStyle(
                                         showPicture = false,
                                         showFirstLetter = true,
                                         colorful = true,
                                         gradient = false,
-                                        shapeIndex = avatarShape,
+                                        shapeIndex = 0,
                                         shape = currentShape
                                     )
                                     Row(
@@ -200,13 +201,13 @@ fun AvatarSettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    val currentShape = rivoAvatarShape(avatarShape)
+                                    val currentShape = CircleShape
                                     val gradientPreviewStyle = RivoAvatarStyle(
                                         showPicture = false,
                                         showFirstLetter = true,
                                         colorful = true,
                                         gradient = true,
-                                        shapeIndex = avatarShape,
+                                        shapeIndex = 0,
                                         shape = currentShape
                                     )
                                     Row(

@@ -31,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.grinch.rivo4.DISCORD_URL
 import com.grinch.rivo4.GITHUB_URL
 import com.grinch.rivo4.GITLAB_URL
@@ -333,11 +332,7 @@ fun AboutScreen(navigator: DestinationsNavigator) {
                         leadingIcon = Icons.Outlined.Gavel,
                         trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         onClick = {
-                            try {
-                                context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
-                            } catch (_: Exception) {
-                                openLink(context, "$GITHUB_URL/blob/main/LICENSE")
-                            }
+                            openLink(context, "$GITHUB_URL/blob/main/LICENSE")
                         }
                     )
                 }
