@@ -62,6 +62,8 @@ private val ALL_CALL_BUTTONS = listOf(
     CallButtonItem("add_call", "Add / Merge Call", Icons.Default.Add)
 )
 
+private val BUTTON_MAP = ALL_CALL_BUTTONS.associateBy { it.key }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
 @Composable
@@ -177,7 +179,6 @@ fun CallScreenCustomizeSettingsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Mini representation of active call buttons grid
-                        val buttonMap = remember { ALL_CALL_BUTTONS.associateBy { it.key } }
                         val row1 = buttonOrder.take(3)
                         val row2 = buttonOrder.drop(3).take(3)
 
@@ -186,7 +187,7 @@ fun CallScreenCustomizeSettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             row1.forEach { key ->
-                                val btn = buttonMap[key]
+                                val btn = BUTTON_MAP[key]
                                 if (btn != null) {
                                     Surface(
                                         shape = RoundedCornerShape(16.dp),
@@ -393,10 +394,9 @@ fun CallScreenCustomizeSettingsScreen(
                 )
             }
 
-            val buttonMap = remember { ALL_CALL_BUTTONS.associateBy { it.key } }
             items(buttonOrder.size) { index ->
                 val key = buttonOrder[index]
-                val item = buttonMap[key] ?: CallButtonItem(key, key, Icons.Outlined.Tune)
+                val item = BUTTON_MAP[key] ?: CallButtonItem(key, key, Icons.Outlined.Tune)
                 val isTopRow = index < 3
                 val rowPosition = (index % 3) + 1
 

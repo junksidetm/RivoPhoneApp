@@ -487,3 +487,12 @@
   - `assests/icons/Phone-AppLogo.svg` (Removed)
   - `Version.md` (Appended)
 - **Status:** 100% (Previous app icon fully eradicated; updated green icon live across all build types and in-app surfaces).
+
+### [2026-10-04 19:34] - Fix Composable Scope Invocation in CallScreenCustomizeSettingsScreen
+- **Context:** Resolving build failure on GitHub Actions CI (`CompilationErrorException: @Composable invocations can only happen from the context of a @Composable function`).
+- **Root Cause:** In `CallScreenCustomizeSettingsScreen.kt`, `val buttonMap = remember { ... }` was invoked directly inside `LazyColumn { ... }` block (`LazyListScope`), which is not a `@Composable` lambda scope.
+- **Surgical Fix:** Replaced local `remember` calls with top-level immutable lookup map `private val BUTTON_MAP = ALL_CALL_BUTTONS.associateBy { it.key }`.
+- **Files Modified:**
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/CallScreenCustomizeSettingsScreen.kt`
+  - `Version.md` (Appended)
+- **Status:** 100% (Compilation error resolved cleanly; verified scope adherence).
