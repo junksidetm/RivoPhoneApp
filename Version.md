@@ -412,3 +412,15 @@
   - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ThemeSettingsScreen.kt`
   - `Version.md`
 - **Status:** 100% (Clean code, all compiler references resolved).
+
+### [2026-10-04 11:10] - GitHub Release v2.2.406 Successfully Published
+- **Context:** Automated CI/CD pipeline completion on GitHub Actions.
+- **Workflow Execution:** Run `37180145790` ("Build Production Release APK") passed in 7m8s.
+- **Artifacts Published:**
+  - `RivoPhone-v2.2.406.apk` (Release APK signed with permanent keystore for Obtainium compatibility)
+  - `RivoPhone-v2.2.406.apk.sha256`
+  - `SHA256SUMS.txt`
+  - `SIGNING_CERTIFICATE_SHA256.txt`
+  - `certificate_details.txt`
+- **Release URL:** `https://github.com/junksidetm/RivoPhoneApp/releases/tag/v2.2.406`
+- **Status:** 100% Complete & Verified Live.
