@@ -6,6 +6,10 @@
 
 A clean, open-source dialer and contacts app for Android, built with Jetpack Compose.
 
+[![GitHub Main](https://img.shields.io/badge/GitHub-Main-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/junksidetm/RivoPhoneApp)
+[![Codeberg Mirror](https://img.shields.io/badge/Codeberg-Mirror-2185d0?style=flat-square&logo=codeberg&logoColor=white)](https://codeberg.org/mrdarksidetm/RivoPhoneApp)
+[![GitLab Mirror](https://img.shields.io/badge/GitLab-Mirror-fc6d26?style=flat-square&logo=gitlab&logoColor=white)](https://gitlab.com/mrdarksidetm/RivoPhoneApp)
+[![Upstream Source](https://img.shields.io/badge/Upstream-user--grinch%2FRivoPhoneApp-blue?style=flat-square&logo=github)](https://github.com/user-grinch/RivoPhoneApp)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-2563EB.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/Platform-Android-10B981.svg?style=flat-square&logo=android)](https://www.android.com)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-6366F1.svg?style=flat-square)](https://developer.android.com/jetpack/compose)
@@ -63,7 +67,11 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 
 - **Obtainium**: One-click install & updates via [Obtainium link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.mrdarksidetm.rivo%22,%22url%22:%22https://github.com/junksidetm/RivoPhoneApp%22,%22author%22:%22junksidetm%22,%22name%22:%22RivoPhoneApp%22})
 - **GitHub Releases**: Download production release APKs on [GitHub Releases](https://github.com/junksidetm/RivoPhoneApp/releases)
-- **Source Mirrors**: Available across [GitLab](https://gitlab.com/mrdarksidetm/RivoPhoneApp) and [Codeberg](https://codeberg.org/mrdarksidetm/RivoPhoneApp)
+- **Source Mirrors**:
+  - **Main (GitHub)**: [github.com/junksidetm/RivoPhoneApp](https://github.com/junksidetm/RivoPhoneApp)
+  - **Mirror (Codeberg)**: [codeberg.org/mrdarksidetm/RivoPhoneApp](https://codeberg.org/mrdarksidetm/RivoPhoneApp)
+  - **Mirror (GitLab)**: [gitlab.com/mrdarksidetm/RivoPhoneApp](https://gitlab.com/mrdarksidetm/RivoPhoneApp)
+  - **Upstream Source**: [github.com/user-grinch/RivoPhoneApp](https://github.com/user-grinch/RivoPhoneApp)
 
 ### Note on Updating with Obtainium ("Different Certificate" Warning)
 If you previously installed an older build or the upstream `user-grinch` version and Obtainium shows:

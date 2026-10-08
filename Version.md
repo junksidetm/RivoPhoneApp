@@ -522,3 +522,10 @@
   - `Version.md` (Appended)
 - **Status:** 100% (GitHub Actions CI/CD passed all analysis and packaging gates; Release v2.2.410 live with signed APK and checksum artifacts).
 
+
+### [2026-10-08 18:20:00 IST] - Source Mirrors Documentation Integration
+- **Action**: Added GitHub (Main), Codeberg (Mirror), GitLab (Mirror), and Upstream badges and updated Source Mirrors section in README.md.
+- **Files Modified**:
+  - `README.md`
+  - `Version.md` (Appended)
+- **Status**: 100% (Completed & Synced)
