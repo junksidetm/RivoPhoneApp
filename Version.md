@@ -529,3 +529,11 @@
   - `README.md`
   - `Version.md` (Appended)
 - **Status**: 100% (Completed & Synced)
+
+## [2026-10-09 19:28:00 IST] - Low-Memory Daemon Optimization & GitLab CI Setup
+- **Action**: Optimized `gradle.properties` for 4 GB RAM host environment by capping daemon JVM memory to 2048 MB with G1GC and enabled parallel/caching flags. Added GitLab CI validation pipeline.
+- **Components Modified**:
+  - `gradle.properties`: Adjusted JVM args and enabled caching/parallel execution.
+  - `.gitlab-ci.yml`: Added JDK 17 Gradle wrapper validation pipeline.
+  - `Version.md`: Appended tracking entry.
+- **Status**: 100% (Completed & Synced)
