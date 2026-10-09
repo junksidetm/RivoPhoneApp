@@ -17,6 +17,12 @@ A clean, open-source dialer and contacts app for Android, built with Jetpack Com
 
 <br>
 
+<div align="center">
+  <a href="https://github.com/junksidetm/RivoPhoneApp/releases/download/v2.2.412/RivoPhone-v2.2.412.apk" target="_blank" rel="noopener noreferrer">
+    <img src="https://raw.githubusercontent.com/junksidetm/assests/d8774837b8c8658389ea37193a77a9a100414bc5/Images/badges/SVG%20-%20Version/Android%20Direct%20Link%20Frame.svg" alt="Direct Link" width="210">
+  </a>
+</div>
+
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22:%22com.mrdarksidetm.rivo%22,%22url%22:%22https://github.com/junksidetm/RivoPhoneApp%22,%22author%22:%22junksidetm%22,%22name%22:%22RivoPhoneApp%22}">
   <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/b1c8ac6f2ab08497189721a788a5763e28ff64cd/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="40">
 </a>

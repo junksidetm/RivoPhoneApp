@@ -537,3 +537,9 @@
   - `.gitlab-ci.yml`: Added JDK 17 Gradle wrapper validation pipeline.
   - `Version.md`: Appended tracking entry.
 - **Status**: 100% (Completed & Synced)
+
+## [2026-10-09 22:05:00 IST] - Direct Download Badge Link Resolution
+- **Action**: Wired direct APK download button badge in README.md to the latest production release APK (`RivoPhone-v2.2.412.apk`).
+- **Files Modified**:
+  - `README.md`: Updated Direct Link Frame badge href to direct GitHub release asset endpoint.
+- **Status**: 100% (Completed)
