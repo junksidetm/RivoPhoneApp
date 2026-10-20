@@ -557,3 +557,30 @@
   - `gradle.properties`: Set `org.gradle.configuration-cache=false` and enabled `org.gradle.configureondemand=true`.
   - `Version.md`: Appended tracking entry.
 - **Status**: 100% (Completed & Synced)
+
+## [2026-10-20 18:00:00 IST] - Material 3 Expressive Design Alignment (Autostart Manager Architecture)
+- **Action**: Upgraded Rivo Phone App UI to the latest Material 3 Expressive design standard matching Autostart Manager and Battery Mode Checker aesthetics.
+- **Key Enhancements**:
+  - **Pure White Surface (#FFFFFF)**: Converted light theme surfaces, background, and surfaceBright from off-white `#F8F9FF` to pure `#FFFFFF` across static `RivoLightColorScheme` and dynamic seed generator `rivoColorSchemeFromSeed`, delivering crisp contrast and authentic Material 3 Expressive canvas styling.
+  - **High-Contrast M3 Expressive Switches**: Standardized switch colors with `rivoSwitchColors()`, establishing high-contrast `primary` track with `onPrimary` check-icon thumb when enabled, and `surfaceContainerHighest` track with `outline` thumb and border when disabled. Applied across `RivoSwitchListItem`, `BottomNavScreen`, and `PrivateContactsScreen`.
+  - **M3 Expressive Capsule Pill Filters & Counts**: Upgraded `RivoFilterChip` to 40dp height capsule pill layout with `CircleShape` clipping, animated background transitions (`primary` when selected, `surfaceContainerHigh` when unselected), dynamic content color animation (`onPrimary` vs `onSurfaceVariant`), and optional count badge indicator (`count: Int? = null`).
+  - **Directional Horizontal Swipe Transitions**: Integrated contextual directional `AnimatedContent` horizontal sliding transitions across `Recents.kt` and `CallLogs.kt`. When switching tabs to a higher ordinal (e.g., All to Missed), contents slide right-to-left; when switching to a lower ordinal, contents slide left-to-right.
+  - **Independent Filter Scroll States**: Keyed LazyListState instances per filter tab to prevent scroll-state attachment collisions during `AnimatedContent` concurrent composition frames and retain scroll positions per filter category.
+  - **M3 Expressive Checkbox Styling**: Added `rivoCheckboxColors()` with `primary` active container and `onPrimary` checkmark across `SimPickerDialog`, `ContactSelectionScreen`, and `ContactManagementScreen`.
+- **Files Modified**:
+  - `app/src/main/java/com/grinch/rivo4/view/theme/Color.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/RivoExpressiveUI.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/components/SimPickerDialog.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/Recents.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/CallLogs.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/ContactSelectionScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/BottomNavScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/ContactManagementScreen.kt`
+  - `app/src/main/java/com/grinch/rivo4/view/screen/settings/PrivateContactsScreen.kt`
+  - `Version.md` (Appended)
+- **Libraries & Tools**:
+  - Android Gradle Plugin: `8.13.2`
+  - Kotlin: `2.1.0`
+  - Jetpack Compose BOM: `2025.12.01`
+  - Material 3: `1.5.0-alpha18`
+- **Status**: 100% (Completed & Verified)

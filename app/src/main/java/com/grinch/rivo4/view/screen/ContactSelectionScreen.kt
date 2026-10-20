@@ -484,6 +484,7 @@ fun ContactSelectionScreen(
                                                     selectedPhoneNumbers - cleanQuery
                                                 }
                                             },
+                                            colors = rivoCheckboxColors(),
                                             modifier = Modifier.padding(end = 8.dp)
                                         )
                                     }
@@ -667,7 +668,8 @@ fun ContactSelectionScreen(
                                                             selectedContactIds = selectedContactIds - contact.id
                                                             selectedPhoneNumbers = selectedPhoneNumbers - contact.phoneNumbers.toSet()
                                                         }
-                                                    }
+                                                    },
+                                                    colors = rivoCheckboxColors()
                                                 )
                                             } else if (initialPhoneToAssign != null) {
                                                 Surface(

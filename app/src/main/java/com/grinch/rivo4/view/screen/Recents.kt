@@ -160,19 +160,34 @@ fun RecentScreenContent(
         onSelectionStateChange?.invoke(isSelecting, if (isSelecting) batchActionBar else null)
     }
 
+    val allLogsList by viewModel.allCallLogs.collectAsState()
+    val allCount = allLogsList.size
+    val contactsCount = remember(allLogsList) { allLogsList.count { it.name != null && it.name != it.number } }
+    val incomingCount = remember(allLogsList) { allLogsList.count { it.type == CallLog.Calls.INCOMING_TYPE } }
+    val outgoingCount = remember(allLogsList) { allLogsList.count { it.type == CallLog.Calls.OUTGOING_TYPE } }
+    val missedCount = remember(allLogsList) { allLogsList.count { it.type == CallLog.Calls.MISSED_TYPE } }
+
     val filterChipsRow: @Composable () -> Unit = {
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 2.dp),
+                .padding(vertical = 4.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(CallLogFilter.entries) { filter ->
+                val count = when (filter) {
+                    CallLogFilter.All -> allCount
+                    CallLogFilter.Contacts -> contactsCount
+                    CallLogFilter.Incoming -> incomingCount
+                    CallLogFilter.Outgoing -> outgoingCount
+                    CallLogFilter.Missed -> missedCount
+                }
                 RivoFilterChip(
                     label = filter.displayLabel(),
                     selected = selectedFilter == filter,
                     onClick = { _ -> viewModel.setFilter(filter) },
+                    count = if (allLogsList.isNotEmpty()) count else null,
                     isAllFilter = filter == CallLogFilter.All
                 )
             }
@@ -592,18 +607,46 @@ fun CallLogFullContent(
             ) {
             if (isLoading && logs.isEmpty()) {
                 RivoLoadingIndicatorView(modifier = Modifier.fillMaxSize())
-            } else if (logs.isEmpty() && (favorites.isEmpty() || selectedFilter != CallLogFilter.All)) {
-                EmptyCallLogsState()
             } else {
-                Column(modifier = Modifier.fillMaxSize()) {
-
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 100.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        if (favorites.isNotEmpty() && selectedFilter == CallLogFilter.All) {
+                AnimatedContent(
+                    targetState = selectedFilter,
+                    transitionSpec = {
+                        if (targetState.ordinal > initialState.ordinal) {
+                            (slideInHorizontally(animationSpec = tween(220)) { width -> width } + fadeIn(animationSpec = tween(220)))
+                                .togetherWith(slideOutHorizontally(animationSpec = tween(220)) { width -> -width } + fadeOut(animationSpec = tween(220)))
+                        } else {
+                            (slideInHorizontally(animationSpec = tween(220)) { width -> -width } + fadeIn(animationSpec = tween(220)))
+                                .togetherWith(slideOutHorizontally(animationSpec = tween(220)) { width -> width } + fadeOut(animationSpec = tween(220)))
+                        }
+                    },
+                    label = "recents_filter_animation",
+                    modifier = Modifier.fillMaxSize()
+                ) { currentFilter ->
+                    val filterLogs = remember(logs, currentFilter, blockLogVisibility) {
+                        val baseLogs = if (blockLogVisibility == 0) logs.filter { !it.isBlocked } else logs
+                        when (currentFilter) {
+                            CallLogFilter.All -> baseLogs
+                            CallLogFilter.Missed -> baseLogs.filter { it.type == CallLog.Calls.MISSED_TYPE }
+                            CallLogFilter.Incoming -> baseLogs.filter { it.type == CallLog.Calls.INCOMING_TYPE }
+                            CallLogFilter.Outgoing -> baseLogs.filter { it.type == CallLog.Calls.OUTGOING_TYPE }
+                            CallLogFilter.Contacts -> baseLogs.filter { it.name != null && it.name != it.number }
+                        }
+                    }
+                    if (filterLogs.isEmpty() && (favorites.isEmpty() || currentFilter != CallLogFilter.All)) {
+                        EmptyCallLogsState()
+                    } else {
+                        val currentGroupedLogs = remember(filterLogs) {
+                            filterLogs.groupBy { formatDateHeader(context, it.date) }
+                        }
+                        val filterListState = if (currentFilter == CallLogFilter.All) listState else rememberLazyListState()
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                state = filterListState,
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(bottom = 100.dp),
+                                verticalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                if (favorites.isNotEmpty() && currentFilter == CallLogFilter.All) {
                             item {
                                 Row(
                                     modifier = Modifier
@@ -761,7 +804,7 @@ fun CallLogFullContent(
                             }
                         }
 
-                        groupedLogs.entries.forEachIndexed { groupIndex, (header, logsInGroup) ->
+                        currentGroupedLogs.entries.forEachIndexed { groupIndex, (header, logsInGroup) ->
                             item(key = "header_${header}_$groupIndex", contentType = "header") {
                                 RivoSectionHeader(
                                     title = header,
@@ -869,6 +912,8 @@ fun CallLogFullContent(
                         }
                     }
                 }
+            }
+            }
             }
             }
         }

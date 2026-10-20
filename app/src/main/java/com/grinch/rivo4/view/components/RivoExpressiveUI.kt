@@ -19,6 +19,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -751,6 +753,23 @@ fun RivoListItem(
 }
 
 @Composable
+fun rivoSwitchColors(): SwitchColors = SwitchDefaults.colors(
+    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+    checkedTrackColor = MaterialTheme.colorScheme.primary,
+    checkedBorderColor = Color.Transparent,
+    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+    uncheckedBorderColor = MaterialTheme.colorScheme.outline
+)
+
+@Composable
+fun rivoCheckboxColors(): CheckboxColors = CheckboxDefaults.colors(
+    checkedColor = MaterialTheme.colorScheme.primary,
+    checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+    uncheckedColor = MaterialTheme.colorScheme.outline
+)
+
+@Composable
 fun RivoSwitchListItem(
     headline: String,
     supporting: String? = null,
@@ -779,6 +798,7 @@ fun RivoSwitchListItem(
             Switch(
                 checked = checked,
                 onCheckedChange = if (enabled) onCheckedChange else null,
+                colors = rivoSwitchColors(),
                 enabled = enabled,
                 thumbContent = {
                     AnimatedContent(
@@ -864,53 +884,75 @@ fun RivoFilterChip(
     selected: Boolean,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    count: Int? = null,
     isAllFilter: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     enabled: Boolean = true
 ) {
-    val roundness = LocalCardRoundness.current
-    FilterChip(
-        selected = selected,
-        onClick = { onClick(label) },
-        label = {
-            Text(
-                text = label,
-                style = if (selected) {
-                    MaterialTheme.typography.labelLargeEmphasized
-                } else {
-                    MaterialTheme.typography.labelLarge
-                }
-            )
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHigh
         },
-        shapes = FilterChipDefaults.shapes(
-            shape = RoundedCornerShape(rivoCornerDp(RivoShapeDefaults.BaseLargeIncreased, roundness)),
-            selectedShape = RoundedCornerShape(rivoCornerDp(RivoShapeDefaults.BaseSmall, roundness)),
-            pressedShape = RoundedCornerShape(rivoCornerDp(RivoShapeDefaults.BaseExtraSmall, roundness))
-        ),
-        modifier = modifier,
-        enabled = enabled,
-        colors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        leadingIcon = leadingIcon ?: if (isAllFilter) {
-            {
+        label = "pill_bg"
+    )
+
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        label = "pill_fg"
+    )
+
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .clickable(enabled = enabled) { onClick(label) }
+            .padding(horizontal = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+                Spacer(modifier = Modifier.width(6.dp))
+            } else if (isAllFilter) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                    tint = contentColor,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                color = contentColor,
+                maxLines = 1,
+                softWrap = false
+            )
+            if (count != null) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "($count)",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    color = contentColor.copy(alpha = if (selected) 0.95f else 0.8f),
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
-        } else {
-            null
-        },
-        border = null,
-        elevation = null
-    )
+        }
+    }
 }
 
 @Composable

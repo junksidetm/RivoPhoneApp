@@ -17,6 +17,7 @@ import android.provider.CallLog
 import android.telecom.TelecomManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -234,10 +235,20 @@ fun CallLogFullScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(CallLogFilter.entries) { filter ->
-                        RivoFilterChip(filter.displayLabel(), selectedFilter == filter, {
-                            _ ->
-                            viewModel.setFilter(filter)
-                        }, isAllFilter = filter == CallLogFilter.All)
+                        val count = when (filter) {
+                            CallLogFilter.All -> filteredLogsByContact.size
+                            CallLogFilter.Missed -> filteredLogsByContact.count { it.type == CallLog.Calls.MISSED_TYPE }
+                            CallLogFilter.Incoming -> filteredLogsByContact.count { it.type == CallLog.Calls.INCOMING_TYPE }
+                            CallLogFilter.Outgoing -> filteredLogsByContact.count { it.type == CallLog.Calls.OUTGOING_TYPE }
+                            CallLogFilter.Contacts -> filteredLogsByContact.count { it.name != null && it.name != it.number }
+                        }
+                        RivoFilterChip(
+                            label = filter.displayLabel(),
+                            selected = selectedFilter == filter,
+                            onClick = { _ -> viewModel.setFilter(filter) },
+                            count = if (filteredLogsByContact.isNotEmpty()) count else null,
+                            isAllFilter = filter == CallLogFilter.All
+                        )
                     }
                 }
 
@@ -259,27 +270,43 @@ fun CallLogFullScreen(
                         }
                     }
                 } else {
-                    val finalLogs = remember(filteredLogsByContact, selectedFilter) {
-                        when (selectedFilter) {
-                            CallLogFilter.All -> filteredLogsByContact
-                            CallLogFilter.Missed -> filteredLogsByContact.filter { it.type == CallLog.Calls.MISSED_TYPE }
-                            CallLogFilter.Incoming -> filteredLogsByContact.filter { it.type == CallLog.Calls.INCOMING_TYPE }
-                            CallLogFilter.Outgoing -> filteredLogsByContact.filter { it.type == CallLog.Calls.OUTGOING_TYPE }
-                            CallLogFilter.Contacts -> filteredLogsByContact.filter { it.name != null && it.name != it.number }
+                    AnimatedContent(
+                        targetState = selectedFilter,
+                        transitionSpec = {
+                            if (targetState.ordinal > initialState.ordinal) {
+                                (slideInHorizontally(animationSpec = tween(220)) { width -> width } + fadeIn(animationSpec = tween(220)))
+                                    .togetherWith(slideOutHorizontally(animationSpec = tween(220)) { width -> -width } + fadeOut(animationSpec = tween(220)))
+                            } else {
+                                (slideInHorizontally(animationSpec = tween(220)) { width -> -width } + fadeIn(animationSpec = tween(220)))
+                                    .togetherWith(slideOutHorizontally(animationSpec = tween(220)) { width -> width } + fadeOut(animationSpec = tween(220)))
+                            }
+                        },
+                        label = "calllogs_filter_transition",
+                        modifier = Modifier.fillMaxSize()
+                    ) { currentFilter ->
+                        val finalLogs = remember(filteredLogsByContact, currentFilter) {
+                            when (currentFilter) {
+                                CallLogFilter.All -> filteredLogsByContact
+                                CallLogFilter.Missed -> filteredLogsByContact.filter { it.type == CallLog.Calls.MISSED_TYPE }
+                                CallLogFilter.Incoming -> filteredLogsByContact.filter { it.type == CallLog.Calls.INCOMING_TYPE }
+                                CallLogFilter.Outgoing -> filteredLogsByContact.filter { it.type == CallLog.Calls.OUTGOING_TYPE }
+                                CallLogFilter.Contacts -> filteredLogsByContact.filter { it.name != null && it.name != it.number }
+                            }
                         }
-                    }
 
-                    if (finalLogs.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.call_log_no_filter_match), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    } else {
-                        val groupedLogs = remember(finalLogs) {
-                            finalLogs.groupBy { formatDateHeader(context, it.date) }
-                        }
+                        if (finalLogs.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(stringResource(R.string.call_log_no_filter_match), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else {
+                            val groupedLogs = remember(finalLogs) {
+                                finalLogs.groupBy { formatDateHeader(context, it.date) }
+                            }
 
-                        LazyColumn(
-                            state = listState,
+                            val filterListState = if (currentFilter == CallLogFilter.All) listState else rememberLazyListState()
+
+                            LazyColumn(
+                                state = filterListState,
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -477,6 +504,7 @@ fun CallLogFullScreen(
                             }
                             item(key = "bottom_spacer") { Spacer(modifier = Modifier.height(100.dp)) }
                         }
+                    }
                     }
                 }
             }

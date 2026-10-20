@@ -32,6 +32,7 @@ import com.grinch.rivo4.view.components.RivoExpressiveCard
 import com.grinch.rivo4.view.components.RivoExpressiveGroup
 import com.grinch.rivo4.view.components.RivoInteractiveFloatingBarSlider
 import com.grinch.rivo4.view.components.RivoSwitchListItem
+import com.grinch.rivo4.view.components.rivoSwitchColors
 import com.grinch.rivo4.view.components.RivoVisualOptionSelectorRow
 import com.grinch.rivo4.view.components.navigationTabIcon
 import com.grinch.rivo4.view.components.navigationTabLabel
@@ -219,6 +220,7 @@ fun BottomNavScreen(
                                 }
                                 Switch(
                                     checked = isVisible,
+                                    colors = rivoSwitchColors(),
                                     enabled = !isVisible || visibleTabs.size > 1,
                                     onCheckedChange = { checked ->
                                         val newHidden = if (checked) hidden - tabId else hidden + tabId

@@ -1159,7 +1159,8 @@ fun MoveContactsSelectionDialog(
                                 checked = isChecked,
                                 onCheckedChange = { checked ->
                                     selectedIds = if (checked) selectedIds + contact.id else selectedIds - contact.id
-                                }
+                                },
+                                colors = rivoCheckboxColors()
                             )
                             Spacer(Modifier.width(8.dp))
                             RivoAvatar(name = contact.name, photoUri = contact.photoUri, modifier = Modifier.size(36.dp))

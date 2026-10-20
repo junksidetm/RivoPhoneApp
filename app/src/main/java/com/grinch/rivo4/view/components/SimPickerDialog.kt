@@ -114,7 +114,8 @@ fun SimPickerDialog(
                 ) {
                     Checkbox(
                         checked = rememberForContact,
-                        onCheckedChange = { rememberForContact = it }
+                        onCheckedChange = { rememberForContact = it },
+                        colors = rivoCheckboxColors()
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(

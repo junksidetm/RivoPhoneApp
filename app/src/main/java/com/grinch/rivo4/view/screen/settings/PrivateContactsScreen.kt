@@ -640,6 +640,7 @@ fun PrivateContactsScreen(
                     Switch(
                         checked = hideFromSettings,
                         onCheckedChange = { hideFromSettings = it },
+                        colors = rivoSwitchColors(),
                         thumbContent = {
                             AnimatedContent(
                                 targetState = hideFromSettings,
